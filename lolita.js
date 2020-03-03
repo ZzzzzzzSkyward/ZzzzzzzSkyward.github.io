@@ -21,4 +21,3 @@ setAttr("alias","fontSize",lol.fontSize/2);
 setAttr("title","fontSize",lol.fontSize*2);
 }
 window.onresize=setAll;
-
