@@ -1,1 +1,30 @@
-
+#hidden{
+  display:none;
+}
+.content{
+  margin:0;
+  padding:0;
+  position:absolute;
+  font-size:20px;
+  font-family:"Times New Roman";
+}
+#title{
+  font-family:"Adobe Garamond",optima,caslon,"New Roman";
+  text-align:center;
+  font-size:100px;
+}
+#author{
+  font-family:Arial,Adele;
+  text-align:right;
+}
+#quote{
+  margin-left:10px;
+  border-left-color:yellow;
+  border-left-size:5px;
+  color:rgb(50,50,50);
+}
+#alias{
+  font-size:10px;
+  color:rgb(100,100,255);
+  text-decoration:underline;
+}
