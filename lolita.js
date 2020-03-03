@@ -8,12 +8,12 @@ lol.width=document.body.clientWidth;
 lol.height=document.body.clientHeight;
 if(lol.width>lol.height){
 //PC
-lol.finalWidth=lol.height/2;
+lol.finalWidth=lol.height/1.3;
 }else{
 lol.finalWidth=lol.width;
 }
 lol.fontSize=lol.finalWidth/30;
-lol.left=(lol.width-lol.finalWidth)/1.3;
+lol.left=(lol.width-lol.finalWidth)/2;
 getById("content").style.left=lol.left;
 getById("content").style.fontSize=lol.fontSize;
 getById("content").style.width=lol.finalWidth;
