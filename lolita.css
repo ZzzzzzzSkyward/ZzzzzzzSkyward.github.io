@@ -1,30 +1,40 @@
-#hidden{
+.hidden{
   display:none;
 }
-.content{
+#content{
   margin:0;
   padding:0;
   position:absolute;
   font-size:20px;
   font-family:"Times New Roman";
 }
-#title{
+div{
+  display:block;
+  text-indent:2em;
+}
+.title{
   font-family:"Adobe Garamond",optima,caslon,"New Roman";
   text-align:center;
   font-size:100px;
 }
-#author{
+.author{
   font-family:Arial,Adele;
   text-align:right;
 }
-#quote{
-  margin-left:10px;
+.quote{
+  margin-left:2em;
   border-left-color:yellow;
-  border-left-size:5px;
-  color:rgb(50,50,50);
+  border-left-width:0.5em;
+  color:rgb(90,50,50);
+  border-left-style:solid;
 }
-#alias{
+.alias{
   font-size:10px;
   color:rgb(100,100,255);
-  text-decoration:underline;
 }
+.chapter{
+  text-align:center;
+  line-height:4em;
+}
+.announce{
+  line-height:1em!important;
