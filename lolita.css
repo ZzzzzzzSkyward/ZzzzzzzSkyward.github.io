@@ -1,6 +1,12 @@
 .hidden{
   display:none;
 }
+p{
+  margin:0;
+  padding:0;
+  text-indent:2em;
+  line-height:1.3em;
+}
 #content{
   margin:0;
   padding:0;
@@ -15,9 +21,11 @@ div{
 .title{
   font-family:"Adobe Garamond",optima,caslon,"New Roman";
   text-align:center;
+  text-indent:0px;
   font-size:100px;
 }
 .author{
+  text-indent:0px;
   font-family:Arial,Adele;
   text-align:right;
 }
@@ -36,6 +44,7 @@ div{
   text-align:center;
   line-height:4em;
 }
-
 .announce{
   line-height:1em!important;
+  text-indent:0px!important;
+}
