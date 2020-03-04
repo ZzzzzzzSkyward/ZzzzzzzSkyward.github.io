@@ -21,3 +21,4 @@ setAttr("alias","fontSize",lol.fontSize/2+"px");
 setAttr("title","lineHeight",lol.height-lol.fontSize-10+"px");
 setAttr("title","fontSize",lol.fontSize*2+"px");
 }
+
