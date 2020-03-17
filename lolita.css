@@ -60,3 +60,12 @@ div{
 .onvisit{
   border-bottom-color:blue;
 }
+.footnotecontent{
+  position:absolute;
+  left:0px;
+  right:0px;
+  padding-left:1em;
+  padding-right:1em;
+  border-top: 2px solid red;
+  border-bottom: 2px solid red;
+}
