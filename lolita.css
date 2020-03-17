@@ -62,10 +62,14 @@ div{
 }
 .footnotecontent{
   position:absolute;
+  background-color:white;
   left:0px;
   right:0px;
   padding-left:1em;
   padding-right:1em;
   border-top: 2px solid red;
   border-bottom: 2px solid red;
+}
+.footnotecontainer{
+  display:none;
 }

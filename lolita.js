@@ -1,5 +1,6 @@
 var getById=function(id){return document.getElementById(id);}
 var getByClass=function(className){return document.getElementsByClassName(className);}
+var newElement=function(name){return document.createElement(name);}
 var setAttr=function(name,key,value){var i;for(i of getByClass(name)){i.style[key]=value;}}
 var setAll=function(){
 console.log(1);
@@ -21,4 +22,35 @@ setAttr("alias","fontSize",lol.fontSize/2+"px");
 setAttr("title","lineHeight",lol.height-lol.fontSize-10+"px");
 setAttr("title","fontSize",lol.fontSize*2+"px");
 }
-
+var showNote=function(element){
+var container=newElement("div");
+container.className="footnotecontent";
+container.setAttribute("key",element.getAttribute("key"));
+container.style.bottom=document.body.scrollHeight-element.offsetTop;
+container.innerHTML=getById(element.getAttribute("key")).innerHTML;
+getById("content").appendChild(container);
+}
+var hideNote=function(element){
+  for(let i of getByClass("footnotecontent")){
+    if(i.getAttribute("key")===element.getAttribute("key")){
+      getById("content").removeChild(i);
+      break;
+    }
+  }
+}
+var controlCenter=function(eventE){
+  if(this.onvisit){
+    this.onvisit=0;
+    hideNote(this);
+    this.className="footnoteword";
+  }else{
+    this.onvisit=1;
+    showNote(this);
+    this.className+=" onvisit"
+  }
+}
+var bindNotes=function(){
+  for(let i of getByClass("footnoteword")){
+    i.onclick=controlCenter;
+  }
+}
