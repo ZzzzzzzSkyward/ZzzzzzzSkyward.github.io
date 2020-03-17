@@ -4,6 +4,7 @@
 p{
   margin:0;
   padding:0;
+  overflow-wrap:break-word;
   text-indent:2em;
   line-height:1.3em;
 }
