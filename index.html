@@ -4,13 +4,18 @@
 <script>
 if     (window.location.pathname=="/anol") {window.location.replace("./anol.html");}
 else if(window.location.pathname=="/sanol"){window.location.replace("./sanol.html");}
+var num=0;
+var txt=[">-<","-_-","`-`","$_$","(-_-)","|_|","\\[^-^]/"];
+function alter(eventE){eventE.innerText=txt[num++];if(num==txt.length){num=0;}}
+function reduce(eventE){if(eventE.innerText.length>1){eventE.innerText=eventE.innerText.substr(1,(eventE.innerText.length));}}
 </script>
 </head>
 <body>
-<p style='font-size:100px;'>
->_<404
-<br/>
-阿耶，这里啥都没
+<div style='font-size:100px;text-align:center;position:absolute;margin:0;padding:0;top:5%;left:5%;width:90%;height:95%;line-height:1em;overflow:visible;'>
+<p style="margin:0;">404</p>
+<p style="margin-top:0;" onclick="alter(this);">>_<</p>
+<p style="margin:0;padding-top:0px;padding-bottom:12px;border-color:red;border-width:5px;border-top-style:solid;border-bottom-style:solid;" onclick="reduce(this);">阿耶，这里啥都没
 </p>
+</div>
 </body>
 </html>
