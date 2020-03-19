@@ -4,13 +4,16 @@
 p{
   margin:0;
   padding:0;
-  overflow-wrap:break-word;
   text-indent:2em;
   line-height:1.3em;
+  overflow-wrap:break-word;
 }
 #content{
+  padding-left:2px;
+  padding-right:2px;
   margin:0;
-  padding:0;
+  padding-bottom:0;
+  padding-top:0;
   position:absolute;
   font-size:20px;
   font-family:"Times New Roman";
@@ -32,8 +35,9 @@ div{
 }
 .quote{
   margin-left:2em;
+  padding-left:0.5em;
   border-left-color:yellow;
-  border-left-width:0.5em;
+  border-left-width:0.25em;
   color:rgb(90,50,50);
   border-left-style:solid;
 }
@@ -73,4 +77,10 @@ div{
 }
 .footnotecontainer{
   display:none;
+}
+.comment{
+  border-top: 2px solid red;
+  border-bottom: 2px solid red;
+  margin:0;
+  padding-left:0.5em;
 }
