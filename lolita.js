@@ -63,9 +63,93 @@ function randint(min,max){
     return Math.round(rnd)+min;
   }
 }
+function randtxt(length){
+	var code="qwertyuiopasdfghjklzxcvbnm$";
+	var text="";
+	var i=0;
+	for(;i<length;i++){
+		text+=code.charAt(randint(0,code.length));
+	}
+	return text;
+}
 function randomrgba(){
   return "rgba("+randint(0,255)+","+randint(0,255)+","+randint(0,255)+","+randint(0,255)+")";
 }
 function randommargin(){
   return randint(0,10)+"px"
+}
+var nodeStack=[];
+var index=0;
+function paragraph(text){
+  var node=newElement("p");
+  node.innerHTML=text;
+  if(nodeStack[index].className.search("quote")>-1){
+    index--;
+  }
+  nodeStack[index].appendChild(node);
+}
+function quote(text){
+  var node=newElement("p");
+  node.innerHTML=text;
+  if(nodeStack[index].className.search("quote")===-1){
+   var container=newElement("div");
+   container.className="quote";
+   nodeStack[index].appendChild(container);
+   index++;
+   nodeStack[index]=container;
+  }
+  nodeStack[index].appendChild(node);
+}
+function alias(text){
+  return "<span class='alias'>"+text+"</span>"
+}
+function footnote(link,text){
+  var node=newElement("div");
+  node.innerHTML=text;
+  node.className="footnotecontainer";
+  node.id=randtxt(10);
+  document.body.appendChild(node);
+  return "<span class='footnoteword' key='"+node.id+"'>"+link+"</span>";
+} 
+function title(text){
+  var node=newElement("div");
+  node.innerHTML=text;
+  node.className="chapter";
+  while(nodeStack[index].className.search("quote")>-1){
+    index--;
+  }
+  nodeStack[index].appendChild(node);
+}
+function pg(){
+	var arg="<p>";
+	for(var i=0;i<arguments.length;i++){
+		arg+=arguments[i];
+		arg+="</p><p>";
+	}
+	return arg+"</p>";
+}
+function startquote(){
+	return "<div class='quote'>";
+}
+function endquote(){
+	return "</div>";
+}
+function render(essay){
+	nodeStack[0]=getById("content");
+	var node;
+	if(essay.title){
+		node=newElement("div");
+		node.className="title";
+		node.innerHTML=essay.title
+		nodeStack[index].appendChild(node);
+	}
+	if(essay.author){
+		node=newElement("div");
+		node.className="author";
+		node.innerHTML=essay.author;
+		nodeStack[index].appendChild(node);
+	}
+	if(essay.content){
+		essay.content();
+	}
 }

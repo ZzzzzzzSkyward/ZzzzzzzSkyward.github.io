@@ -48,6 +48,7 @@ div{
 .chapter{
   text-align:center;
   line-height:4em;
+  text-indent:0;
 }
 .announce{
   line-height:1em!important;
