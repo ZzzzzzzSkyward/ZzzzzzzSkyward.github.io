@@ -1,10 +1,10 @@
+const lol={};
 var getById=function(id){return document.getElementById(id);}
 var getByClass=function(className){return document.getElementsByClassName(className);}
 var newElement=function(name){return document.createElement(name);}
 var setAttr=function(name,key,value){var i;for(i of getByClass(name)){i.style[key]=value;}}
 var setAttreach=function(name,key,func){var i;for(i of getByClass(name)){i.style[key]=func(i);}}
 var setAll=function(){
-var lol={};
 lol.width=document.body.clientWidth;
 lol.height=document.body.clientHeight;
 if(lol.width>lol.height){
@@ -25,17 +25,29 @@ setAttreach("comment","borderColor",randomrgba);
 setAttreach("comment","marginTop",randommargin);
 }
 var showNote=function(element){
-var container=newElement("div");
-container.className="footnotecontent";
-container.setAttribute("key",element.getAttribute("key"));
-container.style.bottom=document.body.scrollHeight-element.offsetTop;
-container.innerHTML=getById(element.getAttribute("key")).innerHTML;
-getById("content").appendChild(container);
+	console.log(element.offsetLeft,document.body.offsetWidth);
+	var container=newElement("div");
+    container.className="footnotecontent";
+	container.setAttribute("key",element.getAttribute("key"));
+	container.style.bottom=document.body.scrollHeight-element.offsetTop+10;
+	container.innerHTML=getById(element.getAttribute("key")).innerHTML;
+	getById("content").appendChild(container);
+	var tri=newElement("div");
+	tri.className="triangle";
+	tri.setAttribute("key",element.getAttribute("key"));
+	tri.style.top=element.offsetTop-12;
+	var temp;
+		temp=element.offsetLeft+element.offsetWidth/2-10;
+	if(temp<0){temp=0;}
+	if(temp>lol.finalWidth){temp=lol.finalWidth-20;}
+	tri.style.left=temp;
+	getById("content").appendChild(tri);
 }
 var hideNote=function(element){
   for(let i of getByClass("footnotecontent")){
     if(i.getAttribute("key")===element.getAttribute("key")){
-      getById("content").removeChild(i);
+      getById("content").removeChild(i.nextSibling);
+	  getById("content").removeChild(i);
       break;
     }
   }
