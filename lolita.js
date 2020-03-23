@@ -38,6 +38,7 @@ var showNote=function(element){
 	tri.style.top=element.offsetTop-12;
 	var temp;
 		temp=element.offsetLeft+element.offsetWidth/2-10;
+	alert(element.offsetLeft,element.offsetWidth,element.offsetLeft+element.offsetWidth/2-10);
 	if(temp<0){temp=0;}
 	if(temp>lol.finalWidth){temp=lol.finalWidth-20;}
 	tri.style.left=temp;
