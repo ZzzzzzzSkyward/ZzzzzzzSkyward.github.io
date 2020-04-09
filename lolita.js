@@ -25,7 +25,6 @@ setAttreach("comment","borderColor",randomrgba);
 setAttreach("comment","marginTop",randommargin);
 }
 var showNote=function(element){
-	console.log(element.offsetLeft,document.body.offsetWidth);
 	var container=newElement("div");
     container.className="footnotecontent";
 	container.setAttribute("key",element.getAttribute("key"));
@@ -38,7 +37,6 @@ var showNote=function(element){
 	tri.style.top=element.offsetTop-12;
 	var temp;
 		temp=element.offsetLeft+element.offsetWidth/2-10;
-	//alert(element.offsetLeft,element.offsetWidth,element.offsetLeft+element.offsetWidth/2-10);
 	if(temp<0){temp=0;}
 	if(temp>lol.finalWidth){temp=lol.finalWidth-20;}
 	tri.style.left=temp;
@@ -123,7 +121,14 @@ function footnote(link,text){
   node.id=randtxt(10);
   document.body.appendChild(node);
   return "<span class='footnoteword' key='"+node.id+"'>"+link+"</span>";
-} 
+}
+function comment(text){
+  var node=newElement("div");
+  node.innerHTML=text;
+  node.className="comment";
+  getById("content").appendChild(node);
+}
+
 function title(text){
   var node=newElement("div");
   node.innerHTML=text;
