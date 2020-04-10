@@ -22,7 +22,7 @@ setAttr("alias","fontSize",lol.fontSize/2+"px");
 setAttr("title","lineHeight",lol.height-lol.fontSize-10+"px");
 setAttr("title","fontSize",lol.fontSize*2+"px");
 setAttreach("comment","borderColor",randomrgba);
-setAttreach("comment","marginTop",randommargin);
+setAttreach("comment","color",randomrgba);
 }
 var showNote=function(element){
 	var container=newElement("div");
@@ -121,6 +121,14 @@ function footnote(link,text){
   node.id=randtxt(10);
   document.body.appendChild(node);
   return "<span class='footnoteword' key='"+node.id+"'>"+link+"</span>";
+}
+function dialog(speaker,text){
+  var node=newElement("p");
+  var len=speaker.length;
+  node.innerHTML=speaker+text;
+  node.style.textIndent=0-len+"em";
+  node.style.paddingLeft=len+2+"em";
+  getById("content").appendChild(node);
 }
 function comment(text){
   var node=newElement("div");
