@@ -1,6 +1,6 @@
 @font-face{
   font-family:"title_font";
-  src:url('adobe-garamond-2.otf') format('otf');
+  src:url('adobe-garamond-2.otf');
   font-weight: normal;
   font-style: normal;
 }
@@ -30,7 +30,7 @@ div{
   text-indent:2em;
 }
 .title{
-  font-family:title_font;
+  font-family:"title_font";
   text-align:center;
   text-indent:0px;
   font-size:100px;
