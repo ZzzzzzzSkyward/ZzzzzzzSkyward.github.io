@@ -74,7 +74,7 @@ var essay=[
         {
             title:"电脑上需要用到的一些资源和技术",
             content:["下载以下浏览器：Google Chrome或Edge Chrome。另外，我个人还推荐Mozilla Firefox","使用能够穿越GFW（The Great Firewall of China）的技术，由于方法较多，故不再提供","注册Microsoft账号与Google账号",
-                "下载适用的浏览器插件","访问维基（wiki）","造访Facebook、Twitter、Quora等网站（或许还有Pixiv、YouTube和Pornhub）","使用百度、必应（国际版）、谷歌、搜狗等搜索引擎。","在一些优质资源里查找，如知乎、豆瓣、贴吧。",
+                "下载适用的浏览器插件","访问维基（wiki）：比百度百科靠谱吧，但是最好看英文版，还要看编辑者是否专业（最近看到法轮功的词条，上面写的什么乱七八糟的东西）","造访Facebook、Twitter、Quora等网站（或许还有Pixiv、YouTube和Pornhub）","使用百度、必应（国际版）、谷歌、搜狗等搜索引擎。","在一些优质资源里查找，如知乎、豆瓣、贴吧。",
                 "使用有道词典、百度翻译、谷歌翻译（translate.google.<b>cn</b>是谷歌全家桶里唯一没有被墙的）进行翻译，并用牛津词典、Merriam-Webster词典查词","试用划词翻译","在维普、万方、中国知网、谷歌学术与北京大学图书馆上搜索论文",
                 "在software.上下载正版的Word 2019、Excel 2019、PowerPoint 2019以及其他合用的软件，如Matlab、Photoshop等","【计算机相关专业】注册Github账号，学习Markdown格式，并创建一个自己的仓库"
             ]
@@ -82,6 +82,10 @@ var essay=[
         {
             title:"打卡景点",
             content:["红湖","朗润园","北京大学图书馆的期刊阅览室"]
+        },
+        {
+            title:"学习与了解当今世界的政治格局",
+            content:["上了大学仍然是有政治课的，不过即使不是为了上课的需要，多了解一下这个世界也是不错的","目标：学会批判性思考，树立制度自信，提高国民平均政治素养",{title:"现略举一些例子：",content:["全球化，自由主义，民族主义与逆向民族主义，世界今后的潮流","普世价值是否存在，如自由、民主等","中国的现代化进程","台湾的民主化"]},"一些东西，比如美国的反智主义、香港、女拳（区分真正需要保护的人，区分混淆视听的新闻（如把女性受害新闻中的阶级矛盾说成男女矛盾），参考平权主义、女性主义、后现代主义（不好意思跑到艺术去了）），看看笑笑就行（也值得思考）；另一些东西，比如全面掌握公权力的跨国资产阶级，是我们作为这个时代的人必须要去面对的。",{title:"就我国制度而言，制度自信主要体现在以下几个问题：",content:["一、我国的民主集中制曾经发生过什么问题，我们现在的民主专制是不是独裁，为什么我国要选择这么搞，我们以后要怎么完善这个制度。（或者继续问，民主与独裁有没有优劣之分，为什么中华民国搞民主失败了（到台湾去又成功了），而美国搞民主成功了；美国的民主现在面临什么问题）","二、中美之间曾经是什么样的关系，现在如何，今后如何，美国需要走什么样的道路，中国又如何（因此可以知道为什么有人向往/厌恶美国，有人喜爱/憎恨中国共产党）。","三、中国共产党社会主义初级阶段的路线，对比其他资本主义国家，社会主义的优越性体现在哪里，中国共产党的性质在过往七十余年间发生了变化什么"]}]
         }
 ];
 document.body.onscroll=function () {
@@ -91,27 +95,26 @@ document.body.onscroll=function () {
 function render(arr){
     for(let i of arr){
         let node=ctecls("p","title"+currentDepth);
-        if(i.title){
-            node.innerHTML=i.title;
-            gbyid("content").appendChild(node);
+        if(typeof i=="object"){
+            currentDepth++;
+            if(i.title){
+                node.innerHTML=i.title;
+                gbyid("content").appendChild(node);
+            }
+            render(i.content);
+            currentDepth--;
         }
-        if(i.content){
-            if((typeof i.content[0])==="object") {
-                currentDepth++;
-                render(i.content);
-                currentDepth--;
-            }
-            else{
-                for(let j of i.content) {
-                    let ano=ctecls("p","content"+currentDepth);
-                    ano.innerHTML = j;
-                    gbyid("content").appendChild(ano);
-                }
-            }
+        else{
+            node.innerHTML=i;
+            gbyid("content").appendChild(node);
         }
     }
 }
 render(essay);
 setTimeout(function() {
     gbyid("wrong_presentation").style.display = "none";
+    gbycls("title")[0].style.transition="color 1s linear";
+    gbycls("subtitle")[0].style.transition="color 1s linear";
+    gbycls("title")[0].style.color="rgb(255,255,255)";
+    gbycls("subtitle")[0].style.color="rgb(255,255,255)";
 },0);
