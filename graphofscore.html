@@ -1,0 +1,59 @@
+<html>
+    <head></head>
+    <body>
+        <style>
+            .rect{
+                position: absolute;
+                height:45px;
+                background-color:red;
+                display: block;
+                border-left:0px solid azure;
+            }
+            .val{
+                position: absolute;
+                height:50px;
+                display: block;
+                font-size: 20px;
+            }
+        </style>
+        <div id="graph"></div>
+        <script>
+            var store=[];
+var score=[695];
+var sum=[];
+var h=0,delta=50;
+var rec=function(v){
+    for(var i=0;i<v.length;i++){
+    store[store.length]=v[i]-sum.length?sum[sum.length-1]:0;
+    sum[sum.length]=v[i];
+        score[score.length]=score[score.length-1]-1;
+    }
+};
+var rect=function(vn,val,score){
+    var node=document.getElementById("graph");
+    var n=document.createElement("div");
+    n.className="rect";
+    n.style.width=(val-vn)/10;
+    n.style.top=h;
+    n.style.borderLeftWidth=vn/10;
+    var b=document.createElement("p");
+    b.innerText=score;
+    b.style.top=h;
+    h+=delta;
+    b.className="val";
+    node.appendChild(n);
+    node.appendChild(b);
+};
+var render=function(){
+    for(var i=0;i<sum.length;i++){
+        rect(store[i],sum[i],score[i]);
+    }
+};
+rec([
+330,368,421,480,530,609,682,767,844,924,1010,1100,1203,1325,1453,1566,1737,1875,2008,2173,2359,2560,2764,2979,3173,3357,3577,3830,4107,4360,4654,4923,5241,5544,5850,6191,6534,6898,7285,7626,8018,8424,8856,9265,9718,10204,10674,11134,11590,12107,12631,13153,13654
+]);
+render();
+render2();
+        </script>
+    </body>
+</html>
