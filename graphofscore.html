@@ -17,7 +17,7 @@
                 height:45px;
                 background-color:red;
                 display: block;
-                border-left:0px solid azure;
+                border-right:0px solid azure;
             }
             .val{
                 position: absolute;
@@ -45,7 +45,7 @@ var rect=function(vn,val,score){
     n.className="rect";
     n.style.width=(val-vn)/10;
     n.style.top=h;
-    n.style.borderLeftWidth=vn/10;
+    n.style.borderRightWidth=vn/10;
     var b=document.createElement("p");
     b.innerText=score+'/'+val;
     b.style.top=h;
