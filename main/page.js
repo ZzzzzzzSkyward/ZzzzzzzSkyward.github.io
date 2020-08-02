@@ -26,6 +26,10 @@ var addFromRawText=function(text,keyword,name){
     addSearchMethod(name,text.replace(keyword,"{keyword}"));
 };
 var initializer=function(){
+    if(!zzz.value.search){
+        setTimeout(initializer,1);
+        return;
+    }
     zzz.value.search.forEach(function (item,index,array) {
         addSearchMethod(item[0],item[1]);
     });
