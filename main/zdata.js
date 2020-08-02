@@ -1,0 +1,185 @@
+zzz.value.ajaxinfo={
+    100:"客户必须继续发出请求",
+    101:"客户要求服务器根据请求转换HTTP协议版本",
+    200:"交易成功",
+    201:"提示知道新文件的URL",
+    202:"接受和处理、但处理未完成",
+    203:"返回信息不确定或不完整",
+    204:"请求收到，但返回信息为空",
+    205:"服务器完成了请求，用户代理必须复位当前已经浏览过的文件",
+    206:"服务器已经完成了部分用户的GET请求",
+    300:"请求的资源可在多处得到",
+    301:"删除请求数据",
+    302:"在其他地址发现了请求数据",
+    303:"建议客户访问其他URL或访问方式",
+    304:"客户端已经执行了GET，但文件未变化",
+    305:"请求的资源必须从服务器指定的地址得到",
+    306:"前一版本HTTP中使用的代码，现行版本中不再使用",
+    307:"申明请求的资源临时性删除",
+    400:"错误请求，如语法错误",
+    401:"请求授权失败",
+    402:"保留有效ChargeTo头响应",
+    403:"请求不允许",
+    404:"没有发现文件、查询或URl",
+    405:"用户在Request-Lne字段定义的方法不允许",
+    406:"根据用户发送的Accept拖，请求资源不可访问",
+    407:"类似401，用户必须首先在代理服务器上得到授权",
+    408:"客户端没有在用户指定的饿时间内完成请求",
+    409:"对当前资源状态，请求不能完成",
+    410:"服务器上不再有此资源且无进一步的参考地址",
+    411:"服务器拒绝用户定义的Content-Length属性请求",
+    412:"一个或多个请求头字段在当前请求中错误",
+    413:"请求的资源大于服务器允许的大小",
+    414:"请求的资源URL长于服务器允许的长度",
+    415:"请求资源不支持请求项目格式",
+    416:"请求中包含Range请求头字段，在当前请求资源范围内没有range指示值，请求也不包含f-Range请求头字段",
+    417:"服务器不满足请求Expect头字段指定的期望值，如果是代理服务器，可能是下一级服务器不能满足请求",
+    500:"服务器产生内部错误",
+    501:"服务器不支持请求的函数",
+    502:"服务器暂时不可用，有时是为了防止发生系统过载",
+    503:"服务器过载或暂停维修",
+    504:"关口过载，服务器使用另一个关口或服务来响应用户，等待时间设定值较长",
+    505:"服务器不支持或拒绝支请求头中指定的HTTP版本"
+};
+zzz.value.fontFamily={
+    1:{ch:"宋体",en:"SimSun"},
+    2:{ch:"黑体",en:"SimHei"},
+    3:{ch:"微软雅黑",en:"Microsoft Yahei"},
+    4:{ch:"楷体",en:"KaiTi"},
+    5:{ch:"新宋体",en:"NSimSun"},
+    6:{ch:"仿宋",en:"FangSong"},
+    7:{ch:"华文黑体",en:"STHeiti"},
+    8:{ch:"华文楷体",en:"STKaiti"},
+    9:{ch:"华文宋体",en:"STSong"},
+    10:{ch:"华文仿宋",en:"STFangsong"},
+    11:{ch:"华文中宋",en:"STZhongsong"},
+    12:{ch:"华文琥珀",en:"STHupo"},
+    13:{ch:"华文新魏",en:"STXinwei"},
+    14:{ch:"华文隶书",en:"STLiti"},
+    15:{ch:"华文行楷",en:"STXingkai"},
+    16:{ch:"隶书",en:"LiSu"},
+    17:{ch:"华文细黑",en:"STXihei"},
+    18:{ch:"方正舒体",en:"FZShuTi"},
+    19:{ch:"方正姚体",en:"FZYaoti"},
+    20:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    21:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    22:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    23:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    24:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    25:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    26:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+};
+zzz.value.event={
+    abort:"图像加载中断"
+    ,blur:"失去焦点"
+    ,change:"内容改变"
+    ,click:"单击"
+    ,dblclick:"双击"
+    ,error:"文档、图像加载出错"
+    ,focus:"获得焦点"
+    ,keydown:"按下键"
+    ,keypress:"按住键"
+    ,keyup:"松开键"
+    ,load:"文档、图像加载完成"
+    ,mousedown:"鼠标按下"
+    ,mousemove:"鼠标移动"
+    ,mouseout:"鼠标移出元素"
+    ,mouseover:"鼠标移到元素上"
+    ,mouseup:"鼠标松开"
+    ,resize:"调整尺寸"
+    ,select:"选中文本"
+    ,submit:"提交"
+    ,unload:"关闭页面"
+    ,visibilitychange:"页面可视性AP"
+    //HTML 5
+    ,drag:"拖动元素"
+    ,dragend:"拖动结束"
+    ,dragenter:"拖入"
+    ,dragleave:"拖出"
+    ,dragover:"在元素内部拖动"
+    ,dragstart:"拖动开始"
+    ,drop:"放下元素"
+    //wheel event
+    ,scroll:"鼠标滚轮滚动"
+    //media event
+    ,pause:"暂停"
+    ,play:"播放"
+    ,progress:"获取数据"
+    ,ratechange:"速率改变"
+    ,readystatechange:"准备就绪"
+    ,stalled:"无法获取数据"
+    ,timeupdate:"跳转"
+    ,volumechange:"改变音量"
+    ,waiting:"开始等待缓冲"
+    //fullscreen API
+    ,fullscreenchange:"全屏开启或退出"
+    ,fullscreenerror:"设置全屏出错"
+};
+zzz.value.validCharacter="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+zzz.value.keyCode= {
+    1:"leftbutton",
+    2:"rightbutton",
+    4:"middlebutton",
+    8:"backspace",
+    9:"tab",
+    13:"enter",
+    16:"shift",
+    17:"ctrl",
+    18:"alt",
+    19:"pause",
+    20:"capslock",
+    27:"esc",
+    33:"pageup",
+    34:"pagedown",
+    35:"end",
+    36:"home",
+    37:"leftarrow",
+    38:"uparrow",
+    39:"rightarrow",
+    40:"downarrow",
+    44:"printscreen",
+    45:"insert",
+    46:"delete",
+    91:"winl",
+    92:"winr",
+    106:"*num",
+    107:"+num",
+    109:"-num",
+    110:".num",
+    111:"/num",
+    144:"numlock",
+    145:"scrolllock",
+    186:";",
+    187:"=",
+    188:",",
+    189:"-",
+    190:".",
+    191:"/",
+    192:"`",
+    219:"[",
+    220:"\\",
+    222:"'"
+
+};
+zzz.value.convertTokey=function (code) {
+    if(code>=48&&code<=57) return code-48+"";
+    else if(code>=58&&code<=90) return String.fromCharCode(code).toLowerCase();
+    else if(code>=96&&code<=105) return code-96+"num";
+    else if(code>=112&&code<=123) return "F"+(code-111);
+    else return zzz.value.keyCode[code];
+};
+zzz.value.domain=new Set([
+    "biz","com","edu","gov","info","int","mil","name","net","org","pro","xyz","aero","cat","coop","jobs","museum","travel","mobi","asia","tel","xxx","arpa","root","tel","example","invalid","test",
+       "ac","ad","ae","af","ag","ai","al","am","an","ao","aq","ar","as","at","au","aw","az","ba","bb","bd","be","bf","bg","bh","bi","bj","bm","bn","bo","br","bs","bt","bv","bw","by","bz","ca","cc","cd","cf","cg","ch","ci","ck","cl","cm","cn","co","cr","cu","cv","cx","cy","cz","de","dj","dk","dm","do","dz","ec","ee","eg","er","es","et","eu","fi","fj","fk","fm","fo","fr","ga","gd","ge","gf","gg","gh","gi","gl","gm","gn","gp","gq","gr","gs","gt","gu","gw","gy","hk","hm","hn","hr","ht","hu","id","ie","il","im","in","io","iq","ir","is","it","je","jm","jo","jp","ke","kg","kh","ki","km","kn","kr","kw","ky","kz","la","lb","lc","li","lk","lr","ls","lt","lu","lv","ly","ma","mc","md","me","mg","mh","mk","ml","mm","mn","mo","mp","mq","mr","ms","mt","mu","mv","mw","mx","my","mz","na","nc","ne","nf","ng","ni","nl","no","np","nr","nu","nz","om","pa","pe","pf","pg","ph","pk","pl","pm","pn","pr","ps","pt","pw","py","qa","re","ro","ru","rw","sa","sb","sc","sd","se","sg","sh","si","sk","sl","sm","sn","so","sr","st","sv","sy","sz","tc","td","tf","tg","th","tj","tk","tl","tm","tn","to","tr","tt","tv","tw","tz","ua","ug","uk","us","uy","uz","va","vc","ve","vg","vi","vn","vu","wf","ws","ye","yt","yu","za","zm","zw"
+]);
+zzz.value.search=[
+    ["baidu","http://www.baidu.com/s?wd={keyword}"],//si,ie,..
+    ["bing-cn","https://cn.bing.com/search?&q={keyword}"],
+    ["bing-en","https://cn.bing.com/search?&q={keyword}&ensearch=1"],
+    ["google","https://www.google.com/search?q={keyword}"],
+    ["zhihu","https://www.zhihu.com/search?type=content&q={keyword}"],
+    ["github","https://github.com/search?q={keyword}"],
+    ["taobao","https://s.taobao.com/search?q={keyword}"],
+    ["bilibili","https://search.bilibili.com/all?keyword={keyword}"]
+    
+];

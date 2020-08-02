@@ -1,0 +1,82 @@
+/*
+version 1.0
+author zzzzzzzs
+ */
+/*
+选择器：[title=ttt]选择title="ttt"
+[title~=ttt]选择title="12 ff ttt"
+[title|=ttt]选择title="ttt-dfdf"（开头ttt）
+
+
+
+
+ */
+/*
+PART 1 basics
+*/
+body {
+    overflow: hidden;
+}
+
+.hidden {
+    visibility: hidden;
+    opacity: 0;
+    display: block;
+    position: fixed;
+}
+#main{
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+/*
+PART 2 page
+*/
+.standard_font{
+    font-family: "Times New Roman","Century","汉仪中宋简";
+}
+.search_bar{
+    display: block;
+    border-color: black;
+    border-width: 2px;
+    border-style: solid;
+    background-color: rgba(255,255,255,0.3);
+    position: relative;
+    width: 50%;
+    left:25%;
+    top:35%;
+    min-height: 20%;
+    margin: 0;
+    overflow: hidden;
+    color: rgba(73, 70, 168, 0.9);
+    line-height: 1em;
+    word-wrap: break-word;
+}
+.search_bar:hover{
+    filter: brightness(1.5);
+}
+.search_bar:focus{
+    outline: none;
+}
+.search_engine{
+    position: relative;
+    width: 50%;
+    background-color: black;
+    left:25%;
+    top:35%;
+    color: aliceblue;
+    font-size: 50px;
+    border: 2px solid white;
+}
+.search_engine:focus{
+    outline: none;
+}
+/*
+PART 3 filter
+*/
+.smooth{
+    transition: all 1s linear;
+}
