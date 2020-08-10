@@ -1,4 +1,5 @@
 var searchMethod={};
+var pagejs=1;
 var searchSettings={
     defalut:"bing-cn",
     current:"bing-cn",
@@ -8,7 +9,8 @@ var searchSettings={
         "zh":"zhihu",
         "gg":"google",
         "sg":"sougou"
-    }
+    },
+    jump:{}
 };
 /*
 list={
@@ -84,6 +86,11 @@ var interpretCmd=function () {
     cmdLine[cmdLine.length-1]=cmdLine[cmdLine.length-1].replace(/[\n ]/g,"");
     console.log(cmdLine);
     var i=0;
+    //jump
+    if(searchSettings.jump[cmdLine[0]]){
+        zzz.browser.open(searchSettings.jump[cmdLine[0]]);
+        return;
+    }
     //set a search engine.
     if(cmdLine[0]==="set"){
         //inspect validity
@@ -123,6 +130,7 @@ var interpretCmd=function () {
         else zzz.browser.open(convertTextToSearch(searchSettings.current, text));
     }
 };
+
 var initializer=function(){
     if(!zzz.value.search){
         setTimeout(initializer,1);
