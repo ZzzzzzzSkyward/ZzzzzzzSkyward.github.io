@@ -129,6 +129,7 @@ zzz.value.keyCode= {
     19:"pause",
     20:"capslock",
     27:"esc",
+    32:"blank",
     33:"pageup",
     34:"pagedown",
     35:"end",
@@ -180,6 +181,8 @@ zzz.value.search=[
     ["zhihu","https://www.zhihu.com/search?type=content&q={keyword}"],
     ["github","https://github.com/search?q={keyword}"],
     ["taobao","https://s.taobao.com/search?q={keyword}"],
-    ["bilibili","https://search.bilibili.com/all?keyword={keyword}"]
-    
+    ["bilibili","https://search.bilibili.com/all?keyword={keyword}"],
+    ["m.bilibili","https://m.bilibili.com/search?keyword={keyword}"]
+
 ];
+zzz.value.webURL=["https://github.com/ZzzzzzzSkyward/ZzzzzzzSkyward.github.io/blob/master/index.html"];

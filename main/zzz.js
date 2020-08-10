@@ -307,10 +307,10 @@ zzz.storage={
             this.db=window.localStorage;
             this.get=function (key) {
                 return window.localStorage.getItem(key)||null;
-            }
+            };
             this.set=function (key,value) {
                 return window.localStorage.setItem(key,value);
-            }
+            };
             this.del=function (key) {
                 return window.localStorage.removeItem(key);
             }
@@ -704,7 +704,34 @@ zzz.message={
     }
 };
 
+//fetch API
+//simple fetch=get
+zzz.fetch=function(url,callback){
 
+};
+zzz.fetch.post=function(url,data,callback){
+
+};
+zzz.ajax={
+    create:function (settings) {
+        if(!settings.url) return;
+        var ajax=new XMLHttpRequest();
+        ajax.onreadystatechange=settings.callback;
+        if(settings.timeout){
+            ajax.timeout=settings.timeout;
+        }
+        if(settings.ontimeout){
+            ajax.ontimeout=settings.ontimeout;
+        }
+
+        ajax.open(settings.method||"GET",settings.url,settings.async===undefined?true:settings.async);
+        ajax.send(settings.data);
+    },
+    judge:function (xmlhttp) {
+        //1=pending 0=fail 2=success
+        return xmlhttp.readyState===4?(xmlhttp.status===200?2:0):1;
+    }
+};
 //canvas
 zzz.paint={
   get:function (element) {
@@ -851,6 +878,53 @@ zzz.editor={
     }
 };
 
+//web connection API
+zzz.web={
+  status:{
+      wifi:false,
+      web:false,
+      foreign:false,
+      temp:false
+  },
+    init:function(){
+      this.test("wifi");
+      this.test("web");
+      this.test("foreign");
+    },
+  test:function(type){
+      if(type==="wifi"){
+
+      }
+      else if(type==="web"){
+          for(let i of zzz.value.webURL){
+            if(zzz.web.test(i)){
+                zzz.web.status.web=true;
+                return true;
+            }
+          }
+          zzz.web.status.web=false;
+          return false;
+      }
+      else if(type==="foreign"){
+          for(let i of zzz.value.foreignURL){
+              if(zzz.web.test(zzz.value)){
+                  zzz.web.status.foreign=true;
+                  return true;
+              }
+          }
+          zzz.web.status.foreign=false;
+          return false;
+      }
+      else{
+          //common url
+          zzz.ajax.create({url:type,async:false},function (resp) {
+            if(zzz.ajax.judge(resp)===2) zzz.web.status.temp=true;
+            else if(zzz.ajax.judge(resp)===0) zzz.web.status.temp=false;
+          });
+          return zzz.web.status.temp;
+      }
+  }
+};
 
 //overall initialize
 zzz.init=function () {
@@ -859,4 +933,4 @@ zzz.init=function () {
     zzz.browser.init();
 };
 
-setTimeout(zzz.init,1);
+zzz.init();
