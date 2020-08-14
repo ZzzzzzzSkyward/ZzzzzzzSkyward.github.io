@@ -195,7 +195,7 @@ zzz.value.translation={
         to:"zh"
     },
     engine: {
-        baidu:"http://api.fanyi.baidu.com/api/trans/vip/translate?q={text}&from={fromLanguage}&to={toLanguage}&appid={id}&salt={salt}&sign={sign}"
+        baidu:"https://api.fanyi.baidu.com/api/trans/vip/translate?q={text}&from={fromLanguage}&to={toLanguage}&appid={id}&salt={salt}&sign={sign}"
     },
     token:{
         baidu: "V3VDYX2naJAEBev1upFy"
