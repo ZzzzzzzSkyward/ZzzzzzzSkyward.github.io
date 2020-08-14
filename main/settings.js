@@ -17,7 +17,6 @@ var settingsInit=function() {
     });
 //缩写跳转（书签）（快捷方式）
     zzz.addAttr(searchSettings.jump, {
-        "股票": "https://weibo.com/u/6500648590?profile_ftype=1&is_all=1#_0"
     });
 //缩写
     zzz.addAttr(searchSettings.short, {
