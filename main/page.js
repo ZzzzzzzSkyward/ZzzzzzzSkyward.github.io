@@ -10,7 +10,9 @@ var searchSettings={
         "gg":"google",
         "sg":"sougou"
     },
-    jump:{}
+    jump:{},
+    bar:zzz.get.id("search_bar"),
+    engine:zzz.get.cls("search_engine")[0]
 };
 /*
 list={
@@ -81,7 +83,7 @@ var savePreferrence=function () {
     zzz.storage.set("preferredSearchEngine",searchSettings.current);
 };
 var interpretCmd=function () {
-    var text=zzz.get.id("search_bar").innerText;
+    var text=searchSettings.bar.innerText;
     var cmdLine=text.split(" ");
     cmdLine[cmdLine.length-1]=cmdLine[cmdLine.length-1].replace(/[\n ]/g,"");
     console.log(cmdLine);
@@ -97,40 +99,130 @@ var interpretCmd=function () {
         if(searchSettings.short[cmdLine[1]]) cmdLine[1]=searchSettings.short[cmdLine[1]];
         if(searchMethod[cmdLine[1]]){
             searchSettings.current=cmdLine[1];
-            zzz.get.cls("search_engine")[0].innerText=cmdLine[1];
+            searchSettings.engine.innerText=cmdLine[1];
         }
         else{
-            let a=zzz.get.style(zzz.get.cls("search_engine")[0],"backgroundColor");
-            zzz.get.cls("search_engine")[0].style.backgroundColor="rgba(255,100,100,0.5)";
+            let a=zzz.get.style(searchSettings.engine,"backgroundColor");
+            searchSettings.engine.style.backgroundColor="rgba(255,100,100,0.5)";
             setTimeout(function () {
-                zzz.set.style(zzz.get.cls("search_engine")[0],"backgroundColor",a);
+                zzz.set.style(searchSettings.engine,"backgroundColor",a);
             },1000);
         }
+    }
+    //random integer
+    else if(cmdLine[0]==="random"){
+        if(!cmdLine[1]) cmdLine[1]="0";
+        if(!cmdLine[2]) cmdLine[2]="1";
+        if(!cmdLine[3]) cmdLine[3]="=";
+        cmdLine[4]=zzz.random.int(zzz.toNum(cmdLine[1]),zzz.toNum(cmdLine[2])).toString();
+        searchSettings.bar.innerText=cmdLine.join(" ");
+    }
+    //translate
+    else if(cmdLine[0]==="translate"||cmdLine[0]==="fanyi"||cmdLine[0]==="fy"){
+        if(!cmdLine[1]) return;
+        else{
+            let text=cmdLine.join(" ");
+            text=text.slice(cmdLine[0].length);
+            searchSettings.bar.innerText=text+" = ...";
+            let translate=function(resp){
+                searchSettings.bar.innerText=searchSettings.bar.innerText.replace("...","");
+                searchSettings.bar.innerText+=resp.dst;
+            };
+            zzz.api.translation.translate(text,translate);
+        }
+    }
+    //current time
+    else if(cmdLine[0]==="time"&&(cmdLine.length===1||cmdLine[1]==="=")){
+        searchSettings.bar.innerText="time = "+zzz.time.getTime().reverse().join(":");
+    }
+    //current date
+    else if(cmdLine[0]==="date"&&(cmdLine.length===1||cmdLine[1]==="=")){
+        searchSettings.bar.innerText="date = "+zzz.time.getDate().reverse().join(".")+" "+zzz.value.weekday[zzz.time.getWeek(zzz.time.now())]+"day";
     }
     //bg for background
     else if(cmdLine[0]==="bg"){
         //verify
-        //TODO : verify?
-        var n=zzz.create("img");
-        zzz.set(n,"src",cmdLine[1]);
-        zzz.addAttr(n.style,{
-            position: "absolute",
-            display: "block",
-            visibility: "hidden"
-        });
-        document.body.appendChild(n);
-        //use
-        zzz.get.id("main").style.backgroundImage="url('"+cmdLine[1]+"')";
-        zzz.storage.set("backgroundImageURL",cmdLine[1]);
+        //bing fix
+        if(cmdLine[1]==="bing") cmdLine[1]=zzz.api.bingWallpaper.rand();
+        var verification=function (node,success) {
+            if(success&&node.complete===true){
+                zzz.get.id("main").style.backgroundImage="url('"+cmdLine[1]+"')";
+                zzz.storage.set("backgroundImageURL",cmdLine[1]);
+            }else{
+                searchSettings.engine.innerText="image unavailable";
+                setTimeout(function () {
+                    zzz.appendAttr(searchSettings.engine,"innerText",searchSettings.current);
+                },1000);
+            }
+        };
+        zzz.ajax.get("img",cmdLine[1],verification);
     }
     //default: search something
     else{
-        var method=zzz.get.cls("search_engine")[0].innerText;
+        var method=searchSettings.current;
         if(method in searchMethod) zzz.browser.open(convertTextToSearch(method, text));
         else zzz.browser.open(convertTextToSearch(searchSettings.current, text));
     }
+    resizer();
 };
-
+var resizer=function () {
+    //console.log(searchSettings.bar.innerText.length*zzz.value.homepage.ft*zzz.value.homepage.search_bar,zzz.toNum(zzz.get.style(searchSettings.bar,"width")));
+    while(searchSettings.bar.innerText.length*zzz.value.homepage.ft>=zzz.value.homepage.search_bar*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
+        zzz.value.homepage.ft/=2;
+        zzz.value.homepage.search_bar*=2;
+        zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft+"px");
+    }
+    while(zzz.value.homepage.search_bar>1&&searchSettings.bar.innerText.length*zzz.value.homepage.ft*2<(zzz.value.homepage.search_bar/2)*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
+        zzz.value.homepage.ft*=2;
+        zzz.value.homepage.search_bar/=2;
+        zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft+"px");
+    }
+};
+var gadget={
+  clock:{
+      getTime:function () {
+          var info=zzz.time.now();
+          return [info.hour,info.minute,info.second];
+      },
+      getDate:function () {
+          var info=zzz.time.now();
+          var weekday=(new Date()).getDay()||7;
+          return [info.day,info.month,info.year,weekday];
+      },
+      create_number:function (parentNode) {
+          if(!parentNode) return;
+          var x=zzz.get.style(parentNode,"width"),y=zzz.get.style(parentNode,"height");
+          var node=zzz.create("div");
+          var style={
+            height:"100%",
+            width:"100%",
+              position:"relative",
+              top:0,
+              left:0,
+              fontSize:y
+          };
+          zzz.addAttr(node.style,style);
+          node.className="standard_font";
+          zzz.value.time=this.getTime();
+          parentNode.appendChild(node);
+          if(!zzz.value.clocks) {
+              zzz.value.clocks = [];
+              setInterval(this.refresh,1000);
+          }
+          zzz.value.clocks[zzz.value.clocks.length]=node;
+      },
+      refresh:function () {
+          var i=gadget.clock.getTime();
+          for(let j of zzz.value.clocks){
+              let txt=[i[0].toString(),i[1].toString(),i[2].toString()];
+              if(i[0]<10) txt[0]="0"+txt[0];
+              if(i[1]<10) txt[1]="0"+txt[1];
+              if(i[2]<10) txt[2]="0"+txt[2];
+              j.innerText=txt.join(" ");
+          }
+      }
+  }
+};
 var initializer=function(){
     if(!zzz.value.search){
         setTimeout(initializer,1);
@@ -141,30 +233,18 @@ var initializer=function(){
     });
     zzz.value.homepage={};
     zzz.value.homepage.search_bar=1;
-    zzz.incidence.bind(zzz.get.id("search_bar"),"keydown",function (e) {
+    zzz.incidence.bind(searchSettings.bar,"keydown",function (e) {
     var n=zzz.incidence.interpret(e).key;
     if(zzz.value.convertTokey(n)==="enter") {
         interpretCmd(e);
         e.preventDefault();
     }
-    else{
-        if(zzz.get.id("search_bar").innerText.length*zzz.value.homepage.ft>=zzz.value.homepage.search_bar*zzz.toNum(zzz.get.style(zzz.get.id("search_bar"),"width"))){
-            console.log(zzz.get.id("search_bar").innerText.length*zzz.value.homepage.ft*zzz.value.homepage.search_bar,zzz.toNum(zzz.get.style(zzz.get.id("search_bar"),"width")));
-            zzz.value.homepage.ft/=2;
-            zzz.value.homepage.search_bar*=2;
-            zzz.set.style(zzz.get.id("search_bar"),"fontSize",zzz.value.homepage.ft+"px");
-        }
-        else if(zzz.value.homepage.search_bar>1&&zzz.get.id("search_bar").innerText.length*zzz.value.homepage.ft*2<(zzz.value.homepage.search_bar/2)*zzz.toNum(zzz.get.style(zzz.get.id("search_bar"),"width"))){
-            zzz.value.homepage.ft*=2;
-            zzz.value.homepage.search_bar/=2;
-            zzz.set.style(zzz.get.id("search_bar"),"fontSize",zzz.value.homepage.ft+"px");
-        }
-    }
+    resizer();
     });
     readPreference();
     zzz.incidence.bind(document.body,"keydown",showKey);
     zzz.incidence.bind(zzz.get.cls("enter_button")[0],"click",interpretCmd);
-    var obj=zzz.get.id("search_bar");
+    var obj=searchSettings.bar;
     var style={
         width:0.4*zzz.browser.screenX,
       height:0.1*zzz.browser.screenX,

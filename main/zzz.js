@@ -287,6 +287,14 @@ zzz.time={
         else{
             return this.convertToDate(ztime).getDay();
         }
+    },
+    getTime:function () {
+        var result=zzz.time.now();
+        return [result.second,result.minute,result.hour];
+    },
+    getDate:function () {
+        var result=zzz.time.now();
+        return [result.day,result.month,result.year];
     }
 };
 
@@ -707,7 +715,9 @@ zzz.message={
 //fetch API
 //simple fetch=get
 zzz.fetch=function(url,callback){
-
+    if(window.fetch){
+        window.fetch(url).then(callback);
+    }
 };
 zzz.fetch.post=function(url,data,callback){
 
@@ -715,21 +725,47 @@ zzz.fetch.post=function(url,data,callback){
 zzz.ajax={
     create:function (settings) {
         if(!settings.url) return;
-        var ajax=new XMLHttpRequest();
-        ajax.onreadystatechange=settings.callback;
+        var xhr=new XMLHttpRequest();
+        xhr.onreadystatechange=settings.callback;
         if(settings.timeout){
-            ajax.timeout=settings.timeout;
+            xhr.timeout=settings.timeout;
         }
         if(settings.ontimeout){
-            ajax.ontimeout=settings.ontimeout;
+            xhr.ontimeout=settings.ontimeout;
         }
 
-        ajax.open(settings.method||"GET",settings.url,settings.async===undefined?true:settings.async);
-        ajax.send(settings.data);
+        xhr.open(settings.method||"GET",settings.url,settings.async===undefined?true:settings.async);
+        xhr.send(settings.data);
+        return xhr;
     },
     judge:function (xmlhttp) {
         //1=pending 0=fail 2=success
         return xmlhttp.readyState===4?(xmlhttp.status===200?2:0):1;
+    },
+    get:function (type,src,func,head) {
+        var node=zzz.create(type);
+        node.className="hidden";
+        console.log((src));
+        //JSONP
+        if(type==="script"){
+            var uniqueText=zzz.random.string(30);
+            zzz.value.callback.lib[zzz.value.callback.index]=uniqueText;
+            window[uniqueText]=function (response) {
+                func(response);
+            };
+            zzz.set(node,"src",zzz.path.add(src,{callback:uniqueText}));
+            zzz.value.callback.index++;
+        }
+        //ELSE
+        else {
+            zzz.set(node, "src", src);
+            let wrapper=function(){func(node,true);};
+            let wrapper_fail=function(){func(node,false);};
+            zzz.incidence.bind(node,"load",wrapper);
+            zzz.incidence.bind(node,"error",wrapper_fail);
+          setTimeout(wrapper,10000);
+        }
+        zzz.get.id("scripts").appendChild(node);
     }
 };
 //canvas
@@ -740,7 +776,6 @@ zzz.paint={
   paintMethod:{
       fill:function (color) {
         if(!color) color=this.color;
-        this.canvas.fill
       }
   }
 };
@@ -835,6 +870,23 @@ zzz.path={
             }
             return result[i];
         }
+    },
+    add:function (src,dataset) {
+      //add /?
+        if(!src.match("/?")){
+            if(src[src.length-1]!=="/") src+="/";
+            src+="?";
+        }
+        //delete /
+        if(src[src.length-1]==="/") src=src.slice(0,src.length-2);
+        //add
+        for(let i in dataset){
+            src+="&";
+            src+=i;
+            src+="=";
+            src+=zzz.code.a.path(dataset[i]);
+        }
+        return src;
     }
 };
 
@@ -891,40 +943,95 @@ zzz.web={
       this.test("web");
       this.test("foreign");
     },
-  test:function(type){
+  test:function(type,func){
       if(type==="wifi"){
 
       }
-      else if(type==="web"){
-          for(let i of zzz.value.webURL){
-            if(zzz.web.test(i)){
-                zzz.web.status.web=true;
-                return true;
-            }
+      else if(type==="foreign"||type==="web"){
+          for(let i of zzz.value[type]){
+              let count=0;
+              zzz.web.test(i,function (result) {
+                  if(count===zzz.value[type].length) func(false);
+                  if(count===zzz.value[type].length+1) return;
+                  if(result===true){
+                      count=zzz.value[type].length+1;
+                      func(true);
+                      return;
+                  }
+                  else count++;
+              });
           }
-          zzz.web.status.web=false;
-          return false;
-      }
-      else if(type==="foreign"){
-          for(let i of zzz.value.foreignURL){
-              if(zzz.web.test(zzz.value)){
-                  zzz.web.status.foreign=true;
-                  return true;
-              }
-          }
-          zzz.web.status.foreign=false;
-          return false;
       }
       else{
           //common url
-          zzz.ajax.create({url:type,async:false},function (resp) {
-            if(zzz.ajax.judge(resp)===2) zzz.web.status.temp=true;
-            else if(zzz.ajax.judge(resp)===0) zzz.web.status.temp=false;
+          let executed=false;
+          zzz.ajax.get("img",type,function (node) {
+            if(!node) return;
+            if(executed) return;
+            executed=true;
+            if(node.complete===true) func(true);
+            else func(false);
           });
-          return zzz.web.status.temp;
       }
   }
 };
+
+zzz.api={};
+//bing wallpaper API
+//https://github.com/xCss/bing
+//TODO : get more usable site.
+zzz.api.bingWallpaper={
+    rand:function (w,h) {
+      if(!w) w=zzz.browser.screenX;
+      if(!h) h=zzz.browser.screenY;
+        return "https://bing.ioliu.cn/v1/rand?w="+w.toString()+"&h="+h.toString();
+    },
+    get:function (w,h,d) {
+        if(!w) w=zzz.browser.screenX;
+        if(!h) h=zzz.browser.screenY;
+        if(!d) d=0;
+        var getText=function () {
+            if(this.executed) return;
+            if(!this.node) return;
+            this.executed=true;
+            var returnText=this.node.innerHTML;
+            zzz.value.bingWallpaper=returnText;
+        };
+        zzz.ajax.get(" https://cn.bing.com/HPImageArchive.aspx?format=xml&idx="+d.toString()+"&n=1",getText);
+    }
+};
+
+//translation API
+//source:baidu
+zzz.api.translation={
+    getURL:function (engine,text,fromLanguage,toLanguage,id,token) {
+        var result=zzz.value.translation.engine[engine];
+        result=result.replace("{text}",text);
+        result=result.replace("{fromLanguage}",fromLanguage);
+        result=result.replace("{toLanguage}",toLanguage);
+        result=result.replace("{token}",token);
+        result=result.replace("{id}",id);
+        var salt=zzz.random.int(1,100000000);
+        result=result.replace("{salt}",salt.toString());
+        result=result.replace("{sign}",zzz.code.a.md5(id+text+salt.toString()+token));
+        return result;
+    },
+    translate:function(text,func,engine,fromLanguage,toLanguage){
+        if(!text||text.length===0) return "";
+        if(!engine||!zzz.value.translation.engine[engine]) engine=zzz.value.translation.default.engine;
+        if(!toLanguage) toLanguage=zzz.value.translation.default.to;
+        if(!fromLanguage) fromLanguage="auto";
+        let url=zzz.api.translation.getURL(engine,text,fromLanguage,toLanguage,zzz.value.translation.id[engine],zzz.value.translation.token[engine]);
+        let unpack=function(response){
+            let pack=response.trans_result;
+            console.log(pack);
+            func(pack[0]);
+        };
+        console.log(url);
+        zzz.ajax.get("script",url,unpack);
+    }
+};
+
 
 //overall initialize
 zzz.init=function () {
