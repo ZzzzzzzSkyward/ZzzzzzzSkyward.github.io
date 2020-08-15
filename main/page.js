@@ -252,20 +252,22 @@ var initializer=function(){
     zzz.incidence.bind(document.body,"keydown",showKey);
     zzz.incidence.bind(zzz.get.cls("enter_button")[0],"click",interpretCmd);
     var obj=searchSettings.bar;
+    var button=zzz.get.cls("enter_button")[0];
     var style={
-        width:0.4*zzz.browser.screenX,
-      height:0.1*zzz.browser.screenX,
+        width:0.45*zzz.browser.screenX,
+        height:0.1*zzz.browser.screenX,
     };
         style.fontSize=style.height-10;
         zzz.value.homepage.ft=style.height;
         zzz.value.homepage.height=style.height;
         zzz.value.homepage.width=zzz.toNum(zzz.get.style(obj,"width"));
-        zzz.set.style(zzz.get.cls("enter_button")[0],"height",zzz.value.homepage.height+"px");
-    zzz.set.style(zzz.get.cls("enter_button")[0],"width",zzz.value.homepage.height+"px");
+        zzz.set.style(button,"height",zzz.value.homepage.height/2+"px");
+        zzz.set.style(button,"width",zzz.value.homepage.height/2+"px");
+        zzz.set.style(button,"top",zzz.toNum(zzz.get.style(button,"top"))-zzz.value.homepage.height/4+"px");
 
     for(let i in style) {
         zzz.set.style(obj, i, style[i]+"px");
     }
-    zzz.incidence.bind(document.body,"unload",savePreferrence);
+    //zzz.incidence.bind(document.body,"unload",savePreferrence);
 };
 initializer();

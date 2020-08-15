@@ -44,7 +44,7 @@ PART 2 page
 .search_bar{
     display: block;
     border-color: black;
-    border-width: 2px;
+    border-width: 0px;
     border-style: solid;
     background-color: rgba(59, 59, 59, 0.24);
     position: relative;
@@ -80,9 +80,9 @@ PART 2 page
 }
 .enter_button{
     position: absolute;
-    border-top: 2px solid rgba(0,0,0,0);
-    border-left: 1px solid rgba(0,0,0,0);
-    top:35%;
+    border-top: 0px solid rgba(0,0,0,0);
+    border-left: 0px solid rgba(0,0,0,0);
+    top:50%;
     right:25%;
     transition: all 0.1s ease;
 }
