@@ -12,7 +12,13 @@ var searchSettings={
     },
     jump:{},
     bar:zzz.get.id("search_bar"),
-    engine:zzz.get.cls("search_engine")[0]
+    engine:zzz.get.cls("search_engine")[0],
+    text:function (element,text) {
+        if(!text) return this[element].innerText!==undefined?this[element].innerText:this[element].value;
+        else{
+            this[element].innerText=text;this[element].value=text;
+        }
+    }
 };
 /*
 list={
@@ -83,7 +89,7 @@ var savePreferrence=function () {
     zzz.storage.set("preferredSearchEngine",searchSettings.current);
 };
 var interpretCmd=function () {
-    var text=searchSettings.bar.innerText;
+    var text=searchSettings.text("bar");
     var cmdLine=text.split(" ");
     cmdLine[cmdLine.length-1]=cmdLine[cmdLine.length-1].replace(/[\n ]/g,"");
     console.log(cmdLine);
@@ -99,7 +105,7 @@ var interpretCmd=function () {
         if(searchSettings.short[cmdLine[1]]) cmdLine[1]=searchSettings.short[cmdLine[1]];
         if(searchMethod[cmdLine[1]]){
             searchSettings.current=cmdLine[1];
-            searchSettings.engine.innerText=cmdLine[1];
+            searchSettings.text("engine",cmdLine[1]);
         }
         else{
             let a=zzz.get.style(searchSettings.engine,"backgroundColor");
@@ -115,7 +121,7 @@ var interpretCmd=function () {
         if(!cmdLine[2]) cmdLine[2]="1";
         if(!cmdLine[3]) cmdLine[3]="=";
         cmdLine[4]=zzz.random.int(zzz.toNum(cmdLine[1]),zzz.toNum(cmdLine[2])).toString();
-        searchSettings.bar.innerText=cmdLine.join(" ");
+        searchSettings.text("bar",cmdLine.join(" "));
     }
     //translate
     else if(cmdLine[0]==="translate"||cmdLine[0]==="fanyi"||cmdLine[0]==="fy"){
@@ -123,21 +129,21 @@ var interpretCmd=function () {
         else{
             let text=cmdLine.join(" ");
             text=text.slice(cmdLine[0].length);
-            searchSettings.bar.innerText=text+" = ...";
+            searchSettings.text("bar",text+" = ...");
             let translate=function(resp){
-                searchSettings.bar.innerText=searchSettings.bar.innerText.replace("...","");
-                searchSettings.bar.innerText+=resp.dst;
+                searchSettings.text("bar",searchSettings.text("bar").replace("...",""));
+                searchSettings.text("bar",searchSettings.text("bar")+resp.dst);
             };
             zzz.api.translation.translate(text,translate);
         }
     }
     //current time
     else if(cmdLine[0]==="time"&&(cmdLine.length===1||cmdLine[1]==="=")){
-        searchSettings.bar.innerText="time = "+zzz.time.getTime().reverse().join(":");
+        searchSettings.text("bar","time = "+zzz.time.getTime().reverse().join(":"));
     }
     //current date
     else if(cmdLine[0]==="date"&&(cmdLine.length===1||cmdLine[1]==="=")){
-        searchSettings.bar.innerText="date = "+zzz.time.getDate().reverse().join(".")+" "+zzz.value.weekday[zzz.time.getWeek(zzz.time.now())]+"day";
+        searchSettings.text("bar","date = "+zzz.time.getDate().reverse().join(".")+" "+zzz.value.weekday[zzz.time.getWeek(zzz.time.now())]+"day");
     }
     //bg for background
     else if(cmdLine[0]==="bg"){
@@ -149,9 +155,9 @@ var interpretCmd=function () {
                 zzz.get.id("main").style.backgroundImage="url('"+cmdLine[1]+"')";
                 zzz.storage.set("backgroundImageURL",cmdLine[1]);
             }else{
-                searchSettings.engine.innerText="image unavailable";
+                searchSettings.text("engine","image unavailable");
                 setTimeout(function () {
-                    zzz.appendAttr(searchSettings.engine,"innerText",searchSettings.current);
+                    searchSettings.text("engine",searchSettings.current);
                 },1000);
             }
         };
@@ -160,19 +166,20 @@ var interpretCmd=function () {
     //default: search something
     else{
         var method=searchSettings.current;
-        if(method in searchMethod) zzz.browser.open(convertTextToSearch(method, text));
-        else zzz.browser.open(convertTextToSearch(searchSettings.current, text));
+        var node=zzz.browser.open.inner(convertTextToSearch(method, text));
+        node.className="search_result";
+        zzz.get.id("main").appendChild(node);
     }
     resizer();
 };
 var resizer=function () {
-    //console.log(searchSettings.bar.innerText.length*zzz.value.homepage.ft*zzz.value.homepage.search_bar,zzz.toNum(zzz.get.style(searchSettings.bar,"width")));
-    while(searchSettings.bar.innerText.length*zzz.value.homepage.ft>=zzz.value.homepage.search_bar*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
+    //console.log(searchSettings.bar.value.length*zzz.value.homepage.ft*zzz.value.homepage.search_bar,zzz.toNum(zzz.get.style(searchSettings.bar,"width")));
+    while(searchSettings.text("bar").length*zzz.value.homepage.ft>=zzz.value.homepage.search_bar*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
         zzz.value.homepage.ft/=2;
         zzz.value.homepage.search_bar*=2;
         zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft+"px");
     }
-    while(zzz.value.homepage.search_bar>1&&searchSettings.bar.innerText.length*zzz.value.homepage.ft*2<(zzz.value.homepage.search_bar/2)*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
+    while(zzz.value.homepage.search_bar>1&&searchSettings.text("bar").length*zzz.value.homepage.ft*2<(zzz.value.homepage.search_bar/2)*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
         zzz.value.homepage.ft*=2;
         zzz.value.homepage.search_bar/=2;
         zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft+"px");

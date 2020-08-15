@@ -362,7 +362,35 @@ zzz.browser={
         window.open(path,name,type);
     }
 };
-
+zzz.browser.open.inner=function(settings){
+    if(settings===undefined) return;
+    let src;
+    if(zzz.equal.type(settings,"string")){
+        src=settings;
+    }
+    else{
+        src=settings.src;
+        settings.src=null;
+    }
+    if(!src) return;
+    var node=zzz.create("iframe");
+  var default_settings={
+      frameborder:0,
+      name:undefined,
+      height:undefined,
+      scrolling:false,
+      width:undefined,
+      transparent:false
+    };
+  //transparent
+  if(settings.transparent){
+      zzz.set(node,"allowtransparency","true");
+      zzz.set.style("backgroundColor","transparent");
+  }
+  node.src=src;
+  zzz.addAttr(node,settings);
+  return node;
+};
 
 
 //clipboard
@@ -388,15 +416,34 @@ zzz.clip={
             }
         }
         return  false;
-    }
+    },
+    update:function () {
+        let selection=window.getSelection?window.getSelection():{
+            anchorOffset:0,
+            focusOffset:0,
+            toString:function () {return "";}
+        };
+        let temp=zzz.clip;
+        temp.text=selection.toString();
+        temp.start=selection.anchorOffset;
+        temp.end=selection.focusOffset;
+        if(temp.start===0&&temp.end===0){
+            //fix for occasions that don't work
+            let element=selection.anchorNode||document.activeElement;
+            temp.start=element.selectionStart;
+            temp.end=element.selectionEnd;
+        }
+        return zzz.clip;
+    },
+    text:"",
+    start:0,
+    end:0
 };
 
 
 
 
-
-
-//arrtibute
+//attribute
 //set type
 zzz.addAttr=function(obj,key_value_set){
     for(let i in key_value_set){
@@ -1005,7 +1052,8 @@ zzz.api.bingWallpaper={
 //source:baidu
 zzz.api.translation={
     getURL:function (engine,text,fromLanguage,toLanguage,id,token) {
-        var result=zzz.value.translation.engine[engine];
+        var result=zzz.path.protocol(zzz.browser.uri)==="https:"?"https":"http:";
+        result+=zzz.value.translation.engine[engine];
         result=result.replace("{text}",text);
         result=result.replace("{fromLanguage}",fromLanguage);
         result=result.replace("{toLanguage}",toLanguage);
