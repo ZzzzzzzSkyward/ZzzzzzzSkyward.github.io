@@ -49,7 +49,7 @@ var readPreference=function () {
     }
     var b=zzz.storage.get("backgroundImageURL");
     if(b&&b!=="undefined")
-    zzz.get.id("main").style.backgroundImage="url('"+b+"')";
+    zzz.get.id("main").style.backgroundImage=b;
 };
 var showKey=function(e){
     var interpret=zzz.incidence.interpret(e);
@@ -86,8 +86,13 @@ var showKey=function(e){
             },1000);
         },5000);
 };
-var savePreferrence=function () {
-    zzz.storage.set("preferredSearchEngine",searchSettings.current);
+var savePreference=function () {
+    //check
+    var originalData=zzz.storage.get("preferredSearchEngine");
+    if(originalData!==searchSettings.current) zzz.storage.set("preferredSearchEngine",searchSettings.current);
+    originalData=zzz.storage.get(("backgroundImageURL"));
+    var currentData=zzz.get.style(zzz.get.id("main"),"backgroundImage");
+    if(originalData!=currentData) zzz.storage.set("backgroundImageURL",currentData);
 };
 var interpretCmd=function () {
     var text=searchSettings.text("bar");
@@ -157,7 +162,7 @@ var interpretCmd=function () {
         var verification=function (node,success) {
             if(success&&node.complete===true){
                 zzz.get.id("main").style.backgroundImage="url('"+cmdLine[1]+"')";
-                zzz.storage.set("backgroundImageURL",cmdLine[1]);
+                savePreference();
             }else{
                 searchSettings.text("engine","image unavailable");
                 setTimeout(function () {
@@ -167,26 +172,34 @@ var interpretCmd=function () {
         };
         zzz.ajax.get("img",cmdLine[1],verification);
     }
+    else if(cmdLine[0]==="update"&&cmdLine.length===1){
+        pageUpdate.test();
+    }
     //default: search something
     else{
-        var method=searchSettings.current;
-        var node=zzz.browser.open.inner(convertTextToSearch(method, text));
-        node.className="search_result";
-        zzz.get.id("main").appendChild(node);
+        defaultSearch();
     }
     resizer();
+};
+var defaultSearch=function () {
+    var method=searchSettings.current;
+    var text=searchSettings.text("bar");
+    //var node=
+    zzz.browser.open(convertTextToSearch(method, text));
+    //node.className="search_result";
+    //zzz.get.id("main").appendChild(node);
 };
 var resizer=function () {
     //console.log(searchSettings.bar.value.length*zzz.value.homepage.ft*zzz.value.homepage.search_bar,zzz.toNum(zzz.get.style(searchSettings.bar,"width")));
     while(searchSettings.text("bar").length*zzz.value.homepage.ft>=zzz.value.homepage.search_bar*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
         zzz.value.homepage.ft/=2;
         zzz.value.homepage.search_bar*=2;
-        zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft+"px");
+        zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft*0.9+"px");
     }
     while(zzz.value.homepage.search_bar>1&&searchSettings.text("bar").length*zzz.value.homepage.ft*2<(zzz.value.homepage.search_bar/2)*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
         zzz.value.homepage.ft*=2;
         zzz.value.homepage.search_bar/=2;
-        zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft+"px");
+        zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft*0.9+"px");
     }
 };
 var gadget={
@@ -234,6 +247,15 @@ var gadget={
       }
   }
 };
+var tackleInput=function (e) {
+    var n=zzz.incidence.interpret(e);
+    if(zzz.value.convertTokey(n.key)==="enter") {
+        if(n.ctrl) defaultSearch();
+        else interpretCmd(e);
+        e.preventDefault();
+    }
+    resizer();
+};
 var initializer=function(){
     if(!zzz.value.search){
         setTimeout(initializer,1);
@@ -244,14 +266,7 @@ var initializer=function(){
     });
     zzz.value.homepage={};
     zzz.value.homepage.search_bar=1;
-    zzz.incidence.bind(searchSettings.bar,"keydown",function (e) {
-    var n=zzz.incidence.interpret(e).key;
-    if(zzz.value.convertTokey(n)==="enter") {
-        interpretCmd(e);
-        e.preventDefault();
-    }
-    resizer();
-    });
+    zzz.incidence.bind(searchSettings.bar,"keydown",tackleInput);
     readPreference();
     zzz.incidence.bind(document.body,"keydown",showKey);
     zzz.incidence.bind(zzz.get.cls("enter_button")[0],"click",interpretCmd);
@@ -268,11 +283,13 @@ var initializer=function(){
         zzz.set.style(button,"height",zzz.value.homepage.height/2+"px");
         zzz.set.style(button,"width",zzz.value.homepage.height/2+"px");
         zzz.set.style(button,"top",zzz.toNum(zzz.get.style(button,"top"))-zzz.value.homepage.height/4+"px");
+        zzz.set.style(searchSettings.bar,"top",zzz.browser.screenY/2-0.5*zzz.value.homepage.height+"px");
+        zzz.set.style(searchSettings.engine,"top",zzz.browser.screenY/2+0.5*zzz.value.homepage.height+"px");
 
     for(let i in style) {
         zzz.set.style(obj, i, style[i]+"px");
     }
-    //zzz.incidence.bind(document.body,"unload",savePreferrence);
+    zzz.incidence.bind(document.body,"unload",savePreference);
 };
 initializer();
 pageUpdate={
@@ -283,8 +300,11 @@ pageUpdate={
         zzz.api.update.test();
         setTimeout(function () {
             let a=zzz.api.update.check();
-            if(a){
+            if(a.length){
                 alert("the following resources can be updated:\n",a.join("\n"));
+            }
+            else{
+                alert("Everything up to date.");
             }
         },3000);
     }
