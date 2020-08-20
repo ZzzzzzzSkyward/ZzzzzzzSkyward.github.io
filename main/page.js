@@ -50,6 +50,8 @@ var readPreference=function () {
     var b=zzz.storage.get("backgroundImageURL");
     if(b&&b!=="undefined")
     zzz.get.id("main").style.backgroundImage=b;
+    b=zzz.storage.get("translationEngine");
+    if(b&&b!="undefined") zzz.value.translation.default.engine=b;
 };
 var showKey=function(e){
     var interpret=zzz.incidence.interpret(e);
@@ -86,39 +88,60 @@ var showKey=function(e){
             },1000);
         },5000);
 };
+var pageStore=function () {
+    return {
+    preferredSearchEngine:searchSettings.current,
+    backgroundImageURL:zzz.get.style(zzz.get.id("main"),"backgroundImage"),
+    translationEngine:zzz.value.translation.default.engine
+    }
+};
 var savePreference=function () {
     //check
-    var originalData=zzz.storage.get("preferredSearchEngine");
-    if(originalData!==searchSettings.current) zzz.storage.set("preferredSearchEngine",searchSettings.current);
-    originalData=zzz.storage.get(("backgroundImageURL"));
-    var currentData=zzz.get.style(zzz.get.id("main"),"backgroundImage");
-    if(originalData!=currentData) zzz.storage.set("backgroundImageURL",currentData);
+    var originalData,currentData,items=pageStore();
+    for(let i in items){
+        originalData=zzz.storage.get(i);
+        currentData=items[i];
+        if(originalData!==currentData) zzz.storage.set(i,currentData);
+    }
 };
-var interpretCmd=function () {
+var interpretCmd=function (e,isEqual) {
     var text=searchSettings.text("bar");
+    isEqual=isEqual!=="=";
     var cmdLine=text.split(" ");
     cmdLine[cmdLine.length-1]=cmdLine[cmdLine.length-1].replace(/[\n ]/g,"");
     console.log(cmdLine);
     var i=0;
     //jump
-    if(searchSettings.jump[cmdLine[0]]){
+    if(isEqual&&searchSettings.jump[cmdLine[0]]){
         zzz.browser.open(searchSettings.jump[cmdLine[0]]);
         return;
     }
-    //set a search engine.
-    if(cmdLine[0]==="set"){
-        //inspect validity
-        if(searchSettings.short[cmdLine[1]]) cmdLine[1]=searchSettings.short[cmdLine[1]];
-        if(searchMethod[cmdLine[1]]){
-            searchSettings.current=cmdLine[1];
-            searchSettings.text("engine",cmdLine[1]);
+    if(isEqual&&cmdLine[0]==="set"){
+        if(cmdLine[1]==="translation"&&cmdLine[2]){
+            //set a translation engine
+            //verify
+            if(zzz.value.translation.engine[cmdLine[2]]){
+                zzz.value.translation.default.engine=cmdLine[2];
+                savePreference();
+            }
+            else if(cmdLine[2].length===2){
+                zzz.value.translation.default.to=cmdLine[2];
+            }
         }
-        else{
-            let a=zzz.get.style(searchSettings.engine,"backgroundColor");
-            searchSettings.engine.style.backgroundColor="rgba(255,100,100,0.5)";
-            setTimeout(function () {
-                zzz.set.style(searchSettings.engine,"backgroundColor",a);
-            },1000);
+        else {
+            //set a search engine.
+            //inspect validity
+            if (searchSettings.short[cmdLine[1]]) cmdLine[1] = searchSettings.short[cmdLine[1]];
+            if (searchMethod[cmdLine[1]]) {
+                searchSettings.current = cmdLine[1];
+                searchSettings.text("engine", cmdLine[1]);
+            } else {
+                let a = zzz.get.style(searchSettings.engine, "backgroundColor");
+                searchSettings.engine.style.backgroundColor = "rgba(255,100,100,0.5)";
+                setTimeout(function () {
+                    zzz.set.style(searchSettings.engine, "backgroundColor", a);
+                }, 1000);
+            }
         }
     }
     //random integer
@@ -140,7 +163,7 @@ var interpretCmd=function () {
             if(isEnglish) text=text.slice(cmdLine[1].length+2);
             searchSettings.text("bar",text+" = ...");
             let translate=function(resp){
-                searchSettings.text("bar",searchSettings.text("bar").replace("...",resp.dst));
+                searchSettings.text("bar",searchSettings.text("bar").replace("...",resp.dst||resp.join(",")));
                 //searchSettings.text("bar",searchSettings.text("bar")+resp.dst);
             };
             zzz.api.translation.translate(text,translate,null,null,isEnglish?"en":null);
@@ -154,12 +177,18 @@ var interpretCmd=function () {
     else if(cmdLine[0]==="date"&&(cmdLine.length===1||cmdLine[1]==="=")){
         searchSettings.text("bar","date = "+zzz.time.getDate().reverse().join(".")+" "+zzz.value.weekday[zzz.time.getWeek(zzz.time.now())]+"day");
     }
+    //math
+    else if(text[text.length-1]==="="){
+        let calculation=eval(text.replace("=",""));
+        if(calculation) searchSettings.text("engine",calculation);
+        else searchSettings.text("engine",searchSettings.current);
+    }
     //introduction
-    else if(cmdLine[0]==="help"&&cmdLine.length===1){
+    else if(isEqual&&cmdLine[0]==="help"&&cmdLine.length===1){
         showIntroduction();
     }
     //bg for background
-    else if(cmdLine[0]==="bg"){
+    else if(isEqual&&cmdLine[0]==="bg"){
         //verify
         //bing fix
         if(cmdLine[1]==="bing") cmdLine[1]=zzz.api.bingWallpaper.rand();
@@ -176,7 +205,7 @@ var interpretCmd=function () {
         };
         zzz.ajax.get("img",cmdLine[1],verification);
     }
-    else if(cmdLine[0]==="update"&&cmdLine.length===1){
+    else if(isEqual&&cmdLine[0]==="update"&&cmdLine.length===1){
         pageUpdate.test();
     }
     //default: search something
@@ -258,6 +287,10 @@ var tackleInput=function (e) {
         else interpretCmd(e);
         e.preventDefault();
     }
+    else if(zzz.value.convertTokey(n.key)==="="){
+        interpretCmd(e,"=");
+        e.preventDefault();
+    }
     resizer();
 };
 var initializer=function(){
@@ -324,7 +357,7 @@ var showIntroduction=function () {
             fontSize:0.6*zzz.browser.screenX/20+"px"
       });
       intr.innerHTML+="<p style='text-align:center;font-size:larger'>"+poem+"</p>";
-      let text=zzz.ajax.create({url:"introduction.txt",async:true}).responseText;
+      let text=zzz.ajax.create({url:"introduction.txt",async:false}).responseText;
       intr.innerHTML+="<pre>"+text+"</pre>";
   }
   setTimeout(function() {
