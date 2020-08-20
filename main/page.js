@@ -178,10 +178,9 @@ var interpretCmd=function (e,isEqual) {
         searchSettings.text("bar","date = "+zzz.time.getDate().reverse().join(".")+" "+zzz.value.weekday[zzz.time.getWeek(zzz.time.now())]+"day");
     }
     //math
-    else if(text[text.length-1]==="="){
+    else if(!isEqual){
         let calculation=eval(text.replace("=",""));
         if(calculation) searchSettings.text("engine",calculation);
-        else searchSettings.text("engine",searchSettings.current);
     }
     //introduction
     else if(isEqual&&cmdLine[0]==="help"&&cmdLine.length===1){
