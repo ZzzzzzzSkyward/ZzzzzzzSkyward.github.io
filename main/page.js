@@ -1,3 +1,4 @@
+var pagejs_version=20200820;
 var searchMethod={};
 var pagejs=1;
 var searchSettings={
@@ -129,12 +130,15 @@ var interpretCmd=function () {
         else{
             let text=cmdLine.join(" ");
             text=text.slice(cmdLine[0].length);
+            let isEnglish=cmdLine[1]==="en";
+            isEnglish=isEnglish&&cmdLine[2];
+            if(isEnglish) text=text.slice(cmdLine[1].length+2);
             searchSettings.text("bar",text+" = ...");
             let translate=function(resp){
-                searchSettings.text("bar",searchSettings.text("bar").replace("...",""));
-                searchSettings.text("bar",searchSettings.text("bar")+resp.dst);
+                searchSettings.text("bar",searchSettings.text("bar").replace("...",resp.dst));
+                //searchSettings.text("bar",searchSettings.text("bar")+resp.dst);
             };
-            zzz.api.translation.translate(text,translate);
+            zzz.api.translation.translate(text,translate,null,null,isEnglish?"en":null);
         }
     }
     //current time
@@ -271,3 +275,17 @@ var initializer=function(){
     //zzz.incidence.bind(document.body,"unload",savePreferrence);
 };
 initializer();
+pageUpdate={
+    test:function () {
+        if(!zzz.api.update.current.page){
+            zzz.api.update.current.page=pagejs_version;
+        }
+        zzz.api.update.test();
+        setTimeout(function () {
+            let a=zzz.api.update.check();
+            if(a){
+                alert("the following resources can be updated:\n",a.join("\n"));
+            }
+        },3000);
+    }
+};

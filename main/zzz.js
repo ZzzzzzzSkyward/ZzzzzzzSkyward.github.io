@@ -5,6 +5,7 @@ author:zzs
 */
 "use strict";
 var zzz= {};
+zzz.version=20200820;
 zzz.value={};
 
 
@@ -560,34 +561,37 @@ zzz.set.style=function(element,attr,value){
 
 //audio
 zzz.audio={
-    jumpTo:function (element,time) {
-        element.currentTime=time;
+    jumpTo:function (time) {
+        this.element.currentTime=time;
     },
-    pause:function (element) {
-        element.pause();
+    pause:function () {
+        this.element.pause();
     },
-    play:function (element) {
-        element.play();
+    play:function () {
+        this.element.play();
     },
-    volume:function (element,volume) {
-        element.volume=volume;
+    volume:function (volume) {
+        this.element.volume=volume;
     },
-    speed:function (element,speed) {
+    speed:function (speed) {
         if(speed&&speed>0)
-        element.playbackRate=speed;
-        return element.playbackRate;
+        this.element.playbackRate=speed;
+        return this.element.playbackRate;
     },
-    create:function(setting){
-        var attributes={
-            muted:setting.muted||"false",
-            autoplay:setting.autoplay||"false",
-            preload:setting.preload?"auto":"none",
-            controls:setting.controls||"false"
+    create:function(setting) {
+        var attributes = {
+            muted: setting.muted || "false",
+            autoplay: setting.autoplay || "false",
+            preload: setting.preload ? "auto" : "none",
+            controls: setting.controls || "false"
         };
-        var newAudio=zzz.create("audio",attributes);
-        if(setting.src) zzz.set(newAudio,setting.src);
-        return newAudio;
-    },
+        var newAudio = zzz.create("audio", attributes);
+        if (setting.src) zzz.set(newAudio, setting.src);
+        let result = {element: newAudio};
+        zzz.addAttr(result, zzz.audio);
+        return result;
+    }
+    ,
     playBackground:function (src) {
         if(!src) return;
         var newAudio=zzz.audio.create({src:src,autoplay: true});
@@ -602,14 +606,16 @@ zzz.audio={
 zzz.load=function (src) {
     //TODO : estimate from suffix.
 };
-zzz.load.js=function (src) {
+zzz.load.js=function (src,parent) {
     var newScript=zzz.create("script",{src:src,type:"text/javascript",language:"javascript"});
-    document.body.appendChild(newScript);
+    if(!parent) parent=document.body;
+    parent.appendChild(newScript);
     return newScript;
 };
 zzz.load.css=function (src) {
     var newCSS=zzz.create("link",{href:src,rel:"stylesheet",type:"text/css"});
-    document.body.appendChild(newCSS);
+    if(!parent) parent=document.body;
+    parent.appendChild(newCSS);
     return newCSS;
 };
 zzz.load.font=function (name,src) {
@@ -983,15 +989,20 @@ zzz.web={
       wifi:false,
       web:false,
       foreign:false,
+      local:false,
       temp:false
   },
     init:function(){
       this.test("wifi");
       this.test("web");
       this.test("foreign");
+      this.test("local");
     },
   test:function(type,func){
-      if(type==="wifi"){
+      if(type==="local"){
+          zzz.web.status.local=zzz.browser.protocol==="file:";
+      }
+      else if(type==="wifi"){
 
       }
       else if(type==="foreign"||type==="web"){
@@ -1052,7 +1063,7 @@ zzz.api.bingWallpaper={
 //source:baidu
 zzz.api.translation={
     getURL:function (engine,text,fromLanguage,toLanguage,id,token) {
-        var result=zzz.path.protocol(zzz.browser.uri)==="https:"?"https":"http:";
+        var result="";
         result+=zzz.value.translation.engine[engine];
         result=result.replace("{text}",text);
         result=result.replace("{fromLanguage}",fromLanguage);
@@ -1080,12 +1091,37 @@ zzz.api.translation={
     }
 };
 
+//update API
+//format:
+//name:[urls]
+zzz.api.update={
+    url:{},
+  resource:{},
+    current:{},
+    update:{},
+    test:function () {
+      for(let i in this.url){
+          for(let j of this.url[i])
+          zzz.load(j);
+      }
+    },
+    check:function () {
+      var result=[];
+        for(let i in this.current){
+            if(this.current[i]<this.update[i]){
+                result+=i;
+            }
+        }
+        return result;
+    }
+};
 
 //overall initialize
 zzz.init=function () {
     zzz.storage.init();
     zzz.incidence.init();
     zzz.browser.init();
+    zzz.api.update.url["zzz"]="https://ZzzzzzzSkyward.github.io/main/update.js";
 };
 
 zzz.init();

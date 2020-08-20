@@ -183,8 +183,11 @@ zzz.value.search=[
     ["github","https://github.com/search?q={keyword}"],
     ["taobao","https://s.taobao.com/search?q={keyword}"],
     ["bilibili","https://search.bilibili.com/all?keyword={keyword}"],
-    ["m.bilibili","https://m.bilibili.com/search?keyword={keyword}"]
-
+    ["m.bilibili","https://m.bilibili.com/search?keyword={keyword}"],
+    ["yandex","https://yandex.com/search/?text={keyword}&lr=20930&lang=en"],
+    ["wolframalpha","https://www.wolframalpha.com/input/?i={keyword}"],
+    ["duckduckgo","https://duckduckgo.com/?q={keyword}&t=ht&ia=web"],
+    ["ask","https://www.ask.com/web?o=0&l=dir&qo=serpSearchTopBox&q={keyword}"]
 ];
 zzz.value.web=["https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png"];
 zzz.value.foreign=["https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"];
