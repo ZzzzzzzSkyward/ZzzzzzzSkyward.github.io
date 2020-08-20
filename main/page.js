@@ -154,6 +154,10 @@ var interpretCmd=function () {
     else if(cmdLine[0]==="date"&&(cmdLine.length===1||cmdLine[1]==="=")){
         searchSettings.text("bar","date = "+zzz.time.getDate().reverse().join(".")+" "+zzz.value.weekday[zzz.time.getWeek(zzz.time.now())]+"day");
     }
+    //introduction
+    else if(cmdLine[0]==="help"&&cmdLine.length===1){
+        showIntroduction();
+    }
     //bg for background
     else if(cmdLine[0]==="bg"){
         //verify
@@ -308,4 +312,25 @@ pageUpdate={
             }
         },3000);
     }
+};
+var showIntroduction=function () {
+  let intr=zzz.get.id("introduction");
+  var poem="铅笔奏鸟语，黑板绘樱花。<br/>青风扶字正，白月照影斜。";
+  if(!intr.innerHTML){
+      zzz.addAttr(intr.style,{
+          top:"10px",
+          left:"20%",
+          width:"60%",
+            fontSize:0.6*zzz.browser.screenX/20+"px"
+      });
+      intr.innerHTML+="<p style='text-align:center;font-size:larger'>"+poem+"</p>";
+      let text=zzz.ajax.create({url:"introduction.txt",async:true}).responseText;
+      intr.innerHTML+="<pre>"+text+"</pre>";
+  }
+  setTimeout(function() {
+      zzz.set.style(intr, "visibility", "visible");
+      zzz.set.style(intr, "opacity", "1");
+      zzz.set.style(zzz.get.id("main"), "filter", "blur(0px)");
+      zzz.set.style(zzz.get.id("main"), "filter", "blur(20px)");
+  },1000);
 };

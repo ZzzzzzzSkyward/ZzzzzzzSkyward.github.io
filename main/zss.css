@@ -103,6 +103,17 @@ PART 2 page
     margin:0;
     padding:0;
 }
+#introduction{
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    text-align: left;
+    display: inline-block;
+    text-shadow: rgba(14,50,30,0.7) 0px 0px 5px;
+    font-size: 1em;
+    color:rgba(248,253,247,0.9);
+    overflow-y: auto;
+}
 /*
 PART 3 filter
 */

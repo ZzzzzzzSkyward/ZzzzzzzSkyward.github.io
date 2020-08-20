@@ -198,13 +198,16 @@ zzz.value.translation={
         to:"zh"
     },
     engine: {
-        baidu:"https://api.fanyi.baidu.com/api/trans/vip/translate?q={text}&from={fromLanguage}&to={toLanguage}&appid={id}&salt={salt}&sign={sign}"
+        baidu:"https://api.fanyi.baidu.com/api/trans/vip/translate?q={text}&from={fromLanguage}&to={toLanguage}&appid={id}&salt={salt}&sign={sign}",
+        youdao:"https://openapi.youdao.com/api?q={text}&from={fromLanguage}&to={toLanguage}&appKey={id}&salt={salt}&sign={sign}&signType=v3&curtime={time}"
     },
     token:{
-        baidu: "V3VDYX2naJAEBev1upFy"
+        baidu: "V3VDYX2naJAEBev1upFy",
+        youdao:"RmXxFtGRYLlwH9BK7U0ZmXP67Dj94Cm0"
     },
     id:{
-        baidu:"20200814000542873"
+        baidu:"20200814000542873",
+        youdao:"29698b390b528412"
     }
 };
 zzz.value.callback={

@@ -139,6 +139,7 @@ zzz.code={
             return window.encodeURIComponent(text);
         },
         md5package: {
+            //TODO: merge d and safe_add
             d: function (n, t) {
                 var r = (65535 & n) + (65535 & t);
                 return (n >> 16) + (t >> 16) + (r >> 16) << 16 | 65535 & r
@@ -194,8 +195,8 @@ zzz.code={
             },
 
             o: function (n) {
-                return this.a(this.i(this.h(t = this.r(n)), 8 * t.length));
                 var t;
+                return this.a(this.i(this.h(t = this.r(n)), 8 * t.length));
             },
 
             u: function (n, t) {
@@ -209,6 +210,167 @@ zzz.code={
         //derived from https://github.com/blueimp/JavaScript-MD5/blob/master/js/md5.min.js
         md5:function (n,t,r){
             return t?r?this.md5package.u(t,n):this.md5package.e(this.md5package.u(t,n)):r?this.md5package.o(n):this.md5package.e(this.md5package.o(n));
+        },
+        //derived from https://blog.csdn.net/qq_40164190/article/details/83384234
+        sha256package: {
+            r: function (n, x) {
+                return ((x >>> n) | (x << (32 - n)));
+            },
+            c: function (x, y, z) {
+                return ((x & y) ^ (~x & z));
+            },
+            m: function (x, y, z) {
+                return ((x & y) ^ (x & z) ^ (y & z));
+            },
+            S0: function (x) {
+                return (this.r(2, x) ^ this.r(13, x) ^ this.r(22, x));
+            },
+            S1: function (x) {
+                return (this.r(6, x) ^ this.r(11, x) ^ this.r(25, x));
+            },
+            s0: function (x) {
+                return (this.r(7, x) ^ this.r(18, x) ^ (x >>> 3));
+            },
+            s1: function (x) {
+                return (this.r(17, x) ^ this.r(19, x) ^ (x >>> 10));
+            },
+            e: function (W, j) {
+                return (W[j & 0x0f] += this.s1(W[(j + 14) & 0x0f]) + W[(j + 9) & 0x0f] +
+                    this.s0(W[(j + 1) & 0x0f]));
+            },
+            K256: [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+                0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+                0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+                0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+                0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+                0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+                0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+                0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+                0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+                0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+                0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+                0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+                0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+                0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+                0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+                0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
+            buffer: new Array(64),
+            sha256_hex_digits: "0123456789abcdef",
+            safe_add: function (x, y) {
+                var lsw = (x & 0xffff) + (y & 0xffff);
+                var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+                return (msw << 16) | (lsw & 0xffff);
+            },
+            count_original: [0, 0],
+            ihash_original: [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19],
+            count:[0,0],
+            ihash:new Array(8),
+            t: function () {
+                var a, b, c, d, e, f, g, h, T1, T2;
+                var W = new Array(16);
+                a = this.ihash[0];
+                b = this.ihash[1];
+                c = this.ihash[2];
+                d = this.ihash[3];
+                e = this.ihash[4];
+                f = this.ihash[5];
+                g = this.ihash[6];
+                h = this.ihash[7];
+                for (var i = 0; i < 16; i++)
+                    W[i] = ((this.buffer[(i << 2) + 3]) | (this.buffer[(i << 2) + 2] << 8) | (this.buffer[(i << 2) + 1]
+                        << 16) | (this.buffer[i << 2] << 24));
+
+                for (var j = 0; j < 64; j++) {
+                    T1 = h + this.S1(e) + this.c(e, f, g) + this.K256[j];
+                    if (j < 16) T1 += W[j];
+                    else T1 += this.e(W, j);
+                    T2 = this.S0(a) + this.m(a, b, c);
+                    h = g;
+                    g = f;
+                    f = e;
+                    e = this.safe_add(d, T1);
+                    d = c;
+                    c = b;
+                    b = a;
+                    a = this.safe_add(T1, T2);
+                }
+                this.ihash[0] += a;
+                this.ihash[1] += b;
+                this.ihash[2] += c;
+                this.ihash[3] += d;
+                this.ihash[4] += e;
+                this.ihash[5] += f;
+                this.ihash[6] += g;
+                this.ihash[7] += h;
+            },
+            u: function (data, inputLen) {
+                var i, index, curpos = 0;
+                index = ((this.count[0] >> 3) & 0x3f);
+                var remainder = (inputLen & 0x3f);
+                if ((this.count[0] += (inputLen << 3)) < (inputLen << 3)) this.count[1]++;
+                this.count[1] += (inputLen >> 29);
+                for (i = 0; i + 63 < inputLen; i += 64) {
+                    for (var j = index; j < 64; j++)
+                        this.buffer[j] = data.charCodeAt(curpos++);
+                    this.t();
+                    index = 0;
+                }
+                for (var j = 0; j < remainder; j++)
+                    this.buffer[j] = data.charCodeAt(curpos++);
+            },
+            f: function () {
+                var index = ((this.count[0] >> 3) & 0x3f);
+                this.buffer[index++] = 0x80;
+                if (index <= 56) {
+                    for (var i = index; i < 56; i++)
+                        this.buffer[i] = 0;
+                } else {
+                    for (var i = index; i < 64; i++)
+                        this.buffer[i] = 0;
+                    this.t();
+                    for (var i = 0; i < 56; i++)
+                        this.buffer[i] = 0;
+                }
+                this.buffer[56] = (this.count[1] >>> 24) & 0xff;
+                this.buffer[57] = (this.count[1] >>> 16) & 0xff;
+                this.buffer[58] = (this.count[1] >>> 8) & 0xff;
+                this.buffer[59] = this.count[1] & 0xff;
+                this.buffer[60] = (this.count[0] >>> 24) & 0xff;
+                this.buffer[61] = (this.count[0] >>> 16) & 0xff;
+                this.buffer[62] = (this.count[0] >>> 8) & 0xff;
+                this.buffer[63] = this.count[0] & 0xff;
+                this.t();
+            },
+            /* Split the internal hash values into an array of bytes */
+            byte: function () {
+                var j = 0;
+                var output = new Array(32);
+                for (var i = 0; i < 8; i++) {
+                    output[j++] = ((this.ihash[i] >>> 24) & 0xff);
+                    output[j++] = ((this.ihash[i] >>> 16) & 0xff);
+                    output[j++] = ((this.ihash[i] >>> 8) & 0xff);
+                    output[j++] = (this.ihash[i] & 0xff);
+                }
+                return output;
+            },
+            hex: function () {
+                var output = new String();
+                for (var i = 0; i < 8; i++) {
+                    for (var j = 28; j >= 0; j -= 4)
+                        output += this.sha256_hex_digits.charAt((this.ihash[i] >>> j) & 0x0f);
+                }
+                return output;
+            }
+        },
+        sha256:function(data) {
+            let short = this.sha256package;
+            for (let i in short.ihash_original) {
+                short.ihash[i] = short.ihash_original[i];
+            }
+            for (let i in short.count) short.count[i] = 0;
+            short.u(data, data.length);
+            short.f();
+            return short.hex();
         }
     },
     uri:{
@@ -653,10 +815,10 @@ zzz.incidence={
             }
         }
         if(zzz.incidence.specificEventBinder===0){
-            element.addEventListener(type,func,isCapture);
+            return element.addEventListener(type,func,isCapture);
         }
         else if(zzz.incidence.specificEventBinder===1){
-            element.attachEvent("on"+type,func);
+            return element.attachEvent("on"+type,func);
         }
         else{
             if(element["on"+type]){
@@ -1072,7 +1234,14 @@ zzz.api.translation={
         result=result.replace("{id}",id);
         var salt=zzz.random.int(1,100000000);
         result=result.replace("{salt}",salt.toString());
+        if(engine==="baidu")
         result=result.replace("{sign}",zzz.code.a.md5(id+text+salt.toString()+token));
+        else if(engine==="youdao") {
+            let input =text.length<=20?text:(text.slice(0,10)+text.length.toString()+text.slice(text.length-10,text.length));
+            let time=Math.round(new Date().getTime()/1000);;
+            result=result.replace("{time}",time);
+            result = result.replace("{sign}", zzz.code.a.sha256(id + input +salt+time.toString()+token.toString()))
+        }
         return result;
     },
     translate:function(text,func,engine,fromLanguage,toLanguage){
@@ -1082,7 +1251,7 @@ zzz.api.translation={
         if(!fromLanguage) fromLanguage="auto";
         let url=zzz.api.translation.getURL(engine,text,fromLanguage,toLanguage,zzz.value.translation.id[engine],zzz.value.translation.token[engine]);
         let unpack=function(response){
-            let pack=response.trans_result;
+            let pack=response.trans_result||[response.translation];
             console.log(pack);
             func(pack[0]);
         };
@@ -1102,14 +1271,14 @@ zzz.api.update={
     test:function () {
       for(let i in this.url){
           for(let j of this.url[i])
-          zzz.load(j);
+          zzz.load.js(j);
       }
     },
     check:function () {
       var result=[];
         for(let i in this.current){
             if(this.current[i]<this.update[i]){
-                result+=i;
+                result.push(i);
             }
         }
         return result;
@@ -1121,7 +1290,9 @@ zzz.init=function () {
     zzz.storage.init();
     zzz.incidence.init();
     zzz.browser.init();
-    zzz.api.update.url["zzz"]="https://ZzzzzzzSkyward.github.io/main/update.js";
+    zzz.message.init();
+    zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
+    zzz.api.update.current["zzz"]=zzz.version;
 };
 
 zzz.init();
