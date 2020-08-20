@@ -113,6 +113,8 @@ PART 2 page
     font-size: 1em;
     color:rgba(248,253,247,0.9);
     overflow-y: auto;
+    overflow-x:visible;
+    height:100%;
 }
 /*
 PART 3 filter
