@@ -5,7 +5,7 @@ author:zzs
 */
 "use strict";
 var zzz= {};
-zzz.version=20200820;
+zzz.version=20200907;
 zzz.value={};
 
 
@@ -32,14 +32,14 @@ zzz.equal.type=function (obj,type) {
   else if(type==="null"){
       return obj===null;
   }
-  else if(type==="NaN"){
+  else if(type==="nan"){
       return isNaN(obj)&&typeof obj=="number";
   }
   else if(type==="integer"){
       return typeof obj==="number"&&zzz.isInt(obj);
   }
   else{
-      return type===typeof obj;
+      return type===(typeof obj).toLowerCase();
   }
 };
 zzz.toNum=function (text) {
@@ -68,7 +68,17 @@ zzz.toNum=function (text) {
     }
 };
 zzz.random=function () {
-    return Math.random();
+    if(arguments.length===0) return Math.random();
+    else if(arguments.length===1){
+        if(zzz.equal.type(arguments[0],"string")) return arguments[0][zzz.random.int(0,arguments[0].length-1)];
+        else if(zzz.equal.type(arguments[0],"array")) return zzz.random.array(arguments[0]);
+        else if(zzz.equal.type(arguments[0],"object")){
+            var items=[];
+            for(var i in arguments[0]) items.push(i);
+            return zzz.random.array(items);
+        }
+    }
+    else return zzz.random.array(arguments);
 };
 zzz.random.int=function(min_included,max_included){
     if(max_included===min_included) return min_included;
@@ -107,6 +117,10 @@ zzz.random.string=function(len){
     }
     return str;
 };
+zzz.random.array=function(arr){
+  if(arr.length) return arr[zzz.random.int(0,arr.length-1)];
+  else return null;
+};
 zzz.appr=Math.round;
 zzz.down=Math.floor;
 zzz.up=Math.ceil;
@@ -123,266 +137,321 @@ zzz.abs=Math.abs;
 //current method:text(UTF-8)->uri(encoded)->BASE64
 //difference between uri and path:uri doesn't change ":/" into "%XX" because he thinks it belongs to a uri.
 zzz.code={
-    b:{
-        a:function (base64code) {
+    b64:{
+        decode:function (base64code) {
             return window.atob(base64code);
+        },
+        encode:function (text) {
+            return window.btoa(text);
         }
     },
-    a:{
-        b:function (text) {
-            return window.btoa(text);
-        },
-        uri:function (text) {
+    uri: {
+        encode: function (text) {
             return window.encodeURI(text);
         },
-        path:function (text) {
+        decode: function (uri) {
+            return window.decodeURI(uri);
+        }
+    },
+    path: {
+        encode: function (text) {
             return window.encodeURIComponent(text);
         },
-        md5package: {
-            //TODO: merge d and safe_add
-            d: function (n, t) {
-                var r = (65535 & n) + (65535 & t);
-                return (n >> 16) + (t >> 16) + (r >> 16) << 16 | 65535 & r
-            },
-            f: function (n, t, r, e, o, u) {
-                var c, z;
-                return this.d((c = this.d(this.d(t, n), this.d(e, u))) << (z = o) | c >>> 32 - z, r);
-            },
-
-            l: function (n, t, r, e, o, u, c) {
-                return this.f(t & r | ~t & e, n, t, o, u, c);
-            },
-
-            v: function (n, t, r, e, o, u, c) {
-                return this.f(t & e | r & ~e, n, t, o, u, c);
-            },
-
-            g: function (n, t, r, e, o, u, c) {
-                return this.f(t ^ r ^ e, n, t, o, u, c);
-            },
-
-            m: function (n, t, r, e, o, u, c) {
-                return this.f(r ^ (t | ~e), n, t, o, u, c);
-            },
-
-            i: function (n, t) {
-                var r, e, o, u;
-                n[t >> 5] |= 128 << t % 32, n[14 + (t + 64 >>> 9 << 4)] = t;
-                for (var c = 1732584193, f = -271733879, i = -1732584194, a = 271733878, h = 0; h < n.length; h += 16)
-                    c = this.l(r = c, e = f, o = i, u = a, n[h], 7, -680876936), a = this.l(a, c, f, i, n[h + 1], 12, -389564586), i = this.l(i, a, c, f, n[h + 2], 17, 606105819), f = this.l(f, i, a, c, n[h + 3], 22, -1044525330), c = this.l(c, f, i, a, n[h + 4], 7, -176418897), a = this.l(a, c, f, i, n[h + 5], 12, 1200080426), i = this.l(i, a, c, f, n[h + 6], 17, -1473231341), f = this.l(f, i, a, c, n[h + 7], 22, -45705983), c = this.l(c, f, i, a, n[h + 8], 7, 1770035416), a = this.l(a, c, f, i, n[h + 9], 12, -1958414417), i = this.l(i, a, c, f, n[h + 10], 17, -42063), f = this.l(f, i, a, c, n[h + 11], 22, -1990404162), c = this.l(c, f, i, a, n[h + 12], 7, 1804603682), a = this.l(a, c, f, i, n[h + 13], 12, -40341101), i = this.l(i, a, c, f, n[h + 14], 17, -1502002290), c = this.v(c, f = this.l(f, i, a, c, n[h + 15], 22, 1236535329), i, a, n[h + 1], 5, -165796510), a = this.v(a, c, f, i, n[h + 6], 9, -1069501632), i = this.v(i, a, c, f, n[h + 11], 14, 643717713), f = this.v(f, i, a, c, n[h], 20, -373897302), c = this.v(c, f, i, a, n[h + 5], 5, -701558691), a = this.v(a, c, f, i, n[h + 10], 9, 38016083), i = this.v(i, a, c, f, n[h + 15], 14, -660478335), f = this.v(f, i, a, c, n[h + 4], 20, -405537848), c = this.v(c, f, i, a, n[h + 9], 5, 568446438), a = this.v(a, c, f, i, n[h + 14], 9, -1019803690), i = this.v(i, a, c, f, n[h + 3], 14, -187363961), f = this.v(f, i, a, c, n[h + 8], 20, 1163531501), c = this.v(c, f, i, a, n[h + 13], 5, -1444681467), a = this.v(a, c, f, i, n[h + 2], 9, -51403784), i = this.v(i, a, c, f, n[h + 7], 14, 1735328473), c = this.g(c, f = this.v(f, i, a, c, n[h + 12], 20, -1926607734), i, a, n[h + 5], 4, -378558), a = this.g(a, c, f, i, n[h + 8], 11, -2022574463), i = this.g(i, a, c, f, n[h + 11], 16, 1839030562), f = this.g(f, i, a, c, n[h + 14], 23, -35309556), c = this.g(c, f, i, a, n[h + 1], 4, -1530992060), a = this.g(a, c, f, i, n[h + 4], 11, 1272893353), i = this.g(i, a, c, f, n[h + 7], 16, -155497632), f = this.g(f, i, a, c, n[h + 10], 23, -1094730640), c = this.g(c, f, i, a, n[h + 13], 4, 681279174), a = this.g(a, c, f, i, n[h], 11, -358537222), i = this.g(i, a, c, f, n[h + 3], 16, -722521979), f = this.g(f, i, a, c, n[h + 6], 23, 76029189), c = this.g(c, f, i, a, n[h + 9], 4, -640364487), a = this.g(a, c, f, i, n[h + 12], 11, -421815835), i = this.g(i, a, c, f, n[h + 15], 16, 530742520), c = this.m(c, f = this.g(f, i, a, c, n[h + 2], 23, -995338651), i, a, n[h], 6, -198630844), a = this.m(a, c, f, i, n[h + 7], 10, 1126891415), i = this.m(i, a, c, f, n[h + 14], 15, -1416354905), f = this.m(f, i, a, c, n[h + 5], 21, -57434055), c = this.m(c, f, i, a, n[h + 12], 6, 1700485571), a = this.m(a, c, f, i, n[h + 3], 10, -1894986606), i = this.m(i, a, c, f, n[h + 10], 15, -1051523), f = this.m(f, i, a, c, n[h + 1], 21, -2054922799), c = this.m(c, f, i, a, n[h + 8], 6, 1873313359), a = this.m(a, c, f, i, n[h + 15], 10, -30611744), i = this.m(i, a, c, f, n[h + 6], 15, -1560198380), f = this.m(f, i, a, c, n[h + 13], 21, 1309151649), c = this.m(c, f, i, a, n[h + 4], 6, -145523070), a = this.m(a, c, f, i, n[h + 11], 10, -1120210379), i = this.m(i, a, c, f, n[h + 2], 15, 718787259), f = this.m(f, i, a, c, n[h + 9], 21, -343485551), c = this.d(c, r), f = this.d(f, e), i = this.d(i, o), a = this.d(a, u);
-                return [c, f, i, a];
-            },
-
-            a: function (n) {
-                for (var t = "", r = 32 * n.length, e = 0; e < r; e += 8) t += String.fromCharCode(n[e >> 5] >>> e % 32 & 255);
-                return t
-            },
-
-            h: function (n) {
-                var t = [];
-                for (t[(n.length >> 2) - 1] = void 0, e = 0; e < t.length; e += 1) t[e] = 0;
-                for (var r = 8 * n.length, e = 0; e < r; e += 8) t[e >> 5] |= (255 & n.charCodeAt(e / 8)) << e % 32;
-                return t
-            },
-
-            e: function (n) {
-                for (var t, r = "0123456789abcdef", e = "", o = 0; o < n.length; o += 1) t = n.charCodeAt(o), e += r.charAt(t >>> 4 & 15) + r.charAt(15 & t);
-                return e;
-            },
-
-            r: function (n) {
-                return unescape(encodeURIComponent(n));
-            },
-
-            o: function (n) {
-                var t;
-                return this.a(this.i(this.h(t = this.r(n)), 8 * t.length));
-            },
-
-            u: function (n, t) {
-                return function (n, t) {
-                    var r, e, o = this.h(n), u = [], c = [];
-                    for (u[15] = c[15] = void 0, 16 < o.length && (o = this.i(o, 8 * n.length)), r = 0; r < 16; r += 1) u[r] = 909522486 ^ o[r], c[r] = 1549556828 ^ o[r];
-                    return e = this.i(u.concat(this.h(t)), 512 + 8 * t.length), this.a(this.i(c.concat(e), 640))
-                }(this.r(n), this.r(t));
-            },
+        decode: function (component) {
+            return window.decodeURIComponent(component);
+        }
+    },
+    //derived from https://github.com/blueimp/JavaScript-MD5/blob/master/js/md5.min.js
+    //text,key1,key2
+    md5:function (n,t,r) {
+        return t ? r ? this.auxiliary.k(t, n) : this.auxiliary.z(this.auxiliary.u(t, n)) : r ? this.auxiliary.o(n) : this.auxiliary.z(this.auxiliary.o(n));
+    },
+    //derived from https://blog.csdn.net/qq_40164190/article/details/83384234
+    sha256:function(data) {
+        let short = this.auxiliary;
+        for (let i in short.ihash_original) {
+            short.ihash[i] = short.ihash_original[i];
+        }
+        for (let i in short.count) short.count[i] = 0;
+        short.u(data, data.length);
+        short.f();
+        return short.hex();
+    },
+    auxiliary: {
+        safe_add: function (x, y) {
+            var lsw = (x & 0xffff) + (y & 0xffff);
+            var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+            return (msw << 16) | (lsw & 0xffff);
         },
-        //derived from https://github.com/blueimp/JavaScript-MD5/blob/master/js/md5.min.js
-        md5:function (n,t,r){
-            return t?r?this.md5package.u(t,n):this.md5package.e(this.md5package.u(t,n)):r?this.md5package.o(n):this.md5package.e(this.md5package.o(n));
+        b: function (n, t, r, e, o, u) {
+            var c, z;
+            return this.safe_add((c = this.safe_add(this.safe_add(t, n), this.safe_add(e, u))) << (z = o) | c >>> 32 - z, r);
         },
-        //derived from https://blog.csdn.net/qq_40164190/article/details/83384234
-        sha256package: {
-            r: function (n, x) {
-                return ((x >>> n) | (x << (32 - n)));
-            },
-            c: function (x, y, z) {
-                return ((x & y) ^ (~x & z));
-            },
-            m: function (x, y, z) {
-                return ((x & y) ^ (x & z) ^ (y & z));
-            },
-            S0: function (x) {
-                return (this.r(2, x) ^ this.r(13, x) ^ this.r(22, x));
-            },
-            S1: function (x) {
-                return (this.r(6, x) ^ this.r(11, x) ^ this.r(25, x));
-            },
-            s0: function (x) {
-                return (this.r(7, x) ^ this.r(18, x) ^ (x >>> 3));
-            },
-            s1: function (x) {
-                return (this.r(17, x) ^ this.r(19, x) ^ (x >>> 10));
-            },
-            e: function (W, j) {
-                return (W[j & 0x0f] += this.s1(W[(j + 14) & 0x0f]) + W[(j + 9) & 0x0f] +
-                    this.s0(W[(j + 1) & 0x0f]));
-            },
-            K256: [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
-                0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-                0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
-                0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-                0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
-                0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-                0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-                0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-                0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
-                0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-                0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
-                0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-                0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
-                0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-                0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-                0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
-            buffer: new Array(64),
-            sha256_hex_digits: "0123456789abcdef",
-            safe_add: function (x, y) {
-                var lsw = (x & 0xffff) + (y & 0xffff);
-                var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-                return (msw << 16) | (lsw & 0xffff);
-            },
-            count_original: [0, 0],
-            ihash_original: [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19],
-            count:[0,0],
-            ihash:new Array(8),
-            t: function () {
-                var a, b, c, d, e, f, g, h, T1, T2;
-                var W = new Array(16);
-                a = this.ihash[0];
-                b = this.ihash[1];
-                c = this.ihash[2];
-                d = this.ihash[3];
-                e = this.ihash[4];
-                f = this.ihash[5];
-                g = this.ihash[6];
-                h = this.ihash[7];
-                for (var i = 0; i < 16; i++)
-                    W[i] = ((this.buffer[(i << 2) + 3]) | (this.buffer[(i << 2) + 2] << 8) | (this.buffer[(i << 2) + 1]
-                        << 16) | (this.buffer[i << 2] << 24));
 
-                for (var j = 0; j < 64; j++) {
-                    T1 = h + this.S1(e) + this.c(e, f, g) + this.K256[j];
-                    if (j < 16) T1 += W[j];
-                    else T1 += this.e(W, j);
-                    T2 = this.S0(a) + this.m(a, b, c);
-                    h = g;
-                    g = f;
-                    f = e;
-                    e = this.safe_add(d, T1);
-                    d = c;
-                    c = b;
-                    b = a;
-                    a = this.safe_add(T1, T2);
+        l: function (n, t, r, e, o, u, c) {
+            return this.b(t & r | ~t & e, n, t, o, u, c);
+        },
+
+        v: function (n, t, r, e, o, u, c) {
+            return this.b(t & e | r & ~e, n, t, o, u, c);
+        },
+
+        g: function (n, t, r, e, o, u, c) {
+            return this.b(t ^ r ^ e, n, t, o, u, c);
+        },
+
+        j: function (n, t, r, e, o, u, c) {
+            return this.b(r ^ (t | ~e), n, t, o, u, c);
+        },
+        i: function (n, t) {
+            var r, e, o, u;
+            n[t >> 5] |= 128 << t % 32;
+            n[14 + (t + 64 >>> 9 << 4)] = t;
+            for (var c = 1732584193, f = -271733879, i = -1732584194, a = 271733878, h = 0; h < n.length; h += 16) {
+                c = this.l(r = c, e = f, o = i, u = a, n[h], 7, -680876936);
+                    a = this.l(a, c, f, i, n[h + 1], 12, -389564586);
+                    i = this.l(i, a, c, f, n[h + 2], 17, 606105819);
+                    f = this.l(f, i, a, c, n[h + 3], 22, -1044525330);
+                    c = this.l(c, f, i, a, n[h + 4], 7, -176418897);
+                    a = this.l(a, c, f, i, n[h + 5], 12, 1200080426);
+                    i = this.l(i, a, c, f, n[h + 6], 17, -1473231341);
+                    f = this.l(f, i, a, c, n[h + 7], 22, -45705983);
+                    c = this.l(c, f, i, a, n[h + 8], 7, 1770035416);
+                    a = this.l(a, c, f, i, n[h + 9], 12, -1958414417);
+                    i = this.l(i, a, c, f, n[h + 10], 17, -42063);
+                    f = this.l(f, i, a, c, n[h + 11], 22, -1990404162);
+                    c = this.l(c, f, i, a, n[h + 12], 7, 1804603682);
+                    a = this.l(a, c, f, i, n[h + 13], 12, -40341101);
+                    i = this.l(i, a, c, f, n[h + 14], 17, -1502002290);
+                    c = this.v(c, f = this.l(f, i, a, c, n[h + 15], 22, 1236535329), i, a, n[h + 1], 5, -165796510);
+                    a = this.v(a, c, f, i, n[h + 6], 9, -1069501632);
+                    i = this.v(i, a, c, f, n[h + 11], 14, 643717713);
+                    f = this.v(f, i, a, c, n[h], 20, -373897302);
+                    c = this.v(c, f, i, a, n[h + 5], 5, -701558691);
+                    a = this.v(a, c, f, i, n[h + 10], 9, 38016083);
+                    i = this.v(i, a, c, f, n[h + 15], 14, -660478335);
+                    f = this.v(f, i, a, c, n[h + 4], 20, -405537848);
+                    c = this.v(c, f, i, a, n[h + 9], 5, 568446438);
+                    a = this.v(a, c, f, i, n[h + 14], 9, -1019803690);
+                    i = this.v(i, a, c, f, n[h + 3], 14, -187363961);
+                    f = this.v(f, i, a, c, n[h + 8], 20, 1163531501);
+                    c = this.v(c, f, i, a, n[h + 13], 5, -1444681467);
+                    a = this.v(a, c, f, i, n[h + 2], 9, -51403784);
+                    i = this.v(i, a, c, f, n[h + 7], 14, 1735328473);
+                    c = this.g(c, f = this.v(f, i, a, c, n[h + 12], 20, -1926607734), i, a, n[h + 5], 4, -378558);
+                    a = this.g(a, c, f, i, n[h + 8], 11, -2022574463);
+                    i = this.g(i, a, c, f, n[h + 11], 16, 1839030562);
+                    f = this.g(f, i, a, c, n[h + 14], 23, -35309556);
+                    c = this.g(c, f, i, a, n[h + 1], 4, -1530992060);
+                    a = this.g(a, c, f, i, n[h + 4], 11, 1272893353);
+                    i = this.g(i, a, c, f, n[h + 7], 16, -155497632);
+                    f = this.g(f, i, a, c, n[h + 10], 23, -1094730640);
+                    c = this.g(c, f, i, a, n[h + 13], 4, 681279174);
+                    a = this.g(a, c, f, i, n[h], 11, -358537222);
+                    i = this.g(i, a, c, f, n[h + 3], 16, -722521979);
+                    f = this.g(f, i, a, c, n[h + 6], 23, 76029189);
+                    c = this.g(c, f, i, a, n[h + 9], 4, -640364487);
+                    a = this.g(a, c, f, i, n[h + 12], 11, -421815835);
+                    i = this.g(i, a, c, f, n[h + 15], 16, 530742520);
+                    c = this.j(c, f = this.g(f, i, a, c, n[h + 2], 23, -995338651), i, a, n[h], 6, -198630844);
+                    a = this.j(a, c, f, i, n[h + 7], 10, 1126891415);
+                    i = this.j(i, a, c, f, n[h + 14], 15, -1416354905);
+                    f = this.j(f, i, a, c, n[h + 5], 21, -57434055);
+                    c = this.j(c, f, i, a, n[h + 12], 6, 1700485571);
+                    a = this.j(a, c, f, i, n[h + 3], 10, -1894986606);
+                    i = this.j(i, a, c, f, n[h + 10], 15, -1051523);
+                    f = this.j(f, i, a, c, n[h + 1], 21, -2054922799);
+                    c = this.j(c, f, i, a, n[h + 8], 6, 1873313359);
+                    a = this.j(a, c, f, i, n[h + 15], 10, -30611744);
+                    i = this.j(i, a, c, f, n[h + 6], 15, -1560198380);
+                    f = this.j(f, i, a, c, n[h + 13], 21, 1309151649);
+                    c = this.j(c, f, i, a, n[h + 4], 6, -145523070);
+                    a = this.j(a, c, f, i, n[h + 11], 10, -1120210379);
+                    i = this.j(i, a, c, f, n[h + 2], 15, 718787259);
+                    f = this.j(f, i, a, c, n[h + 9], 21, -343485551);
+                    c = this.safe_add(c, r);
+                    f = this.safe_add(f, e);
+                    i = this.safe_add(i, o);
+                    a = this.safe_add(a, u);
+            }
+            return [c, f, i, a];
+        },
+
+        a: function (n) {
+            for (var t = "", r = 32 * n.length, e = 0; e < r; e += 8) t += String.fromCharCode(n[e >> 5] >>> e % 32 & 255);
+            return t
+        },
+        h: function (n) {
+            var t = [];
+            for (t[(n.length >> 2) - 1] = void 0, e = 0; e < t.length; e += 1) t[e] = 0;
+            for (var r = 8 * n.length, e = 0; e < r; e += 8) t[e >> 5] |= (255 & n.charCodeAt(e / 8)) << e % 32;
+            return t
+        },
+        z: function (n) {
+            for (var t, r = "0123456789abcdef", e = "", o = 0; o < n.length; o += 1) {
+                t = n.charCodeAt(o);
+                e += r.charAt(t >>> 4 & 15) + r.charAt(15 & t);
+            }
+            return e;
+        },
+        o: function (n) {
+            var t;
+            return this.a(this.i(this.h(t = unescape(encodeURIComponent(n))), 8 * t.length));
+        },
+        k: function (n, t) {
+            return function (n, t) {
+                var r, e, o = this.h(n), u = [], c = [];
+                for (u[15] = c[15] = void 0, 16 < o.length && (o = this.i(o, 8 * n.length)), r = 0; r < 16; r += 1) {
+                    u[r] = 909522486 ^ o[r];
+                    c[r] = 1549556828 ^ o[r];
                 }
-                this.ihash[0] += a;
-                this.ihash[1] += b;
-                this.ihash[2] += c;
-                this.ihash[3] += d;
-                this.ihash[4] += e;
-                this.ihash[5] += f;
-                this.ihash[6] += g;
-                this.ihash[7] += h;
-            },
-            u: function (data, inputLen) {
-                var i, index, curpos = 0;
-                index = ((this.count[0] >> 3) & 0x3f);
-                var remainder = (inputLen & 0x3f);
-                if ((this.count[0] += (inputLen << 3)) < (inputLen << 3)) this.count[1]++;
-                this.count[1] += (inputLen >> 29);
-                for (i = 0; i + 63 < inputLen; i += 64) {
-                    for (var j = index; j < 64; j++)
-                        this.buffer[j] = data.charCodeAt(curpos++);
-                    this.t();
-                    index = 0;
-                }
-                for (var j = 0; j < remainder; j++)
+                return e = this.i(u.concat(this.h(t)), 512 + 8 * t.length), this.a(this.i(c.concat(e), 640))
+            }(this.r(n), this.r(t));
+        },
+        r: function (n, x) {
+            return ((x >>> n) | (x << (32 - n)));
+        },
+        c: function (x, y, z) {
+            return ((x & y) ^ (~x & z));
+        },
+        m: function (x, y, z) {
+            return ((x & y) ^ (x & z) ^ (y & z));
+        },
+        S0: function (x) {
+            return (this.r(2, x) ^ this.r(13, x) ^ this.r(22, x));
+        },
+        S1: function (x) {
+            return (this.r(6, x) ^ this.r(11, x) ^ this.r(25, x));
+        },
+        s0: function (x) {
+            return (this.r(7, x) ^ this.r(18, x) ^ (x >>> 3));
+        },
+        s1: function (x) {
+            return (this.r(17, x) ^ this.r(19, x) ^ (x >>> 10));
+        },
+        e: function (W, j) {
+            return (W[j & 0x0f] += this.s1(W[(j + 14) & 0x0f]) + W[(j + 9) & 0x0f] +
+                this.s0(W[(j + 1) & 0x0f]));
+        },
+        K256: [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+            0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+            0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+            0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+            0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+            0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+            0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+            0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+            0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+            0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+            0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+            0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+            0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+            0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+            0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+            0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
+        buffer: new Array(64),
+        sha256_hex_digits: "0123456789abcdef",
+        count_original: [0, 0],
+        ihash_original: [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19],
+        count:[0,0],
+        ihash:new Array(8),
+        t: function () {
+            var a, b, c, d, e, f, g, h, T1, T2;
+            var W = new Array(16);
+            a = this.ihash[0];
+            b = this.ihash[1];
+            c = this.ihash[2];
+            d = this.ihash[3];
+            e = this.ihash[4];
+            f = this.ihash[5];
+            g = this.ihash[6];
+            h = this.ihash[7];
+            for (var i = 0; i < 16; i++)
+                W[i] = ((this.buffer[(i << 2) + 3]) | (this.buffer[(i << 2) + 2] << 8) | (this.buffer[(i << 2) + 1]
+                    << 16) | (this.buffer[i << 2] << 24));
+
+            for (var j = 0; j < 64; j++) {
+                T1 = h + this.S1(e) + this.c(e, f, g) + this.K256[j];
+                if (j < 16) T1 += W[j];
+                else T1 += this.e(W, j);
+                T2 = this.S0(a) + this.m(a, b, c);
+                h = g;
+                g = f;
+                f = e;
+                e = this.safe_add(d, T1);
+                d = c;
+                c = b;
+                b = a;
+                a = this.safe_add(T1, T2);
+            }
+            this.ihash[0] += a;
+            this.ihash[1] += b;
+            this.ihash[2] += c;
+            this.ihash[3] += d;
+            this.ihash[4] += e;
+            this.ihash[5] += f;
+            this.ihash[6] += g;
+            this.ihash[7] += h;
+        },
+        u: function (data, inputLen) {
+            var i, index, curpos = 0;
+            index = ((this.count[0] >> 3) & 0x3f);
+            var remainder = (inputLen & 0x3f);
+            if ((this.count[0] += (inputLen << 3)) < (inputLen << 3)) this.count[1]++;
+            this.count[1] += (inputLen >> 29);
+            for (i = 0; i + 63 < inputLen; i += 64) {
+                for (var j = index; j < 64; j++)
                     this.buffer[j] = data.charCodeAt(curpos++);
-            },
-            f: function () {
-                var index = ((this.count[0] >> 3) & 0x3f);
-                this.buffer[index++] = 0x80;
-                if (index <= 56) {
-                    for (var i = index; i < 56; i++)
-                        this.buffer[i] = 0;
-                } else {
-                    for (var i = index; i < 64; i++)
-                        this.buffer[i] = 0;
-                    this.t();
-                    for (var i = 0; i < 56; i++)
-                        this.buffer[i] = 0;
-                }
-                this.buffer[56] = (this.count[1] >>> 24) & 0xff;
-                this.buffer[57] = (this.count[1] >>> 16) & 0xff;
-                this.buffer[58] = (this.count[1] >>> 8) & 0xff;
-                this.buffer[59] = this.count[1] & 0xff;
-                this.buffer[60] = (this.count[0] >>> 24) & 0xff;
-                this.buffer[61] = (this.count[0] >>> 16) & 0xff;
-                this.buffer[62] = (this.count[0] >>> 8) & 0xff;
-                this.buffer[63] = this.count[0] & 0xff;
                 this.t();
-            },
-            /* Split the internal hash values into an array of bytes */
-            byte: function () {
-                var j = 0;
-                var output = new Array(32);
-                for (var i = 0; i < 8; i++) {
-                    output[j++] = ((this.ihash[i] >>> 24) & 0xff);
-                    output[j++] = ((this.ihash[i] >>> 16) & 0xff);
-                    output[j++] = ((this.ihash[i] >>> 8) & 0xff);
-                    output[j++] = (this.ihash[i] & 0xff);
-                }
-                return output;
-            },
-            hex: function () {
-                var output = new String();
-                for (var i = 0; i < 8; i++) {
-                    for (var j = 28; j >= 0; j -= 4)
-                        output += this.sha256_hex_digits.charAt((this.ihash[i] >>> j) & 0x0f);
-                }
-                return output;
+                index = 0;
             }
+            for (var j = 0; j < remainder; j++)
+                this.buffer[j] = data.charCodeAt(curpos++);
         },
-        sha256:function(data) {
-            let short = this.sha256package;
-            for (let i in short.ihash_original) {
-                short.ihash[i] = short.ihash_original[i];
+        f: function () {
+            var index = ((this.count[0] >> 3) & 0x3f);
+            this.buffer[index++] = 0x80;
+            if (index <= 56) {
+                for (var i = index; i < 56; i++)
+                    this.buffer[i] = 0;
+            } else {
+                for (var i = index; i < 64; i++)
+                    this.buffer[i] = 0;
+                this.t();
+                for (var i = 0; i < 56; i++)
+                    this.buffer[i] = 0;
             }
-            for (let i in short.count) short.count[i] = 0;
-            short.u(data, data.length);
-            short.f();
-            return short.hex();
+            this.buffer[56] = (this.count[1] >>> 24) & 0xff;
+            this.buffer[57] = (this.count[1] >>> 16) & 0xff;
+            this.buffer[58] = (this.count[1] >>> 8) & 0xff;
+            this.buffer[59] = this.count[1] & 0xff;
+            this.buffer[60] = (this.count[0] >>> 24) & 0xff;
+            this.buffer[61] = (this.count[0] >>> 16) & 0xff;
+            this.buffer[62] = (this.count[0] >>> 8) & 0xff;
+            this.buffer[63] = this.count[0] & 0xff;
+            this.t();
+        },
+        /* Split the internal hash values into an array of bytes */
+        byte: function () {
+            var j = 0;
+            var output = new Array(32);
+            for (var i = 0; i < 8; i++) {
+                output[j++] = ((this.ihash[i] >>> 24) & 0xff);
+                output[j++] = ((this.ihash[i] >>> 16) & 0xff);
+                output[j++] = ((this.ihash[i] >>> 8) & 0xff);
+                output[j++] = (this.ihash[i] & 0xff);
+            }
+            return output;
+        },
+        hex: function () {
+            var output = new String();
+            for (var i = 0; i < 8; i++) {
+                for (var j = 28; j >= 0; j -= 4)
+                    output += this.sha256_hex_digits.charAt((this.ihash[i] >>> j) & 0x0f);
+            }
+            return output;
         }
-    },
-    uri:{
-        a:function (uriName) {
-            return window.decodeURI(uriName);
         }
-    },
-    path:{
-        a:function (pathName) {
-            return window.decodeURIComponent(pathName);
-        }
-    },
 };
 
 
@@ -458,6 +527,14 @@ zzz.time={
     getDate:function () {
         var result=zzz.time.now();
         return [result.day,result.month,result.year];
+    },
+    test:function (func,loop) {
+        if(!loop) loop=1;
+        var name=func.name?("anonymous function"+zzz.random.string(5)):func.name;
+        console.log(name+" count start"+(loop>1?" for "+loop+" times":""));
+        console.time(name);
+        for(var i=0;i<loop;i++) func();
+        console.timeEnd(name);
     }
 };
 
@@ -511,7 +588,7 @@ zzz.storage={
 //TODO : complementary.
 zzz.browser={
     cookie:window.navigator.cookieEnabled,
-    online:window.navigator.onLine==="online",
+    online:window.navigator.onLine,
     uri:window.location.href,
     host:window.location.hostname,
     path:window.location.pathname,
@@ -522,6 +599,7 @@ zzz.browser={
     forward:history.forward,
     replace:location.replace,
     open:function (path,name,type) {
+        console.log(path,name,type);
         window.open(path,name,type);
     }
 };
@@ -774,7 +852,7 @@ zzz.load.js=function (src,parent) {
     parent.appendChild(newScript);
     return newScript;
 };
-zzz.load.css=function (src) {
+zzz.load.css=function (src,parent) {
     var newCSS=zzz.create("link",{href:src,rel:"stylesheet",type:"text/css"});
     if(!parent) parent=document.body;
     parent.appendChild(newCSS);
@@ -963,13 +1041,19 @@ zzz.ajax={
         console.log((src));
         //JSONP
         if(type==="script"){
-            var uniqueText=zzz.random.string(30);
-            zzz.value.callback.lib[zzz.value.callback.index]=uniqueText;
-            window[uniqueText]=function (response) {
-                func(response);
-            };
-            zzz.set(node,"src",zzz.path.add(src,{callback:uniqueText}));
-            zzz.value.callback.index++;
+            if(func) {
+                var uniqueText = zzz.random.string(30);
+                //zzz.value.callback.lib[zzz.value.callback.index]=uniqueText;
+                window[uniqueText] = function (response) {
+                    func(response);
+                };
+                zzz.set(node, "src", zzz.path.merge(src, {callback: uniqueText}));
+            }
+            else{
+                //normal JSON
+                zzz.set(node, "src", src);
+            }
+            //zzz.value.callback.index++;
         }
         //ELSE
         else {
@@ -988,7 +1072,72 @@ zzz.paint={
   get:function (element) {
     return element.getContext("2d");
   },
+    create:function(parent){
+      if(!parent) parent=document.body;
+      var canvas=zzz.create("canvas");
+      parent.appendChild(canvas);
+      return canvas.getContext("2d");
+    },
+    alias:{
+      width:"lineWidth",
+        lcolor:"strokeStyle",
+        fcolor:"fillStyle",
+        align:"textAlign",
+        shadowx:"shadowOffsetX",
+        shadowy:"shadowOffsetY",
+        shadowcolor:"shadowColor",
+        shadowblur:"shadowBlur"
+    },
   paintMethod:{
+      information:{
+        width:1,
+          x:0,
+          y:0,
+          align:"center",
+          font:"30px"
+      },
+      beginPath:function(canvas) {
+          canvas.beginPath();
+      },
+      to:function(canvas,x,y){
+          canvas.moveTo(x,y);
+      },
+      line:function(canvas,x,y){
+          canvas.lineTo(x,y);
+      },
+        paint:function(canvas){
+          canvas.stroke();
+        },
+      closePath:function(canvas){
+          canvas.closePath();
+      },
+      rect:function(canvas,x,y,w,h,isHollow){
+          if(isHollow) canvas.strokeRect(x,y,w,h);
+          else canvas.fillRect(x,y,w,h);
+      },
+      clear:function(canvas,x,y,w,h){
+          canvas.clearRect(x,y,w,h);
+      },
+      image:function(canvas,src){
+        var img=new Image();
+        img.src=src;
+        var wrapper=function() {
+            canvas.drawImage(img, this.information.x, this.information.y);
+        };
+        img.onload=wrapper;
+      },
+      read:function(canvas,x,y,w,h){
+
+      },
+      //no line-break usable.manual.
+      text:function(canvas,text,isHollow){
+          if(isHollow) canvas.strokeText(text,this.information.x,this.information.y);
+          else canvas.fillText(text,this.information.x,this.information.y);
+      },
+      set:function(canvas,key,value){
+        this.information[key]=value;
+        canvas[zzz.paint.alias[key]]=value;
+      },
       fill:function (color) {
         if(!color) color=this.color;
       }
@@ -1004,11 +1153,11 @@ zzz.browser.fullscreen={
     enter:function (element) {
         if(!element) return;
         this.status=true;
-        element.requestFullscreen();
+        return element.requestFullscreen();
     },
     exit:function () {
-        document.exitFullscreen();
         this.status=false;
+        return document.exitFullscreen();
     }
 };
 
@@ -1038,70 +1187,105 @@ zzz.incidence.bindResizeObserver=function(element,func){
 //absolute path API
 //convert a relative path into an absolute API
 //for example, ../images/1.jpg + https://blog.cn/css = https://blog.cn/images/1.jpg
+//do not add / to the end.
 zzz.path={
-  abs:function (url,base) {
-    if(!base) base="";
-    var node=zzz.create("a");
-    zzz.set(node,"href",base+url);
-    var result=node.href;
-    node=null;
-    return result;
-  },
-    host:function (url) {
-      let result=url.match("://");
-      if(result) {
-          url = url.substr(result.index + 3);
-      }
-      result=url.match("/");
-        if(result){
-            return url.substr(0,result.index+1);
+    split:function(url){
+        //https://www.a.b.com/d:443?e=f&g=h
+        //protocol=https:
+        //path=www.a.b.com/d
+        //domain=com
+        //subdomain=www.a
+        //port=443
+        var protocol=url.match("://");
+        var protocol_string=protocol?url.substr(0,protocol.index+1):"";
+        if(protocol) url=url.substr(protocol.index+3);
+        if(url[0]==="/") url=url.substr(1);
+        var component_index=url.match(/\?/);
+        var component=component_index?url.substr(component_index.index+1).split("&"):[];
+        var port=url.match(/:[0-9]{1,3}/);
+        var port_string="";
+        if(port){
+            port_string=url.slice(port.index+1,component_index?component_index.index:url.length);
+            url=url.slice(0,port.index);
         }
-        else return url+"/";
+        else if(component_index){
+            url=url.slice(0,component_index.index);
+        }
+        var host=url.match(/\//);
+        var path_string=host?url.substr(host.index):"/";
+        var host_string=url.substr(0,host?host.index:undefined);
+        var domains=host_string.split(".");
+        var domain_string=domains?domains[domains.length-1]:"";
+        if(!zzz.equal.type(zzz.toNum(domain_string),"NaN")) domain_string=host_string;
+        var subdomain_string=host_string.replace(domain_string,"");
+        if(subdomain_string[subdomain_string.length-1]===".") subdomain_string=subdomain_string.substr(0,subdomain_string.length-1);
+        var result={
+            protocol:protocol_string,
+            0:protocol_string,
+            path:zzz.code.path.decode(path_string),
+            host:host_string,
+            1:host_string,
+            domain:domain_string,
+            subdomain:subdomain_string,
+            port:port_string,
+            2:port_string,
+            component:{},
+            3:{}
+        };
+        if(result.protocol==="file:"){
+            result.domain="";
+            result.subdomain="";
+            result[1]=result[2]="";
+        }
+        for(var i of component){
+            let len=i.length;
+            for(var key=0;i[key]!=="="&&key<i.length;key++){}
+            let name=zzz.code.path.decode(i.substr(0,key));
+            let value=zzz.code.path.decode(i.substr(key+1));
+            result.component[name]=value;
+            result[3][name]=value;
+        }
+        return result;
     },
-    protocol:function(url){
-      let result=url.match("://");
-      if(result){
-          return url.substr(0,result.index+1);
-      }
-      else return null;
-    },
-    domain:function (url) {
-        url=zzz.path.host(url);
-        let result=url.split(".");
-        // return 192.168.1.1 and the like
-        var flag=true;
-        for(let i of result){
-            if(!zzz.isInt(i)){
-                flag=false;
-                break;
+    merge:function(){
+        var result="";
+        if(arguments.length===1){
+            var short=arguments[0];
+            result+=short.protocol?(short.protocol+"//"):"";
+            if(short.protocol==="file:") result+="/";
+            result+=short.host||"";
+            if(short.path) result+=short.path;
+            result+=short.port?(":"+short.port):"";
+            if((!short.port)&&(!short.path)&&result[result.length-1]!=="/") result+="/";
+            result=zzz.code.uri.encode(result);
+            if(short.component) {
+                result+="?";
+                let items=[];
+                for(var i in short.component){
+                    items.push(zzz.code.path.encode(i)+"="+zzz.code.path.encode(short.component[i]));
+                }
+                result+=items.join("&");
             }
+            if(result[result.length-1]==="?") result=result.substr(0,result.length-1);
+            return result;
         }
-        if(flag) return true;
-        else{
-        // delete ****.com,****.co,****.uk,etc.
-            var i=result.length-1;
-            for(;i>=0;i--){
-                if(!zzz.value.domain.has(result[i])) break;
+        else if(arguments.length===2&&zzz.equal.type(arguments[0],"string")&&zzz.equal.type(arguments[1],"object")){
+            let origin=zzz.path.split(arguments[0]);
+            for(var i in arguments[1]){
+                origin.component[i]=arguments[1][i];
             }
-            return result[i];
+            return zzz.path.merge(origin);
         }
+        else console.log("invalid input for zzz.path.merge, the arguments are",arguments);
     },
-    add:function (src,dataset) {
-      //add /?
-        if(!src.match("/?")){
-            if(src[src.length-1]!=="/") src+="/";
-            src+="?";
-        }
-        //delete /
-        if(src[src.length-1]==="/") src=src.slice(0,src.length-2);
-        //add
-        for(let i in dataset){
-            src+="&";
-            src+=i;
-            src+="=";
-            src+=zzz.code.a.path(dataset[i]);
-        }
-        return src;
+    deleteEnd:function(url){return url.replace(/\/$/,"");},
+    abs:function (url,base) {
+        if(!base) base="";
+        var node=zzz.create("a");
+        zzz.set(node,"href",base+url);
+        var result=node.href;
+        node=null;
+        return zzz.path.deleteEnd(result);
     }
 };
 
@@ -1235,12 +1419,12 @@ zzz.api.translation={
         var salt=zzz.random.int(1,100000000);
         result=result.replace("{salt}",salt.toString());
         if(engine==="baidu")
-        result=result.replace("{sign}",zzz.code.a.md5(id+text+salt.toString()+token));
+        result=result.replace("{sign}",zzz.code.md5(id+text+salt.toString()+token));
         else if(engine==="youdao") {
             let input =text.length<=20?text:(text.slice(0,10)+text.length.toString()+text.slice(text.length-10,text.length));
-            let time=Math.round(new Date().getTime()/1000);;
+            let time=Math.round(new Date().getTime()/1000);
             result=result.replace("{time}",time);
-            result = result.replace("{sign}", zzz.code.a.sha256(id + input +salt+time.toString()+token.toString()))
+            result = result.replace("{sign}", zzz.code.sha256(id + input +salt+time.toString()+token.toString()))
         }
         return result;
     },
@@ -1285,6 +1469,73 @@ zzz.api.update={
     }
 };
 
+//wayback machine api
+zzz.api.archive={
+  save:function (url) {
+      zzz.ajax.get("script",'https://web.archive.org/save/'+zzz.path.deleteEnd(url));
+  },
+    open:function (url) {
+      let callback=function(response){
+          var result=response.archived_snapshots;
+          if(result.closest){
+              if(result.closest.available)
+              zzz.browser.open(result.closest.url);
+              return;
+          }
+          console.log(url+" unavailable at wayback machine");
+      };
+        zzz.ajax.get("script",'http://archive.org/wayback/available?url='+zzz.path.deleteEnd(url),callback);
+    },
+    find:function (url) {
+        var set=zzz.path.split(url);
+        set.component=null;
+        url="https://web.archive.org/save/"+zzz.path.merge(set)+"*";
+        zzz.browser.open(url);
+    }
+};
+
+
+//string
+zzz.string={
+  distance:function (str1,str2) {
+    var len1=str1.length,len2=str2.length,maxLength=Math.max(len1,len2);
+    var save=new Array(len2+1);
+    var t1,t2;
+    for(var i=0;i<=len2;i++) save[i]=i;
+    for(var i=1;i<=len1;i++){
+        t1=save[0]++;
+        for(var j=1;j<=len2;j++){
+            t2=save[j];
+            if(str1[i-1]===str2[j-1]) save[j]=t1;
+            else save[j]=Math.min(t1,save[j-1],save[j])+1;
+            t1=t2;
+        }
+    }
+    return save[len2];
+  }
+};
+
+//unicode translator
+zzz.api.unicode={
+  translate:function (code) {
+    return String.fromCharCode(code);
+  },
+  search:function(name,dict){
+      if(dict[name]!==undefined) return dict[name];
+      else{
+          var minDistance=999999,temp,minPosition="";
+          for(var i in dict){
+              temp=zzz.string.distance(name,i);
+              if(temp<minDistance){
+                minDistance=temp;
+                minPosition=i;
+              }
+          }
+          if(minPosition!=="") return dict[minPosition];
+          else return null;
+      }
+  }
+};
 //overall initialize
 zzz.init=function () {
     zzz.storage.init();

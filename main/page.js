@@ -40,8 +40,20 @@ var convertTextToSearch=function (method,text) {
     return useSearchMethod(method,readSearchText(text));
 };
 var addFromRawText=function(text,keyword,name){
-    if(!name) name=zzz.path.domain(text);
+    if(!name) name=zzz.path.split(text).subdomain;
     addSearchMethod(name,text.replace(keyword,"{keyword}"));
+};
+var addUIPanel=function () {
+    //UI
+    var str1=prompt("add an item (shortcut or search engine):");
+    if(str1){
+        var str2=prompt("input the location(use {keyword} to refer to keyword):");
+        if(str2){
+            searchSettings.text("engine",'"'+str1+'":"'+str2+'",');
+        }
+    }
+    //var title=zzz.create("div",{innerText:"add"});
+    //title.
 };
 var readPreference=function () {
     if(zzz.storage.get("preferredSearchEngine")){
@@ -108,7 +120,9 @@ var interpretCmd=function (e,isEqual) {
     var text=searchSettings.text("bar");
     isEqual=isEqual!=="=";
     var cmdLine=text.split(" ");
+    var command="";
     cmdLine[cmdLine.length-1]=cmdLine[cmdLine.length-1].replace(/[\n ]/g,"");
+    command=searchSettings.fixed||cmdLine[0];
     console.log(cmdLine);
     var i=0;
     //jump
@@ -116,7 +130,12 @@ var interpretCmd=function (e,isEqual) {
         zzz.browser.open(searchSettings.jump[cmdLine[0]]);
         return;
     }
-    if(isEqual&&cmdLine[0]==="set"){
+    //set fixed command
+    else if(cmdLine[0]==="fix"){
+        searchSettings.fixed=cmdLine[1]||"";
+        searchSettings.text("engine","fixed= "+cmdLine[0]);
+    }
+    else if(isEqual&&cmdLine[0]==="set"){
         if(cmdLine[1]==="translation"&&cmdLine[2]){
             //set a translation engine
             //verify
@@ -145,23 +164,27 @@ var interpretCmd=function (e,isEqual) {
         }
     }
     //random integer
-    else if(cmdLine[0]==="random"){
+    else if(command==="random"){
         if(!cmdLine[1]) cmdLine[1]="0";
         if(!cmdLine[2]) cmdLine[2]="1";
         if(!cmdLine[3]) cmdLine[3]="=";
         cmdLine[4]=zzz.random.int(zzz.toNum(cmdLine[1]),zzz.toNum(cmdLine[2])).toString();
         searchSettings.text("bar",cmdLine.join(" "));
     }
+    //add shortcut or search engine
+    else if(cmdLine[0]==="add"&&cmdLine.length===1){
+        addUIPanel();
+    }
     //translate
-    else if(cmdLine[0]==="translate"||cmdLine[0]==="fanyi"||cmdLine[0]==="fy"){
+    else if(command==="translate"||command==="fanyi"||command==="fy"){
         if(!cmdLine[1]) return;
         else{
             let text=cmdLine.join(" ");
-            text=text.slice(cmdLine[0].length);
+            text=text.slice(cmdLine[0].length+1);
             let isEnglish=cmdLine[1]==="en";
             isEnglish=isEnglish&&cmdLine[2];
             if(isEnglish) text=text.slice(cmdLine[1].length+2);
-            searchSettings.text("bar",text+" = ...");
+            searchSettings.text("bar","translate "+text+" = ...");
             let translate=function(resp){
                 searchSettings.text("bar",searchSettings.text("bar").replace("...",resp.dst||resp.join(",")));
                 //searchSettings.text("bar",searchSettings.text("bar")+resp.dst);
@@ -304,7 +327,7 @@ var initializer=function(){
     zzz.value.homepage.search_bar=1;
     zzz.incidence.bind(searchSettings.bar,"keydown",tackleInput);
     readPreference();
-    zzz.incidence.bind(document.body,"keydown",showKey);
+    //zzz.incidence.bind(document.body,"keydown",showKey);
     zzz.incidence.bind(zzz.get.cls("enter_button")[0],"click",interpretCmd);
     var obj=searchSettings.bar;
     var button=zzz.get.cls("enter_button")[0];
