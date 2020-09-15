@@ -5,7 +5,7 @@ author:zzs
 */
 "use strict";
 var zzz= {};
-zzz.version=20200907;
+zzz.version=20200915;
 zzz.value={};
 
 
@@ -127,7 +127,82 @@ zzz.up=Math.ceil;
 zzz.abs=Math.abs;
 
 
+//sort
+zzz.algorithm= {
+    sort: function (arr) {
 
+    },
+    basicInterface: {
+        compareTo: function (a, b) {
+            return a < b;
+        },
+        swap: function (arr, a, b) {
+            var c = arr[a];
+            arr[a] = arr[b];
+            arr[b] = c;
+        }
+    },
+    sortAlgorithms:{
+        insert:function (arr,start,end,compareTo,swap) {
+            if(!compareTo) compareTo=zzz.algorithm.basicInterface.compareTo;
+            if(!swap) swap=zzz.algorithm.basicInterface.swap;
+            if(!start) start=0;
+            if(!end) end=arr.length;
+            var i=start+1,j=0;
+            for(;i<end;i++){
+                if(compareTo(arr[i],arr[i-1])){
+                    for(j=i;j>0;j--){
+                        if(compareTo(arr[j],arr[j-1])) swap(arr,j,j-1);
+                    }
+                }
+            }
+        },
+        //recurring version
+        quick:function (arr,start,end,compareTo,swap) {
+            if(!compareTo) compareTo=zzz.algorithm.basicInterface.compareTo;
+            if(!swap) swap=zzz.algorithm.basicInterface.swap;
+            if(!start) start=0;
+            if(!end) end=arr.length;
+            //alter to insert sort.
+            if(end-start<10){
+                zzz.algorithm.sortAlgorithms.insert(arr,start,end,compareTo,swap);
+                return;
+            }
+            var low=start+1,high=end-1,mid=(low>>1)+(high>>1)+(low&high)&1;
+            while(low<=high) {
+                while (compareTo(arr[low], arr[0])) low++;
+                while (compareTo(arr[0], arr[high])) high--;
+                if(low<high){}
+            }
+        },
+        //recurring version
+        merge:function(arr,start,end,compareTo,swap) {
+            if(!compareTo) compareTo=zzz.algorithm.basicInterface.compareTo;
+            if(!swap) swap=zzz.algorithm.basicInterface.swap;
+            if(!start) start=0;
+            if(!end) end=arr.length;
+            if(end-start<2) return;
+            else if(end-start===2){
+                if(compareTo(arr[end-1],arr[start])) swap(arr,start,end-1);
+                return;
+            }
+            else {
+                var mid = (start >> 1) + (end >> 1)+(start&end&1);
+                zzz.algorithm.sortAlgorithms.merge(arr, start, mid);
+                zzz.algorithm.sortAlgorithms.merge(arr,mid,end);
+            }
+            //sort
+            var temp=new Array(end-start),i=start,j=mid,k=0;
+            while(i<mid&&j<end){
+                if(compareTo(arr[j],arr[i])) temp[k++]=arr[j++];
+                else temp[k++]=arr[i++];
+            }
+            while(i<mid) temp[k++]=arr[i++];
+            while(j<end) temp[k++]=arr[j++];
+            for(k--;k>=0;k--) arr[k+start]=temp[k];
+        }
+    }
+};
 
 
 
@@ -468,8 +543,11 @@ class ztimeStructure{
         this.hour=time.hour||0;
         this.minute=time.minute||0;
         this.second=time.second||0;
+        this.milisecond=time.milisecond||0;
+        this.negative=time.negative||false;
     }
 }
+//TODO: seperate ztime from Date, especially rewrite subtract method.
 zzz.time={
     convertFromDate:function(date){
         if(date instanceof Date) {
@@ -500,6 +578,7 @@ zzz.time={
         throw new Error("zzz.time.readDate requires a ztimeStructure.");
     },
     convertToDate:function(ztime){
+        if(!(ztime instanceof ztimeStructure)) return;
         var result= new Date();
         result.setFullYear(ztime.year);
         result.setMonth(ztime.month-1);
@@ -535,6 +614,64 @@ zzz.time={
         console.time(name);
         for(var i=0;i<loop;i++) func();
         console.timeEnd(name);
+    },
+    stringify:function (ztime) {
+        var result="",cn="chinesenumber";
+        result+=ztime.year?(zzz.string.stringify(ztime.year,"chinese")+"年"):"";
+        result+=ztime.month?(zzz.string.stringify(ztime.month,cn)+"月"):"";
+        result+=ztime.day?(zzz.string.stringify(ztime.day,cn)+"日"):"";
+        result+=ztime.hour?(zzz.string.stringify(ztime.hour,cn)+"时"):"";
+        result+=ztime.minute?(zzz.string.stringify(ztime.minute,cn)+"分"):"";
+        result+=ztime.second?(zzz.string.stringify(ztime.second,cn)+"秒"):"";
+        result+=ztime.milisecond?(zzz.string.stringify(ztime.milisecond,cn)+"毫秒"):"";
+        if(!result) result="零秒";
+        return result;
+    },
+    diff:function (ztime1,ztime2) {
+        var t1=zzz.time.convertToDate(ztime1).getTime(),t2=zzz.time.convertToDate(ztime2).getTime();
+        var difftime=t2-t1;
+        var isNegative=difftime<0;
+        var result=zzz.time.convertFromDate(new Date(zzz.abs(difftime)));
+        result.negative=isNegative;
+        result.year-=1970;
+        if(result.year<0){
+            //TODO : negative years are meant to be corrected.
+        }
+        result.month--;
+        result.day--;
+        result.hour-=8;
+        result.minute--;
+        result.second--;
+        return result;
+    },
+    approximate:function (different) {
+        if(!(different instanceof ztimeStructure)) return;
+        console.log(different);
+        var result="";
+        var cn="chineseoral";
+        var isNegative=different.negative;
+        var mostDifferent=5;
+        var sequence=["year","month","day","hour","minute","second"];
+        var name=["年","个月","天","小时","分钟","秒"];
+        for(let i=0;i<6;i++){
+            if(different[sequence[i]]>0){
+                mostDifferent=i;
+                break;
+            }
+        }
+        console.log(different,mostDifferent);
+        return zzz.string.stringify(different[sequence[mostDifferent]],cn)+name[mostDifferent]+(isNegative?"前":"后");
+    },
+    create:function (year,month,day,hour,minute,second,milisecond) {
+        return new ztimeStructure({
+            year:year,
+            month:month,
+            day:day,
+            hour:hour,
+            minute:minute,
+            second:second,
+            milisecond:milisecond
+        })
     }
 };
 
@@ -563,6 +700,27 @@ zzz.storage={
                 return window.localStorage.removeItem(key);
             }
         }
+        else if(document.cookie){
+            this.db=document.cookie;
+            this.get=function (key) {
+                var cookie=document.cookie.split(";");
+                var set=["",""];
+                for(var i of cookie){
+                    set=i.split("=");
+                    if(set[0]===key) return set[1];
+                }
+                return null;
+            }
+        }
+    },
+    add:function (item,key,value) {
+        var obj=JSON.parse(zzz.storage.get(item)||"{}");
+        obj[key]=value;
+        var result=JSON.stringify(obj);
+        zzz.storage.set(item,result);
+    },
+    json:function (key) {
+        return JSON.parse(zzz.storage.get(key));
     }
 };
 
@@ -577,8 +735,9 @@ zzz.storage={
 
 
 
-
-
+//time function
+zzz.tick=setTimeout;
+zzz.loop=setInterval;
 
 
 
@@ -601,6 +760,12 @@ zzz.browser={
     open:function (path,name,type) {
         console.log(path,name,type);
         window.open(path,name,type);
+    },
+    download:function (url) {
+            if(!zzz.equal.type(url,"string")) return false;
+            var node=zzz.create("a",{href:url,download:url},{display:"none"});
+            document.body.appendChild(node);
+            node.click();
     }
 };
 zzz.browser.open.inner=function(settings){
@@ -639,20 +804,20 @@ zzz.browser.open.inner=function(settings){
 //TODO : handle for object event.
 zzz.clip={
     copy:function (text) {
-        if(text instanceof String){
+        if(zzz.equal.type(text,"string")){
             if (window.clipboardData) {
                 window.clipboardData.clearData();
                 window.clipboardData.setData("Text", text);
                 return true;
             }
             else if (document.execCommand) {
-                var cb = document.getElementsByTagName("p");
-                var originalText=cb.innerText;
-                cb.innerText = object;
+                var cb = zzz.create("textarea");
+                document.body.appendChild(cb);
+                cb.innerText = text;
                 cb.select();
                 document.execCommand("copy");
-                cb.innerText=originalText;
-                cb.blur();
+                document.body.removeChild(cb);
+                cb=null;
                 return true;
             }
         }
@@ -1474,15 +1639,17 @@ zzz.api.archive={
   save:function (url) {
       zzz.ajax.get("script",'https://web.archive.org/save/'+zzz.path.deleteEnd(url));
   },
-    open:function (url) {
+    open:function (url,func) {
+      if(!func) func=function(){};
       let callback=function(response){
           var result=response.archived_snapshots;
           if(result.closest){
               if(result.closest.available)
+              func(true);
               zzz.browser.open(result.closest.url);
               return;
           }
-          console.log(url+" unavailable at wayback machine");
+          func(false);
       };
         zzz.ajax.get("script",'http://archive.org/wayback/available?url='+zzz.path.deleteEnd(url),callback);
     },
@@ -1512,8 +1679,140 @@ zzz.string={
         }
     }
     return save[len2];
-  }
+  },
+    first_letter_algorithm:function (str1,str2) {
+        var dist=zzz.string.distance(str1,str2);
+        return dist+str1.length-str2.length;
+    },
+    stringify:function (obj,type) {
+      if(!zzz.equal.type(type,"string")) return "";
+        type = type.toLowerCase();
+        if (zzz.equal.type(obj, "number")) {
+            if (type === "chinesenumber"||type==="chsnum") {
+                return zzz.string.chineseNumber(obj);
+            }else if(type==="big"||type==="bigchinese") {
+                return zzz.string.chineseNumber(obj, true);
+            }else if(type==="chineseoral"||type==="oral"){
+                var result=zzz.string.chineseNumber(obj);
+                if(result==="二") result="两";
+                return  result;
+            }else if(type==="chinese"||type==="chs"){
+                var result=obj.toString().split("");
+                result.forEach(function (value,index,array) {
+                    if(value==="-") array[index]="负";
+                    else if(value===".") array[index]="点";
+                    else array[index]=zzz.value.ChineseNumber[value.charCodeAt(0)-zzz.value.zero];
+                });
+                return result.join("");
+            } else return obj.toString();
+        } else {
+            if (obj.toString) return obj.toString();
+            else if (obj.name) return obj.name;
+            else return "";
+        }
+    },
+    chineseNumber:function (number,isBig,characterTable) {
+      var charset;
+      if(!characterTable) charset=zzz.value[isBig?"ChineseNumberBig":"ChineseNumber"];
+      else charset=characterTable;
+        var text=number.toString(),length=text.length,i,isNegative=number<0;
+        var result="";
+        var occupied=[];
+        var index=0;
+        number=zzz.abs(number);
+        var fraction=text.indexOf(".")+1;
+        number=zzz.down(number);
+        //亿
+        i=zzz.down(number/100000000);
+        occupied[index]=!!i;
+        index++;
+        if(i) result+=zzz.string.chineseNumber(i,isBig)+charset[14];
+        //万
+        number=number%100000000;
+        i=zzz.down(number/10000);
+        occupied[index]=!!i;
+        if(i&&(!occupied[index-1])&&result) result+=charset[0];
+        index++;
+        if(i) result+=zzz.string.chineseNumber(i,isBig)+charset[13];
+        //千
+        number=number%10000;
+        i=zzz.down(number/1000);
+        occupied[index]=!!i;
+        if(i&&(!occupied[index-1])&&result) result+=charset[0];
+        index++;
+        if(i) result+=charset[i]+charset[12];
+        //百
+        number=number%1000;
+        i=zzz.down(number/100);
+        occupied[index]=!!i;
+        if(i&&(!occupied[index-1])&&result) result+=charset[0];
+        index++;
+        if(i) result+=charset[i]+charset[11];
+        //十
+        //fix:去除“一十”中的“一”字
+        number=number%100;
+        i=zzz.down(number/10);
+        occupied[index]=!!i;
+        if(i&&(!occupied[index-1])&&result) result+=charset[0];
+        index++;
+        if(i>1) result+=charset[i];
+        if(i) result+=charset[10];
+        //一
+        number=number%10;
+        i=number;
+        occupied[index]=!!i;
+        if(i&&(!occupied[index-1])&&result) result+=charset[0];
+        index++;
+        if(i) result+=charset[i];
+        //零
+        if(result.length===0) result+=charset[0];
+        if(fraction){
+            result+=charset[15];
+            text=text.slice(fraction);
+            for(let i in text) result+=charset[text.charCodeAt(i)-"0".charCodeAt(0)];
+        }
+        return (isNegative?"负":"")+result;
+    },
+    //Manacher's Algorithm
+    //查找最长回文子串的长度
+    manacher:function (str) {
+        var emptyString="";
+        var i,j,strLength=str.length<<1;
+        var processedString=new Array(strLength);
+        var length=new Array(strLength);
+        processedString[0]="NaN";
+        length[0]=1;
+        for(j=0,i=1;i<strLength;i++){
+            processedString[i]=(i&1)?str[j++]:emptyString;
+            length[i]=0;
+        }
+        var right=1,center=1,radix=0,maxLength=1;
+        i=1;
+        while(i<strLength) {
+            if(i<=right) radix=length[(center<<1)-i];
+            else radix=1;
+            for (radix+=i;radix<strLength;radix++) {
+                if(processedString[radix]!=processedString[(i<<1)-radix]) break;
+            }
+            length[i]=radix-i;
+            if(radix-1>right){
+                right=radix-1;
+                center=i;
+            }
+            i++;
+        }
+        j=0;
+        for(i=2;i<strLength;i++){
+            if(maxLength<length[i]){
+                j=i;
+                maxLength=length[i];
+            }
+        }
+        return [j,maxLength];
+    }
 };
+
+
 
 //unicode translator
 zzz.api.unicode={
@@ -1525,7 +1824,7 @@ zzz.api.unicode={
       else{
           var minDistance=999999,temp,minPosition="";
           for(var i in dict){
-              temp=zzz.string.distance(name,i);
+              temp=zzz.string.first_letter_algorithm(name,i);
               if(temp<minDistance){
                 minDistance=temp;
                 minPosition=i;
@@ -1536,6 +1835,9 @@ zzz.api.unicode={
       }
   }
 };
+
+
+
 //overall initialize
 zzz.init=function () {
     zzz.storage.init();

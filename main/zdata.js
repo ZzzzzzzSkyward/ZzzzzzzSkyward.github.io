@@ -116,6 +116,9 @@ zzz.value.event={
     ,fullscreenerror:"设置全屏出错"
 };
 zzz.value.validCharacter="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+zzz.value.ChineseNumber="零一二三四五六七八九十百千万亿点";
+zzz.value.ChineseNumberBig="零壹贰叁肆伍陆柒捌玖拾佰仟萬亿點";
+zzz.value.zero="0".charCodeAt(0);
 zzz.value.keyCode= {
     1:"leftbutton",
     2:"rightbutton",
@@ -174,6 +177,7 @@ zzz.value.domain=new Set([
        "ac","ad","ae","af","ag","ai","al","am","an","ao","aq","ar","as","at","au","aw","az","ba","bb","bd","be","bf","bg","bh","bi","bj","bm","bn","bo","br","bs","bt","bv","bw","by","bz","ca","cc","cd","cf","cg","ch","ci","ck","cl","cm","cn","co","cr","cu","cv","cx","cy","cz","de","dj","dk","dm","do","dz","ec","ee","eg","er","es","et","eu","fi","fj","fk","fm","fo","fr","ga","gd","ge","gf","gg","gh","gi","gl","gm","gn","gp","gq","gr","gs","gt","gu","gw","gy","hk","hm","hn","hr","ht","hu","id","ie","il","im","in","io","iq","ir","is","it","je","jm","jo","jp","ke","kg","kh","ki","km","kn","kr","kw","ky","kz","la","lb","lc","li","lk","lr","ls","lt","lu","lv","ly","ma","mc","md","me","mg","mh","mk","ml","mm","mn","mo","mp","mq","mr","ms","mt","mu","mv","mw","mx","my","mz","na","nc","ne","nf","ng","ni","nl","no","np","nr","nu","nz","om","pa","pe","pf","pg","ph","pk","pl","pm","pn","pr","ps","pt","pw","py","qa","re","ro","ru","rw","sa","sb","sc","sd","se","sg","sh","si","sk","sl","sm","sn","so","sr","st","sv","sy","sz","tc","td","tf","tg","th","tj","tk","tl","tm","tn","to","tr","tt","tv","tw","tz","ua","ug","uk","us","uy","uz","va","vc","ve","vg","vi","vn","vu","wf","ws","ye","yt","yu","za","zm","zw"
 ]);
 zzz.value.weekday=["","Mon","Tues","Wednes","Thurs","Fri","Satur","Sun"];
+zzz.value.month=[31,28,31,30,31,30,31,31,30,31,30,31,30];
 zzz.value.search=[
     ["baidu","http://www.baidu.com/s?wd={keyword}"],//si,ie,..
     ["bing-cn","https://cn.bing.com/search?&q={keyword}"],
@@ -210,79 +214,79 @@ zzz.value.translation={
         youdao:"29698b390b528412"
     }
 };
-zzz.value.unicode={
-    pinyin:{
-        a:[257,225,259,224],
-        e:[275,233,277,232],
-        i:[299,237,301,236],
-        o:[333,243,335,242],
-        u:[363,250,365,249],
-        y:[470,472,474,476]
+zzz.value.unicode= {
+    pinyin: {
+        a: [257, 225, 259, 224],
+        e: [275, 233, 277, 232],
+        i: [299, 237, 301, 236],
+        o: [333, 243, 335, 242],
+        u: [363, 250, 365, 249],
+        y: [470, 472, 474, 476]
     },
-    bracket:{
-        single:[12300,12301],
-        hollow:[12302,12303],
-        round_hollow:[12310,12311],
-        chinese_single:[65378,65379]
+    bracket: {
+        single: [12300, 12301],
+        hollow: [12302, 12303],
+        round_hollow: [12310, 12311],
+        chinese_single: [65378, 65379]
     },
-    blank:[10240],
-    question_reverted:191,
-    multiply:215,
-    divide:247,
-    degree:176,
-    positive_negative:177,
-    thousand_percent:8240,
-    ten_thousand_percent:8241,
-    delta:8710,
-    sum:8721,
-    tick:8730,
-    smaller_equal:8804,
-    bigger_equal:8805,
-    round:10752,
-    sigma:8486,
-    alphabet:{
-        math_bold:[119834,119808],
-        math:[119886,119860],
-        math_italic:[119938,119912],
+    blank: [10240],
+    question_reverted: 191,
+    multiply: 215,
+    divide: 247,
+    degree: 176,
+    positive_negative: 177,
+    thousand_percent: 8240,
+    ten_thousand_percent: 8241,
+    delta: 8710,
+    sum: 8721,
+    tick: 8730,
+    smaller_equal: 8804,
+    bigger_equal: 8805,
+    round: 10752,
+    sigma: 8486,
+    alphabet: {
+        math_bold: [119834, 119808],
+        math: [119886, 119860],
+        math_italic: [119938, 119912],
     },
-    left_arrow:8592,
-    right_arrow:8594,
-    up_arrow:8593,
-    down_arrow:8595,
-    arrow_range:[8592,8703],
-    rectangle:[9600,9631],
-    geometry:{
-        square:9632,
-        rectangle:9644,
-        triangle:9650,
-        round:11044,
-        poly5:11039,
-        poly6:11042
+    left_arrow: 8592,
+    right_arrow: 8594,
+    up_arrow: 8593,
+    down_arrow: 8595,
+    arrow_range: [8592, 8703],
+    rectangle: [9600, 9631],
+    geometry: {
+        square: 9632,
+        rectangle: 9644,
+        triangle: 9650,
+        round: 11044,
+        poly5: 11039,
+        poly6: 11042
     },
-    chemistry:{
-      benzene:9004,
+    chemistry: {
+        benzene: 9004,
 
     },
-    music:9833,
-    emoji:{
-        sun:9728,
-        lightening:9889,
-        cloud:9729,
+    music: 9833,
+    emoji: {
+        sun: 9728,
+        lightening: 9889,
+        cloud: 9729,
 
     },
-    times:[8304,185,178,179,8308,8309,8310,8311,8312,8313],
-    down_times:[8320,8321,8322,8323,8324,8325,8326,8327,8328,8329],
-    line:11835,
-    celsius_degree:8451,
-    fahrenheit_degree:8457,
-    japanese:[12353,12447,12799],//平假名、片假名
-    enclosed:{
+    times: [8304, 185, 178, 179, 8308, 8309, 8310, 8311, 8312, 8313],
+    down_times: [8320, 8321, 8322, 8323, 8324, 8325, 8326, 8327, 8328, 8329],
+    line: 11835,
+    celsius_degree: 8451,
+    fahrenheit_degree: 8457,
+    japanese: [12353, 12447, 12799],//平假名、片假名
+    enclosed: {
         small_alphatbet: {
             small_bracket: 9372,
             round: 9424
         },
-        big_alphabet:{
-            round:9398
+        big_alphabet: {
+            round: 9398
         },
         number: {
             round: 9312,
@@ -290,3 +294,42 @@ zzz.value.unicode={
         }
     }
 };
+zzz.value.unicodeAlias={};
+zzz.value.init=function(){
+    var u=zzz.value.unicode;
+    zzz.addAttr(zzz.value.unicodeAlias, {
+        a1: u.pinyin.a[0],
+        a2: u.pinyin.a[1],
+        a3: u.pinyin.a[2],
+        a4: u.pinyin.a[3],
+        e1: u.pinyin.e[0],
+        e2: u.pinyin.e[1],
+        e3: u.pinyin.e[2],
+        e4: u.pinyin.e[3],
+        i1: u.pinyin.i[0],
+        i2: u.pinyin.i[1],
+        i3: u.pinyin.i[2],
+        i4: u.pinyin.i[3],
+        u1: u.pinyin.u[0],
+        u2: u.pinyin.u[1],
+        u3: u.pinyin.u[2],
+        u4: u.pinyin.u[3],
+        b1: u.bracket.single,
+        b2: u.bracket.hollow,
+        b3: u.bracket.chinese_single,
+        "乘":u.multiply,
+        "除":u.divide,
+        "上标":u.times,
+        "下标":u.down_times,
+        "箭头":[u.up_arrow,u.down_arrow,u.left_arrow,u.right_arrow],
+        "摄氏度":u.celsius_degree,
+        "华氏度":u.fahrenheit_degree,
+        "苯":u.chemistry.benzene,
+        "?":u.question_reverted
+    }
+    );
+    for(let i in zzz.value.unicode){
+        if(zzz.equal.type(zzz.value.unicode[i],"number")) zzz.value.unicodeAlias[i]=zzz.value.unicode[i];
+    }
+};
+zzz.value.init();

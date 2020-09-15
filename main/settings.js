@@ -30,6 +30,7 @@ var settingsInit=function() {
     //并去除前面的两个斜杠
     //zzz.value.translation.id.baidu="";
     //zzz.value.translation.token.baidu="";
-
+//是否需要把查找到的unicode字符自动复制到剪贴板，值：true与false
+    searchSettings.unicodeCopyEnabled=true;
 };
 settingsInit();

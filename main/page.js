@@ -1,4 +1,4 @@
-var pagejs_version=20200820;
+var pagejs_version=20200915;
 var searchMethod={};
 var pagejs=1;
 var searchSettings={
@@ -50,20 +50,40 @@ var addUIPanel=function () {
         var str2=prompt("input the location(use {keyword} to refer to keyword):");
         if(str2){
             searchSettings.text("engine",'"'+str1+'":"'+str2+'",');
+            zzz.clip.copy(searchSettings.text("engine"));
+            zzz.storage.add(str2.indexOf("{keyword}")===-1?"shortcut":"engine",str1,str2);
         }
     }
     //var title=zzz.create("div",{innerText:"add"});
     //title.
 };
 var readPreference=function () {
-    if(zzz.storage.get("preferredSearchEngine")){
-        searchSettings.current=zzz.storage.get("preferredSearchEngine");
+    if (zzz.storage.get("preferredSearchEngine")) {
+        searchSettings.current = zzz.storage.get("preferredSearchEngine");
     }
-    var b=zzz.storage.get("backgroundImageURL");
-    if(b&&b!=="undefined")
-    zzz.get.id("main").style.backgroundImage=b;
-    b=zzz.storage.get("translationEngine");
-    if(b&&b!="undefined") zzz.value.translation.default.engine=b;
+    var b = zzz.storage.get("backgroundImageURL");
+    if (b && b !== "undefined")
+        zzz.get.id("main").style.backgroundImage = b;
+    b = zzz.storage.get("translationEngine");
+    if (b && b != "undefined") zzz.value.translation.default.engine = b;
+    b = zzz.storage.json("unicode");
+    if (b) {
+        zzz.addAttr(zzz.value.unicodeAlias, b);
+    }
+    b = zzz.storage.get("shortcut");
+    if (b) {
+        b = JSON.parse(b);
+        for (let i in b) {
+            searchSettings.jump[i] = b[i];
+        }
+    }
+    b = zzz.storage.get("engine");
+    if (b) {
+        b = JSON.parse(b);
+        for (let i in b) {
+            searchMethod[i] = b[i];
+        }
+    }
 };
 var showKey=function(e){
     var interpret=zzz.incidence.interpret(e);
@@ -130,6 +150,10 @@ var interpretCmd=function (e,isEqual) {
         zzz.browser.open(searchSettings.jump[cmdLine[0]]);
         return;
     }
+    //redirect
+    else if(cmdLine.length===1&&zzz.value.domain.has(zzz.path.split(cmdLine[0]).domain)&&zzz.path.split(cmdLine[0]).host){
+        zzz.browser.open(cmdLine[0]);
+    }
     //set fixed command
     else if(cmdLine[0]==="fix"){
         searchSettings.fixed=cmdLine[1]||"";
@@ -162,6 +186,15 @@ var interpretCmd=function (e,isEqual) {
                 }, 1000);
             }
         }
+        searchSettings.text("bar","");
+    }
+    else if(cmdLine[0]==="search"){
+        if(searchSettings.short[cmdLine[1]]) cmdLine[1]=searchSettings.short[cmdLine[1]];
+        if(searchMethod[cmdLine[1]]){
+            var text="";
+            for(let i=2;i<cmdLine.length;i++) text+=cmdLine[i]+" ";
+            defaultSearch(cmdLine[1],text);
+        }
     }
     //random integer
     else if(command==="random"){
@@ -170,6 +203,46 @@ var interpretCmd=function (e,isEqual) {
         if(!cmdLine[3]) cmdLine[3]="=";
         cmdLine[4]=zzz.random.int(zzz.toNum(cmdLine[1]),zzz.toNum(cmdLine[2])).toString();
         searchSettings.text("bar",cmdLine.join(" "));
+    }
+    //web archive api
+    else if(cmdLine[0]==="archive"){
+        var text=cmdLine.join(" ").slice(8);
+        if(!text) return;
+        zzz.api.archive.save(text);
+    }
+    else if(cmdLine[0]==="openarchive"){
+        var text=cmdLine.join(" ").slice(12);
+        if(!text) return;
+        zzz.api.archive.open(text,function (status) {
+        if(!status) zzz.api.archive.find(text);
+        });
+    }
+    //unicode
+    else if(command==="unicode"){
+        if(cmdLine[2]&&cmdLine[2].length===1){
+            //add
+            zzz.storage.add("unicode",cmdLine[1],cmdLine[2].charCodeAt(0));
+        }
+        else if(cmdLine[1]) {
+            //translate
+            var probableIcon = zzz.api.unicode.search(cmdLine[1], zzz.value.unicodeAlias);
+            var result = "";
+            if (zzz.equal.type(probableIcon, "array")) {
+                for (let i of probableIcon) result += zzz.api.unicode.translate(i);
+            } else result = zzz.api.unicode.translate(probableIcon);
+            searchSettings.text("engine", result);
+            if(searchSettings.unicodeCopyEnabled) zzz.clip.copy(result);
+        }
+        else{
+            //list
+            var recur=function (i) {
+            for(let j in i){
+                if(zzz.equal.type(i[j],"number")){searchSettings.engine.innerText+=zzz.api.unicode.translate(i[j]);}
+                else recur(i[j]);
+            }
+            };
+            recur(zzz.value.unicode);
+        }
     }
     //add shortcut or search engine
     else if(cmdLine[0]==="add"&&cmdLine.length===1){
@@ -236,9 +309,9 @@ var interpretCmd=function (e,isEqual) {
     }
     resizer();
 };
-var defaultSearch=function () {
-    var method=searchSettings.current;
-    var text=searchSettings.text("bar");
+var defaultSearch=function (method,text) {
+    if(!method) method=searchSettings.current;
+    if(!text) text=searchSettings.text("bar");
     //var node=
     zzz.browser.open(convertTextToSearch(method, text));
     //node.className="search_result";
