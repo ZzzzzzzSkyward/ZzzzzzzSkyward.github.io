@@ -197,7 +197,7 @@ var interpretCmd=function (e,isEqual) {
         }
     }
     else if(cmdLine[0]==="download"){
-        zzz.browser.download("https://zzzzzzzskyward.github.io/main/zzz/zjs.7z");
+        zzz.browser.download("https://zzzzzzzskyward.github.io/main/zjs.7z");
     }
     //random integer
     else if(command==="random"){
