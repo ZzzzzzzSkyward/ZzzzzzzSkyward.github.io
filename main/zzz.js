@@ -8,7 +8,10 @@ var zzz= {};
 zzz.version=20200915;
 zzz.value={};
 
-
+//eval
+zzz.eval=function(string){
+  return Function("'use strict';return "+string)();
+};
 
 //math
 
@@ -158,6 +161,7 @@ zzz.algorithm= {
             }
         },
         //recurring version
+        //todo: complete this
         quick:function (arr,start,end,compareTo,swap) {
             if(!compareTo) compareTo=zzz.algorithm.basicInterface.compareTo;
             if(!swap) swap=zzz.algorithm.basicInterface.swap;
@@ -1024,8 +1028,9 @@ zzz.load.css=function (src,parent) {
     return newCSS;
 };
 zzz.load.font=function (name,src) {
-    //var newCSS=zzz.create("style");
-    //newCSS.innerText="@font-face{font-family:"+name+";src:url('"+src+") format('"+...+"'}";
+    var newCSS=zzz.create("style");
+    newCSS.innerText="@font-face{font-family:"+name+";src:url('"+src+"')}";
+    document.body.appendChild(newCSS);
 };
 
 
@@ -1205,12 +1210,15 @@ zzz.ajax={
         node.className="hidden";
         console.log((src));
         //JSONP
+        //TODO: separate this.
+        //onload,onreadystatechange
         if(type==="script"){
             if(func) {
                 var uniqueText = zzz.random.string(30);
                 //zzz.value.callback.lib[zzz.value.callback.index]=uniqueText;
                 window[uniqueText] = function (response) {
                     func(response);
+                    delete window[uniqueText];
                 };
                 zzz.set(node, "src", zzz.path.merge(src, {callback: uniqueText}));
             }
@@ -1454,7 +1462,173 @@ zzz.path={
     }
 };
 
-zzz.anim={};
+zzz.anim={
+    translate:{
+        read:function(text){
+            //only for 2.33px,46% and such
+            text=text.replace(/\s/g,"");
+            var i=text.match(/[0-9]/),j;
+            if(!i){
+                //pure string
+                return text;
+            }
+            else{
+                i=text.match(/[^0-9\.]/);
+                j=i?i.index:text.length;
+                return {value:zzz.toNum(text.slice(0,j)),unit:text.slice(j,text.length)};
+            }
+        },
+        readColor:function(text){
+            text=text.replace(/\s/g,"");
+            if(text[0]==="#"){
+                if(text.length===7){
+                    return {
+                        r:(zzz.value.hex(text[1])<<4)+zzz.value.hex(text[2]),
+                        g:(zzz.value.hex(text[3])<<4)+zzz.value.hex(text[4]),
+                        b:(zzz.value.hex(text[5])<<4)+zzz.value.hex(text[6]),
+                    };
+                }
+                else{
+                    throw new Error("unfinished function in readColor");
+                }
+            }
+            else {
+                var splitText = text.split(","), result = {}, name = ["r", "g", "b", "a"];
+                splitText.forEach(function (value, index, array) {
+                    result[name[index]] = zzz.toNum(value);
+                });
+            return result;
+            }
+        },
+        //TODO: there are bugs within
+        split:function (style,styleString) {
+            /*example:
+            "2en","rotate(4rad) translateX(3px)","SimSun,'Times New Roman'"
+            */
+            if(style.indexOf("-")!==-1) style=zzz.string.camel(style);
+            var splitString=[],result={},i,j,k,l,index=0;
+            if(style==="fontFamily"){
+                splitString=styleString.split(",");
+                for(i in splitString){
+                    //remove ' "
+                    if(splitString[i][0]==="'"||splitString[i][0]==='"'){
+                        splitString[i]=splitString[i].slice(1,splitString[i].length-1);
+                    }
+                }
+                return splitString;
+            }
+            else if(style==="backgroundImage"){
+                i=styleString.indexOf("(");
+                j=styleString.lastIndexOf(")");
+                //TODO: BASE64
+                return styleString.slice(i+1,j).replace(/['"]/g,"");
+            }
+            else if(style.match(/color/i)){
+                l="color";
+                i=styleString;
+                j=i.indexOf("(");
+                if(j!==-1) k=zzz.anim.translate.readColor(i.slice(j+1,i.length-1));
+                else k="";
+                result[l]=k;
+                return result;
+            }
+            else{
+                splitString=styleString.split(" ");
+                for(i of splitString){
+                    if(!i) continue;
+                    j=i.indexOf("(");
+                    l=i.slice(0,j);
+                    if(j!==-1){
+                        k=zzz.anim.translate.read(i.slice(j+1,i.length-1));
+                        result[l]=k;
+                    }
+                    else{
+                        k=zzz.anim.translate.read(i);
+                        result[index++]=k;
+                    }
+                }
+                return result;
+            }
+        },
+        batch:function (CSSText) {
+            var splitText=CSSText.split(/[;\n]/),i,j,k,l,result={};
+            for(i of splitText){
+                if(!i) continue;
+                j=i.indexOf(":");
+                l=i.slice(0,j).replace(/\s/g,"");
+                k=zzz.anim.translate.split(l,i.slice(j+1));
+                result[zzz.string.camel(l)]=k;
+            }
+            return result;
+        },
+        calculate:function(currentValue,previousValue){
+            if(!previousValue) previousValue=0;
+            if(!currentValue) return previousValue;
+            //rule: prev stands for previousValue
+            var result=0,calculate=function (prev,string) {
+                return zzz.eval(string.replace(/prev/g,prev));
+            };
+            if(zzz.equal.type(currentValue[0]-0,"NaN")){
+                if(currentValue[0]==="p"){
+                    return calculate(previousValue,currentValue);
+                }
+                else return calculate(previousValue,"prev"+currentValue);
+            }
+            else{
+                if(currentValue.match("prev")){
+                    //calculate
+                    return calculate(previousValue,currentValue);
+                }
+                else return currentValue;
+            }
+        },
+        merge:function (currentStyle,previousStyle) {
+            if(zzz.equal.type(currentStyle,"string")) return currentStyle;
+            if(!previousStyle) previousStyle={};
+            var i,result=[];
+            for(i in currentStyle){
+                if(zzz.equal.type(currentStyle[i],"string")) result.push(currentStyle[i]);
+                if(i==="color"){
+                    var core=
+                        zzz.anim.translate.calculate(currentStyle[i].r,previousStyle[i]?previousStyle[i].r:null)+
+                        ","+
+                        zzz.anim.translate.calculate(currentStyle[i].g,previousStyle[i]?previousStyle[i].g:null)+
+                        ","+
+                        zzz.anim.translate.calculate(currentStyle[i].b,previousStyle[i]?previousStyle[i].b:null);
+                    if(currentStyle[i].a||(previousStyle[i]&&previousStyle[i].a)) result.push("rgba("+core+","+zzz.anim.translate.calculate(currentStyle[i].a,previousStyle[i]?previousStyle[i].a:null)+")");
+                    else result.push("rgb("+core+")");
+                }
+                else if(!!(i-0+1)&&currentStyle[i].value) result.push(zzz.anim.translate.calculate(currentStyle[i].value,previousStyle[i].value||null)+(currentStyle[i].unit||(previousStyle[i]&&previousStyle[i].unit)||""));
+                else{
+                    result.push(i+"("+(currentStyle[i].value||"")+(currentStyle[i].unit||(previousStyle[i]&&previousStyle[i].unit)||"")+")");
+                }
+            }
+            return result.join(" ");
+        },
+        wrap:function (text) {
+            return {0:{value:text}};
+        }
+    },
+    set:function (element,style) {
+        for(let i in style){
+            element.style[i]=style[i];
+        }
+    },
+    act:function(element,currentStyle,previousStyle){
+        if(!previousStyle) previousStyle={};
+        var i,previousValue;
+        for(i in currentStyle){
+            if(zzz.equal.type(currentStyle[i],"string")) currentStyle[i]=zzz.anim.translate.wrap(currentStyle[i]);
+            previousValue=previousStyle[i];
+            if(previousValue===undefined||previousValue===null) previousValue=zzz.anim.elements[element]?zzz.anim.elements[element][i]:null;
+            if(previousValue===undefined||previousValue===null) previousValue=zzz.anim.translate.split(i,zzz.get.style(element,i));
+            currentStyle[i]=zzz.anim.translate.merge(currentStyle[i],previousValue);
+        }
+        zzz.anim.set(element,currentStyle);
+    },
+    elements:{},
+    requests:{}
+};
 //scroll API
 zzz.anim.scroll={
     to:function (element,x,y,isSmooth) {
@@ -1636,8 +1810,8 @@ zzz.api.update={
 
 //wayback machine api
 zzz.api.archive={
-  save:function (url) {
-      zzz.ajax.get("script",'https://web.archive.org/save/'+zzz.path.deleteEnd(url));
+  save:function (url,callback) {
+      return zzz.ajax.get("script",'https://web.archive.org/save/'+zzz.path.deleteEnd(url),callback||null);
   },
     open:function (url,func) {
       if(!func) func=function(){};
@@ -1774,7 +1948,7 @@ zzz.string={
         return (isNegative?"负":"")+result;
     },
     //Manacher's Algorithm
-    //查找最长回文子串的长度
+    //查找最长回文子串
     manacher:function (str) {
         var emptyString="";
         var i,j,strLength=str.length<<1;
@@ -1809,6 +1983,24 @@ zzz.string={
             }
         }
         return [j,maxLength];
+    },
+    camel:function (CSSText) {
+        var i=CSSText.indexOf("-"),letter="";
+        while(i!==-1){
+            letter=CSSText[i+1].toUpperCase();
+            CSSText=CSSText.slice(0,i)+letter+CSSText.slice(i+2);
+            i=CSSText.indexOf("-");
+        }
+        return CSSText;
+    },
+    line:function (JSText) {
+        var i=JSText.search(/[A-Z]/),length=JSText.length,letter="";
+        while(i!==-1){
+            letter=JSText[i].toLowerCase();
+            JSText=JSText.slice(0,i)+"-"+letter+JSText.slice(i+1);
+            i=JSText.search(/[A-Z]/)
+        }
+        return JSText;
     }
 };
 

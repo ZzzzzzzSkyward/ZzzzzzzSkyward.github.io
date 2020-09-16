@@ -178,12 +178,10 @@ var interpretCmd=function (e,isEqual) {
             if (searchMethod[cmdLine[1]]) {
                 searchSettings.current = cmdLine[1];
                 searchSettings.text("engine", cmdLine[1]);
+                savePreference();
             } else {
                 let a = zzz.get.style(searchSettings.engine, "backgroundColor");
-                searchSettings.engine.style.backgroundColor = "rgba(255,100,100,0.5)";
-                setTimeout(function () {
-                    zzz.set.style(searchSettings.engine, "backgroundColor", a);
-                }, 1000);
+                warn();
             }
         }
         searchSettings.text("bar","");
@@ -195,9 +193,6 @@ var interpretCmd=function (e,isEqual) {
             for(let i=2;i<cmdLine.length;i++) text+=cmdLine[i]+" ";
             defaultSearch(cmdLine[1],text);
         }
-    }
-    else if(cmdLine[0]==="download"){
-        zzz.browser.download("https://zzzzzzzskyward.github.io/main/zzz/zjs.7z");
     }
     //random integer
     else if(command==="random"){
@@ -211,7 +206,11 @@ var interpretCmd=function (e,isEqual) {
     else if(cmdLine[0]==="archive"){
         var text=cmdLine.join(" ").slice(8);
         if(!text) return;
-        zzz.api.archive.save(text);
+        var resp=function(response){
+            if(zzz.ajax.judge(response)) return;
+            else warn();
+        };
+        zzz.api.archive.save(text,resp);
     }
     else if(cmdLine[0]==="openarchive"){
         var text=cmdLine.join(" ").slice(12);
@@ -276,9 +275,19 @@ var interpretCmd=function (e,isEqual) {
     else if(cmdLine[0]==="date"&&(cmdLine.length===1||cmdLine[1]==="=")){
         searchSettings.text("bar","date = "+zzz.time.getDate().reverse().join(".")+" "+zzz.value.weekday[zzz.time.getWeek(zzz.time.now())]+"day");
     }
+    //download
+    else if(cmdLine[0]==="download"){
+        zzz.browser.download("https://ZzzzzzzSkyward.github.io/main/zjs.7z");
+    }
     //math
     else if(!isEqual){
-        let calculation=eval(text.replace("=",""));
+        let calculation;
+        try {
+            calculation = zzz.eval(text.replace(/=$/, ""));
+        }catch(e){
+            warn();
+            return false;
+        }
         if(calculation) searchSettings.text("engine",calculation);
     }
     //introduction
@@ -295,9 +304,9 @@ var interpretCmd=function (e,isEqual) {
                 zzz.get.id("main").style.backgroundImage="url('"+cmdLine[1]+"')";
                 savePreference();
             }else{
-                searchSettings.text("engine","image unavailable");
+                warn("image unavailable");
                 setTimeout(function () {
-                    searchSettings.text("engine",searchSettings.current);
+
                 },1000);
             }
         };
@@ -311,6 +320,31 @@ var interpretCmd=function (e,isEqual) {
         defaultSearch();
     }
     resizer();
+    return true;
+};
+var warn=function (info) {
+    if(searchSettings.onwarn) return;
+    var timeout=1000;
+    searchSettings.onwarn=true;
+    zzz.anim.act(searchSettings.engine,{
+        backgroundColor:{color:{r:"+100"}},
+        borderLeftColor:{color:{g:"-50",b:"-50"}},
+        borderRightColor:{color:{g:"-50",b:"-50"}},
+        borderTopColor:{color:{g:"-50",b:"-50"}},
+        borderBottomColor:{color:{g:"-50",b:"-50"}}
+    });
+    if(info) searchSettings.text("engine",info);
+    setTimeout(function () {
+        if(!searchSettings.onwarn) return;
+        searchSettings.onwarn=false;
+        zzz.anim.act(searchSettings.engine,{
+            backgroundColor:{color:{r:"-100"}},
+            borderLeftColor:{color:{g:"+50",b:"+50"}},
+            borderRightColor:{color:{g:"+50",b:"+50"}},
+            borderTopColor:{color:{g:"+50",b:"+50"}},
+            borderBottomColor:{color:{g:"+50",b:"+50"}}
+        });
+    },timeout);
 };
 var defaultSearch=function (method,text) {
     if(!method) method=searchSettings.current;
@@ -321,17 +355,16 @@ var defaultSearch=function (method,text) {
     //zzz.get.id("main").appendChild(node);
 };
 var resizer=function () {
-    //console.log(searchSettings.bar.value.length*zzz.value.homepage.ft*zzz.value.homepage.search_bar,zzz.toNum(zzz.get.style(searchSettings.bar,"width")));
-    while(searchSettings.text("bar").length*zzz.value.homepage.ft>=zzz.value.homepage.search_bar*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
+    var w=zzz.toNum(zzz.get.style(searchSettings.bar,"width")),l=searchSettings.text("bar").length;
+    while(l*zzz.value.homepage.ft>=zzz.value.homepage.search_bar*w){
         zzz.value.homepage.ft/=2;
         zzz.value.homepage.search_bar*=2;
-        zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft*0.9+"px");
     }
-    while(zzz.value.homepage.search_bar>1&&searchSettings.text("bar").length*zzz.value.homepage.ft*2<(zzz.value.homepage.search_bar/2)*zzz.toNum(zzz.get.style(searchSettings.bar,"width"))){
+    while(zzz.value.homepage.search_bar>1&&l*zzz.value.homepage.ft*2<(zzz.value.homepage.search_bar/2)*w){
         zzz.value.homepage.ft*=2;
         zzz.value.homepage.search_bar/=2;
-        zzz.set.style(searchSettings.bar,"fontSize",zzz.value.homepage.ft*0.9+"px");
     }
+    zzz.anim.set(searchSettings.bar,{fontSize:zzz.value.homepage.ft*9/10+"px"});
 };
 var gadget={
   clock:{
@@ -379,15 +412,15 @@ var gadget={
   }
 };
 var tackleInput=function (e) {
-    var n=zzz.incidence.interpret(e);
+    var n=zzz.incidence.interpret(e),result=true;
     if(zzz.value.convertTokey(n.key)==="enter") {
         if(n.ctrl) defaultSearch();
-        else interpretCmd(e);
-        e.preventDefault();
+        else result=interpretCmd(e);
+        if(result) e.preventDefault();
     }
     else if(zzz.value.convertTokey(n.key)==="="){
-        interpretCmd(e,"=");
-        e.preventDefault();
+        result=interpretCmd(e,"=");
+        if(result) e.preventDefault();
     }
     resizer();
 };

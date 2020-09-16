@@ -119,6 +119,8 @@ zzz.value.validCharacter="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
 zzz.value.ChineseNumber="零一二三四五六七八九十百千万亿点";
 zzz.value.ChineseNumberBig="零壹贰叁肆伍陆柒捌玖拾佰仟萬亿點";
 zzz.value.zero="0".charCodeAt(0);
+zzz.value.a="a".charCodeAt(0);
+zzz.value.A="A".charCodeAt(0);
 zzz.value.keyCode= {
     1:"leftbutton",
     2:"rightbutton",
@@ -295,6 +297,11 @@ zzz.value.unicode= {
     }
 };
 zzz.value.unicodeAlias={};
+zzz.value.hex=function(character){
+    if(!zzz.equal.type(character,"string")) return;
+    if(zzz.equal(character-0,"NaN")) return character.charCodeAt(0)-zzz.value.A+10;
+    else return character-0;
+};
 zzz.value.init=function(){
     var u=zzz.value.unicode;
     zzz.addAttr(zzz.value.unicodeAlias, {
