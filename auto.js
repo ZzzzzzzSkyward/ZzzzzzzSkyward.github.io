@@ -1,5 +1,4 @@
 "use strict";
-eval(`
 window.desiredClass=[];
 window.zzz={};
 zzz.get=function (name) {
@@ -194,4 +193,4 @@ window.send=function (url) {
         else alert("fail");
     };*/
     zzz.fetch.create(url,{cors:true});
-};`);
+};
