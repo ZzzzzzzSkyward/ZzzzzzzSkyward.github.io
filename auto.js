@@ -1,5 +1,5 @@
 "use strict";
-window.desiredClass=[];
+window.desiredClass=JSON.parse(window.localStorage["desired"])||[];
 window.zzz={};
 zzz.get=function (name) {
     if(name[0]==='.') return zzz.get.cls(name.substr(1));
@@ -135,6 +135,7 @@ window.getTBody=function () {
         var i=b.firstElementChild,index=0,idx=1;
         while(i.nextElementSibling){
             i=i.nextElementSibling;
+            i.value=index;
             let j=i.firstElementChild;
             if(!j) break;
             info[index]=[];
@@ -194,3 +195,19 @@ window.send=function (url) {
     };*/
     zzz.fetch.create(url,{cors:true});
 };
+window.addClass=function(arr){
+    desiredClass[desiredClass.length]=arr;
+    window.localStorage["desired"]=JSON.stringify(desiredClass);
+};
+window.select=function (e) {
+    var ele=e.target||e.srcElement;
+    var par=ele.parentElement;
+    if(par.firstElementChild===ele) {
+        var v = ele.value;
+        var check=confirm("'" + info[v].join("','") + "'");
+        if(check){
+            addClass(info[v]);
+        }
+    }
+};
+table.onclick=select;
