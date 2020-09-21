@@ -1,5 +1,6 @@
 "use strict";
-window.desiredClass=JSON.parse(window.localStorage["desired"])||[];
+if(!window.localStorage["desired"]) localStorage["desired"]=[];
+window.desiredClass=JSON.parse(window.localStorage["desired"]);
 window.zzz={};
 zzz.get=function (name) {
     if(name[0]==='.') return zzz.get.cls(name.substr(1));
@@ -174,10 +175,11 @@ window.choose=function (func,isreverse) {
     for(let i of desiredClass){
         for(let j in info){
             let flag=false;
-            for(let n=1;n<i.length&&n<info[j].length-2&&(!flag);n++){
+            for(let n=1;n<i.length&&(n<(info[j].length-2))&&(!flag);n++){
                 if(i[n]!==info[j][n]) flag=true;
             }
             if(flag^isreverse) func(j);
+            console.log(j);
         }
     }
 };
@@ -219,7 +221,7 @@ window.select=function (e) {
 };
 window.hideall=function(hid){
     var hide=function (e) {elements[e].style.display="none";};
-    var show=function (e) {elements[e].style.display="table-column";};
+    var show=function (e) {elements[e].style.display="table-row";};
     if(hid) choose(hide);
     else choose(show);
     status_hide=hid;
