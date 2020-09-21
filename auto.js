@@ -178,7 +178,20 @@ window.choose=function (func,isreverse) {
             for(let n=1;n<i.length&&(n<(info[j].length-2))&&(!flag);n++){
                 if(i[n]!==info[j][n]) flag=true;
             }
-            if(flag^isreverse) func(j),console.log(j);
+            if(!flag^isreverse){
+                func(j);
+                console.log(j);
+                break;
+            }
+        }
+    }
+};
+window.chooseFull=function(func,isreverse){
+    if(isreverse===undefined) isreverse=false;
+    for(let j in info){
+        let flag=info[j][info[j].length-1]>=info[j][info[j].length-2];
+        if(flag^isreverse){
+            func(j);
         }
     }
 };
@@ -222,8 +235,14 @@ window.select=function (e) {
 window.hideall=function(hid){
     var hide=function (e) {elements[e].style.display="none";};
     var show=function (e) {elements[e].style.display="table-row";};
-    if(hid) choose(hide);
-    else choose(show);
+    if(hid){
+        choose(hide);
+        chooseFull(hide);
+    }
+    else{
+        choose(show);
+        chooseFull(show);
+    }
     status_hide=hid;
 };
 window.transparent=function(tp){
@@ -240,3 +259,4 @@ zzz.get.cls("errmsg").onclick=function () {
     transparent((transparent_count%6)<3);
     transparent_count++;
 };
+hideall(!status_hide);
