@@ -83,7 +83,7 @@ zzz.fetch={
                 else return promise;
             };
         }
-        else if(zzz.fetch.ajaxEnabled){
+        if(zzz.fetch.ajaxEnabled){
             zzz.fetch.ajax=function (settings) {
                 if(!settings.url) return false;
                 var xhr=new XMLHttpRequest();
@@ -167,14 +167,14 @@ window.getAll=function () {
     console.log(info);
 };
 getAll();
-window.autoElect=function () {
+window.choose=function (func) {
     for(let i of desiredClass){
         for(let j of info){
             let flag=true;
             for(let n=1;n<i.length&&n<j.length-2&&flag;n++){
                 if(i[n]!==j[n]) flag=false;
             }
-            if(flag) elect(j);
+            if(flag) func(j);
         }
     }
 };
@@ -203,11 +203,20 @@ window.select=function (e) {
     var ele=e.target||e.srcElement;
     var par=ele.parentElement;
     if(par.firstElementChild===ele) {
-        var v = ele.value;
+        var v = par.value;
         var check=confirm("'" + info[v].join("','") + "'");
         if(check){
             addClass(info[v]);
         }
     }
 };
+window.hideall=function(hid){
+    var hide=function (e) {e.style.display="none";};
+    var show=function (e) {e.style.display="block";};
+    if(hid) choose(hide);
+    else choose(show);
+    status_hide=hid;
+};
 table.onclick=select;
+var status_hide=false;
+zzz.get.cls("subTitle").onclick=hideall(!status_hide);
