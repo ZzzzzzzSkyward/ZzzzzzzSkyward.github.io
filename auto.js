@@ -136,7 +136,6 @@ window.getTBody=function () {
         var i=b.firstElementChild,index=0,idx=1;
         while(i.nextElementSibling){
             i=i.nextElementSibling;
-            elements.push(i);
             i.value=index;
             let j=i.firstElementChild;
             if(!j) break;
@@ -158,6 +157,7 @@ window.getTBody=function () {
             info[index][idx-1]=parseInt(info[index][idx-1].replace(/\/\d*$/,""));
             index++;
             idx=1;
+            elements.push(i);
         }
     }
     else setTimeout(getTBody,1000);
@@ -215,14 +215,14 @@ window.select=function (e) {
 };
 window.hideall=function(hid){
     var hide=function (e) {elements[e].style.display="none";};
-    var show=function (e) {elements[e].style.display="block";};
+    var show=function (e) {elements[e].style.display="table-column";};
     if(hid) choose(hide);
     else choose(show);
     status_hide=hid;
 };
 window.transparent=function(tp){
-    var trans=function (e) {elements[e].style.opacity-=0.3;};
-    var show=function (e) {elements[e].style.opacity+=0.3;};
+    var trans=function (e) {elements[e].style.opacity=parseFloat(getComputedStyle(elements[e])["opacity"])-0.3;};
+    var show=function (e) {elements[e].style.opacity=parseFloat(getComputedStyle(elements[e])["opacity"])+0.3;};
     if(tp) choose(trans,true);
     else choose(show,true);
 };
@@ -230,4 +230,7 @@ table.onclick=select;
 var status_hide=false;
 var transparent_count=0;
 zzz.get.cls("subTitle").onclick=function (){hideall(!status_hide)};
-zzz.get.cls("errmsg").onclick=function () {transparent((transparent_count%6)<3);transparent_count++;};
+zzz.get.cls("errmsg").onclick=function () {
+    transparent((transparent_count%6)<3);
+    transparent_count++;
+};
