@@ -285,17 +285,19 @@ append(toptable.style,{
     top:0,
     left:0
 });
+append(validImg.style,{
+    position: "fixed",
+    left:"10px",
+    top:"50px",
+    opacity:"0.9",
+    width:"100px"
+});
 try {
     var b=toptable.firstElementChild.firstElementChild.firstElementChild;
     append(b.style, {display: "none"})
     append(b.nextElementSibling.style,{
         textAlign: "left"
     });
-    append(b.nextElementSibling.nextElementSibling.style,{
-        paddingTop: "5px",
-        textAlign: "left",
-        transform: "scale(3.5) translateX(-200px)"
-});
 }catch(e){}
 
 hideall(!status_hide);
