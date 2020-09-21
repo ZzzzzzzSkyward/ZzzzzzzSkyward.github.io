@@ -169,14 +169,15 @@ window.getAll=function () {
     console.log(info);
 };
 getAll();
-window.choose=function (func) {
+window.choose=function (func,isreverse) {
+    if(isreverse===undefined) isreverse=false;
     for(let i of desiredClass){
         for(let j in info){
-            let flag=true;
-            for(let n=1;n<i.length&&n<info[j].length-2&&flag;n++){
-                if(i[n]!==info[j][n]) flag=false;
+            let flag=false;
+            for(let n=1;n<i.length&&n<info[j].length-2&&(!flag);n++){
+                if(i[n]!==info[j][n]) flag=true;
             }
-            if(flag) func(j);
+            if(flag^isreverse) func(j);
         }
     }
 };
@@ -213,8 +214,8 @@ window.select=function (e) {
     }
 };
 window.hideall=function(hid){
-    var hide=function (e) {e.style.display="none";};
-    var show=function (e) {e.style.display="block";};
+    var hide=function (e) {elements[e].style.display="none";};
+    var show=function (e) {elements[e].style.display="block";};
     if(hid) choose(hide);
     else choose(show);
     status_hide=hid;
@@ -222,11 +223,11 @@ window.hideall=function(hid){
 window.transparent=function(tp){
     var trans=function (e) {elements[e].style.opacity-=0.3;};
     var show=function (e) {elements[e].style.opacity+=0.3;};
-    if(tp) choose(trans);
-    else choose(show);
+    if(tp) choose(trans,true);
+    else choose(show,true);
 };
 table.onclick=select;
 var status_hide=false;
 var transparent_count=0;
 zzz.get.cls("subTitle").onclick=function (){hideall(!status_hide)};
-zzz.get.cls("errmsg").onclick=function () {transparent(!!(transparent_count%3));transparent_count++;};
+zzz.get.cls("errmsg").onclick=function () {transparent((transparent_count%6)<3);transparent_count++;};
