@@ -173,16 +173,20 @@ getAll();
 window.choose=function (func,isreverse) {
     if(isreverse===undefined) isreverse=false;
     for(let j in info){
+        let flbg=true;
         for(let i of desiredClass){
             let flag=false;
             for(let n=1;n<i.length&&(n<(info[j].length-2))&&(!flag);n++){
                 if(i[n]!==info[j][n]) flag=true;
             }
-            if(!flag^isreverse){
-                func(j);
-                console.log(j);
+            if(!flag){
+                if(!isreverse) func(j);
+                flbg=false;
                 break;
             }
+        }
+        if(flbg&isreverse){
+            func(j);
         }
     }
 };
