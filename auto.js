@@ -178,8 +178,7 @@ window.choose=function (func,isreverse) {
             for(let n=1;n<i.length&&(n<(info[j].length-2))&&(!flag);n++){
                 if(i[n]!==info[j][n]) flag=true;
             }
-            if(flag^isreverse) func(j);
-            console.log(j);
+            if(flag^isreverse) func(j),console.log(j);
         }
     }
 };
