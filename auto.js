@@ -129,6 +129,7 @@ zzz.set=function (element,attribute,value) {
 zzz.fetch.init();
 window.code=null;
 window.table=null;
+window.validImg=null;
 window.info=[];
 window.elements=[];
 window.getTBody=function () {
@@ -166,6 +167,7 @@ window.getTBody=function () {
 window.getAll=function () {
     code=zzz.get("#validCode");
     table=zzz.get(".datagrid");
+    validImg=zzz.get.id("imgname");
     getTBody();
     console.log(info);
 };
@@ -236,6 +238,16 @@ window.select=function (e) {
         }
     }
 };
+window.confirmSelect=function(stuName,courseName,classNo,onlySupp,index,seqNo,freshFlag,limitedNbr) {
+    if(freshFlag){
+        var refreshUrl2 = "return confirmSelect('"+stuName+"','"+courseName+"','"+classNo+"',"+onlySupp+",'"+index+"','"+seqNo+"',false,'"+limitedNbr+"');";
+        window.refreshLimit(stuName,courseName,classNo,onlySupp,index,seqNo,limitedNbr,refreshUrl2);
+        return false;
+    }else{
+        if(window.alidate()==false) return false;
+        return true;
+    }
+};
 window.hideall=function(hid){
     var hide=function (e) {elements[e].style.display="none";};
     var show=function (e) {elements[e].style.display="table-row";};
@@ -263,4 +275,27 @@ zzz.get.cls("errmsg").onclick=function () {
     transparent((transparent_count%6)<3);
     transparent_count++;
 };
+var append=function(e,s){
+    for(let i in s) e[i]=s[i];
+}
+window.toptable=code.parentElement.parentElement.parentElement.parentElement
+append(toptable.style,{
+    position:"fixed",
+    backgroundColor:"rgba(255,255,255,0.6)",
+    top:0,
+    left:0
+});
+try {
+    var b=toptable.firstElementChild.firstElementChild.firstElementChild;
+    append(b.style, {display: "none"})
+    append(b.nextSibling,{
+        textAlign: "left"
+    });
+    append(b.nextSibling.nextSibling,{
+        paddingTop: "5px",
+        textAlign: "left",
+        transform: "scale(3.5) translateX(-200px)"
+});
+}catch(e){}
+
 hideall(!status_hide);
