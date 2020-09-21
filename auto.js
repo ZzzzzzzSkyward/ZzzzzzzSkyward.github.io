@@ -1,5 +1,5 @@
 "use strict";
-if(!window.localStorage["desired"]) localStorage["desired"]=[];
+if(!window.localStorage["desired"]) localStorage["desired"]="[]";
 window.desiredClass=JSON.parse(window.localStorage["desired"]);
 window.zzz={};
 zzz.get=function (name) {
