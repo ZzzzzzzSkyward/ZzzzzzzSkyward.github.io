@@ -290,15 +290,15 @@ table.onclick=select;
 var status_hide=false;
 var transparent_count=0;
 zzz.get.cls("subTitle").innerText="显示/隐藏满的与不要的";
-zzz.get.cls("errmsg").innerText="增减透明度";
+zzz.get.cls("pkuportal-remark").innerHTML="       增减透明度                              ";
 zzz.get.cls("subTitle").onclick=function (){hideall(!status_hide)};
-zzz.get.cls("errmsg").onclick=function () {
+zzz.get.cls("pkuportal-remark").onclick=function () {
     transparent((transparent_count%6)<3);
     transparent_count++;
 };
 var append=function(e,s){
     for(let i in s) e[i]=s[i];
-}
+};
 window.toptable=code.parentElement.parentElement.parentElement.parentElement
 append(toptable.style,{
     position:"fixed",
@@ -315,7 +315,6 @@ append(validImg.style,{
 });
 try {
     var b=toptable.firstElementChild.firstElementChild.firstElementChild;
-    append(b.style, {display: "none"})
     append(b.nextElementSibling.style,{
         textAlign: "left"
     });
