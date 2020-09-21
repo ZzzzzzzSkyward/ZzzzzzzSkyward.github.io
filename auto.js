@@ -220,8 +220,8 @@ window.hideall=function(hid){
     status_hide=hid;
 };
 window.transparent=function(tp){
-    var trans=function (e) {e.style.opacity-=0.3;};
-    var show=function (e) {e.style.opacity+=0.3;};
+    var trans=function (e) {elements[e].style.opacity-=0.3;};
+    var show=function (e) {elements[e].style.opacity+=0.3;};
     if(tp) choose(trans);
     else choose(show);
 };
