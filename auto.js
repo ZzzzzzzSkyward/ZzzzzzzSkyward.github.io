@@ -172,8 +172,8 @@ window.getAll=function () {
 getAll();
 window.choose=function (func,isreverse) {
     if(isreverse===undefined) isreverse=false;
-    for(let i of desiredClass){
-        for(let j in info){
+    for(let j in info){
+        for(let i of desiredClass){
             let flag=false;
             for(let n=1;n<i.length&&(n<(info[j].length-2))&&(!flag);n++){
                 if(i[n]!==info[j][n]) flag=true;
@@ -206,12 +206,13 @@ window.addClass=function(arr){
 window.select=function (e) {
     var ele=e.target||e.srcElement;
     var par=ele.parentElement;
-    while(par.tagName.toLowerCase()!=="tr"){
+    if(par.tagName.toLowerCase()!=="tr"){
         ele=par;
         par=ele.parentElement;
     }
     if(par.firstElementChild===ele) {
         var v = par.value;
+        if(v===undefined) return;
         var check=confirm("'" + info[v].join("','") + "'");
         if(check){
             addClass(info[v]);
