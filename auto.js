@@ -288,10 +288,10 @@ append(toptable.style,{
 try {
     var b=toptable.firstElementChild.firstElementChild.firstElementChild;
     append(b.style, {display: "none"})
-    append(b.nextSibling,{
+    append(b.nextSibling.style,{
         textAlign: "left"
     });
-    append(b.nextSibling.nextSibling,{
+    append(b.nextSibling.nextSibling.style,{
         paddingTop: "5px",
         textAlign: "left",
         transform: "scale(3.5) translateX(-200px)"
