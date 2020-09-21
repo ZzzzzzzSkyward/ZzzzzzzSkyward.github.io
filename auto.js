@@ -219,4 +219,4 @@ window.hideall=function(hid){
 };
 table.onclick=select;
 var status_hide=false;
-zzz.get.cls("subTitle").onclick=hideall(!status_hide);
+zzz.get.cls("subTitle").onclick=function (){hideall(!status_hide)};
