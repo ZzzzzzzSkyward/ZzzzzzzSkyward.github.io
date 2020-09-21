@@ -129,12 +129,14 @@ zzz.fetch.init();
 window.code=null;
 window.table=null;
 window.info=[];
+window.elements=[];
 window.getTBody=function () {
     if(table&&table.firstChild){
         var b=table.childNodes[1];
         var i=b.firstElementChild,index=0,idx=1;
         while(i.nextElementSibling){
             i=i.nextElementSibling;
+            elements.push(i);
             i.value=index;
             let j=i.firstElementChild;
             if(!j) break;
@@ -169,10 +171,10 @@ window.getAll=function () {
 getAll();
 window.choose=function (func) {
     for(let i of desiredClass){
-        for(let j of info){
+        for(let j in info){
             let flag=true;
-            for(let n=1;n<i.length&&n<j.length-2&&flag;n++){
-                if(i[n]!==j[n]) flag=false;
+            for(let n=1;n<i.length&&n<info[j].length-2&&flag;n++){
+                if(i[n]!==info[j][n]) flag=false;
             }
             if(flag) func(j);
         }
@@ -217,6 +219,14 @@ window.hideall=function(hid){
     else choose(show);
     status_hide=hid;
 };
+window.transparent=function(tp){
+    var trans=function (e) {e.style.opacity-=0.3;};
+    var show=function (e) {e.style.opacity+=0.3;};
+    if(tp) choose(trans);
+    else choose(show);
+};
 table.onclick=select;
 var status_hide=false;
+var transparent_count=0;
 zzz.get.cls("subTitle").onclick=function (){hideall(!status_hide)};
+zzz.get.cls("errmsg").onclick=function () {transparent(!!(transparent_count%3));transparent_count++;};
