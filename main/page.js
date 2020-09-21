@@ -34,7 +34,7 @@ var useSearchMethod=function(name,input){
     return searchMethod[name].replace("{keyword}",input);
 };
 var readSearchText=function (text) {
-    return text;
+    return text.replace(/[ ]+/g,"+");
 };
 var convertTextToSearch=function (method,text) {
     return useSearchMethod(method,readSearchText(text));
@@ -207,7 +207,7 @@ var interpretCmd=function (e,isEqual) {
         var text=cmdLine.join(" ").slice(8);
         if(!text) return;
         var resp=function(response){
-            if(zzz.ajax.judge(response)) return;
+            if(zzz.fetch.judge(response)) return;
             else warn();
         };
         zzz.api.archive.save(text,resp);
@@ -299,18 +299,15 @@ var interpretCmd=function (e,isEqual) {
         //verify
         //bing fix
         if(cmdLine[1]==="bing") cmdLine[1]=zzz.api.bingWallpaper.rand();
-        var verification=function (node,success) {
-            if(success&&node.complete===true){
+        let verification=function (response) {
+            if(zzz.fetch.judge(response)==="success"){
                 zzz.get.id("main").style.backgroundImage="url('"+cmdLine[1]+"')";
                 savePreference();
-            }else{
+            }else if(zzz.fetch.judge(response)==="fail"){
                 warn("image unavailable");
-                setTimeout(function () {
-
-                },1000);
             }
         };
-        zzz.ajax.get("img",cmdLine[1],verification);
+        zzz.fetch.cors(cmdLine[1],"img",null,verification);
     }
     else if(isEqual&&cmdLine[0]==="update"&&cmdLine.length===1){
         pageUpdate.test();
@@ -457,6 +454,7 @@ var initializer=function(){
     for(let i in style) {
         zzz.set.style(obj, i, style[i]+"px");
     }
+    searchSettings.text("engine",searchSettings.current);
     zzz.incidence.bind(document.body,"unload",savePreference);
 };
 initializer();
@@ -488,13 +486,18 @@ var showIntroduction=function () {
             fontSize:0.6*zzz.browser.screenX/20+"px"
       });
       intr.innerHTML+="<p style='text-align:center;font-size:larger'>"+poem+"</p>";
-      let text=zzz.ajax.create({url:"introduction.txt",async:false}).responseText;
-      intr.innerHTML+="<pre>"+text+"</pre>";
+      zzz.fetch.create("introduction.txt",{callback:function (response) {
+            if(zzz.fetch.judge(response)==="success"){
+                let text=response.responseText||response.toString();
+                    intr.innerHTML+="<pre>"+text+"</pre>";
+                  zzz.set.style(intr, "visibility", "visible");
+                  zzz.set.style(intr, "opacity", "1");
+                  zzz.set.style(zzz.get.id("main"), "filter", "blur(0px)");
+                  zzz.set.style(zzz.get.id("main"), "filter", "blur(20px)");
+            }
+            else if(zzz.fetch.judge(response)==="fail"){
+                warn("help unavailable");
+            }
+          }});
   }
-  setTimeout(function() {
-      zzz.set.style(intr, "visibility", "visible");
-      zzz.set.style(intr, "opacity", "1");
-      zzz.set.style(zzz.get.id("main"), "filter", "blur(0px)");
-      zzz.set.style(zzz.get.id("main"), "filter", "blur(20px)");
-  },1000);
 };

@@ -302,9 +302,32 @@ zzz.value.hex=function(character){
     if(zzz.equal(character-0,"NaN")) return character.charCodeAt(0)-zzz.value.A+10;
     else return character-0;
 };
+zzz.value.userAgent={
+    browser:["2345Explorer","360 Browser","Amaya","Android Browser","Arora","Avant","Avast","AVG",
+        "BIDUBrowser","Baidu","Basilisk","Blazer","Bolt","Brave","Bowser","Camino", "Chimera",
+        "Chrome Headless","Chrome WebView","Chrome","Chromium","Comodo Dragon","Dillo",
+        "Dolphin","Doris","Edge","Epiphany","Facebook","Falkon","Fennec","Firebird","Firefox",
+        "Flock","GSA","GoBrowser","ICE Browser","IE","IEMobile","IceApe","IceCat","IceDragon",
+        "Iceape","Iceweasel","Iridium","Iron","Jasmine","K-Meleon","Kindle","Konqueror",
+        "LBBROWSER Line","Links","Lunascape","Lynx","MIUI Browser","Maemo Browser","Maemo",
+        "Maxthon","MetaSr Midori","Minimo","Mobile Safari","Mosaic","Mozilla","NetFront",
+        "NetSurf","Netfront","Netscape","NokiaBrowser","Oculus Browser","OmniWeb",
+        "Opera Coast","Opera Mini","Opera Mobi","Opera Tablet","Opera","PaleMoon","PhantomJS",
+        "Phoenix","Polaris","Puffin","QQ","QQBrowser","QQBrowserLite","Quark","QupZilla",
+        "RockMelt","Safari","Sailfish Browser","Samsung Browser","SeaMonkey","Silk","Skyfire",
+        "Sleipnir","Slim","SlimBrowser","Swiftfox","Tizen Browser","UCBrowser","Vivaldi",
+        "Waterfox","WeChat","Yandex","baidu","iCab","w3m"],
+    os:["AIX","Amiga OS","Android","Arch","Bada","BeOS","BlackBerry","CentOS","Chromium OS",
+        "Contiki","Fedora","Firefox OS","FreeBSD","Debian","DragonFly","Fuchsia","Gentoo","GNU",
+        "Haiku","Hurd","iOS","Joli","KaiOS","Linpus","Linux","Mac OS","Mageia","Mandriva","MeeGo",
+        "Minix","Mint","Morph OS","NetBSD","Nintendo","OpenBSD","OpenVMS","OS/2","Palm","PC-BSD",
+        "PCLinuxOS","Plan9","Playstation","QNX","RedHat","RIM Tablet OS","RISC OS","Sailfish",
+        "Series40","Slackware","Solaris","SUSE","Symbian","Tizen","Ubuntu","Unix","VectorLinux",
+        "WebOS","Windows [Phone/Mobile]","Zenwalk"]
+};
 zzz.value.init=function(){
     var u=zzz.value.unicode;
-    zzz.addAttr(zzz.value.unicodeAlias, {
+    zzz.addAttr(zzz.value.unicodeAlias,{
         a1: u.pinyin.a[0],
         a2: u.pinyin.a[1],
         a3: u.pinyin.a[2],
@@ -338,5 +361,9 @@ zzz.value.init=function(){
     for(let i in zzz.value.unicode){
         if(zzz.equal.type(zzz.value.unicode[i],"number")) zzz.value.unicodeAlias[i]=zzz.value.unicode[i];
     }
+};
+zzz.value.ocr={
+    token:"MRMkori4tA25THsgNLknYrGxXlj0zCMA",
+    id:"u1pi9cNR8hGBPozNI7A9BnCE"
 };
 zzz.value.init();

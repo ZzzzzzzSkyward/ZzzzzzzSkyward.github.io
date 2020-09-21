@@ -222,7 +222,17 @@ zzz.code={
         },
         encode:function (text) {
             return window.btoa(text);
-        }
+        },
+    },
+    head:function (type,isBase64) {
+            type=type.toLowerCase();
+            var result="data:",b64=";base64";
+            if(type==="text"||type==="string") return result+"text/plain,";
+            else if(type==="html") return result+"text/html,"+isBase64?b64:"";
+            else if(type==="css") return result+"text/css,"+isBase64?b64:"";
+            else if(type==="js"||type==="javascript") return result+"text/javascript"+isBase64?b64:"";
+            var image={png:"png",jpg:"jpeg",jpeg:"jpeg",bmp:"bmp",gif:"gif",ico:"x-icon"};
+            if(image[type]) return "data:image/"+image[type]+b64;
     },
     uri: {
         encode: function (text) {
@@ -676,6 +686,12 @@ zzz.time={
             second:second,
             milisecond:milisecond
         })
+    },
+    UTC:function (ztime) {
+        if (!ztime) ztime = new Date();
+        else if (ztime instanceof ztimeStructure) ztime = zzz.time.convertToDate(ztime);
+        else if (!(ztime instanceof Date)) return;
+        return ztime.toUTCString();
     }
 };
 
@@ -727,25 +743,6 @@ zzz.storage={
         return JSON.parse(zzz.storage.get(key));
     }
 };
-
-
-//ajax
-//TODO : complete this.
-
-
-
-
-
-
-
-
-//time function
-zzz.tick=setTimeout;
-zzz.loop=setInterval;
-
-
-
-
 
 //browser check
 //TODO : complementary.
@@ -933,6 +930,7 @@ zzz.browser.init=function(){
 zzz.get=function (name) {
     if(name[0]==='.') return zzz.get.cls(name.substr(1));
     else if(name[0]==='#') return zzz.get.id(name.substr(1));
+    else return zzz.get.tag(name);
 };
 zzz.get.id=function (id) {
     return document.getElementById(id);
@@ -988,15 +986,18 @@ zzz.audio={
         return this.element.playbackRate;
     },
     create:function(setting) {
+        if(!setting.src) setting.src="";
         var attributes = {
             muted: setting.muted || "false",
             autoplay: setting.autoplay || "false",
-            preload: setting.preload ? "auto" : "none",
-            controls: setting.controls || "false"
+            preload: setting.preload ? "preload" : "metadata",
+            controls: setting.controls || "false",
+            volume:setting.volume||1
         };
         var newAudio = zzz.create("audio", attributes);
         if (setting.src) zzz.set(newAudio, setting.src);
         let result = {element: newAudio};
+        if(setting.parent) setting.parent.appendChild(newAudio);
         zzz.addAttr(result, zzz.audio);
         return result;
     }
@@ -1004,35 +1005,27 @@ zzz.audio={
     playBackground:function (src) {
         if(!src) return;
         var newAudio=zzz.audio.create({src:src,autoplay: true});
-        //TODO : append.
+        zzz.set.style(newAudio.element,"visibility","hidden");
         return newAudio;
     }
 };
 
-
-
-//resource loading
-zzz.load=function (src) {
-    //TODO : estimate from suffix.
-};
-zzz.load.js=function (src,parent) {
-    var newScript=zzz.create("script",{src:src,type:"text/javascript",language:"javascript"});
-    if(!parent) parent=document.body;
-    parent.appendChild(newScript);
-    return newScript;
-};
-zzz.load.css=function (src,parent) {
-    var newCSS=zzz.create("link",{href:src,rel:"stylesheet",type:"text/css"});
-    if(!parent) parent=document.body;
-    parent.appendChild(newCSS);
-    return newCSS;
-};
-zzz.load.font=function (name,src) {
-    var newCSS=zzz.create("style");
-    newCSS.innerText="@font-face{font-family:"+name+";src:url('"+src+"')}";
-    document.body.appendChild(newCSS);
-};
-
+zzz.video={
+    create:function (settings) {
+        var set={
+            autoplay:settings.autoplay?"true":"false",
+            controls:settings.controls===false?"false":"true",
+            crossorigin:"true",
+            muted:settings.muted?"true":"false",
+            loop:settings.loop?"true":"false",
+            preload:settings.preload?"true":"false"
+        };
+        var node=zzz.create("video",set);
+        var result={element:node};
+        zzz.addAttr(result,zzz.video);
+        return result;
+    }
+}
 
 //incidence
 zzz.incidence={
@@ -1177,71 +1170,162 @@ zzz.message={
 
 //fetch API
 //simple fetch=get
-zzz.fetch=function(url,callback){
-    if(window.fetch){
-        window.fetch(url).then(callback);
-    }
-};
-zzz.fetch.post=function(url,data,callback){
-
-};
-zzz.ajax={
-    create:function (settings) {
-        if(!settings.url) return;
-        var xhr=new XMLHttpRequest();
-        xhr.onreadystatechange=settings.callback;
-        if(settings.timeout){
-            xhr.timeout=settings.timeout;
-        }
-        if(settings.ontimeout){
-            xhr.ontimeout=settings.ontimeout;
-        }
-
-        xhr.open(settings.method||"GET",settings.url,settings.async===undefined?true:settings.async);
-        xhr.send(settings.data);
-        return xhr;
+zzz.fetch={
+    fetchEnabled:false,
+    ajaxEnabled:false,
+    safe_fetch:{
+        method: "GET",
+        mode:"same-origin",
+        credentials: "same-origin",
+        cache:"default",
+        redirect:"follow"
     },
-    judge:function (xmlhttp) {
-        //1=pending 0=fail 2=success
-        return xmlhttp.readyState===4?(xmlhttp.status===200?2:0):1;
+    requestStructure:function() {
+        return {
+            url: undefined,
+            data: undefined,
+            method: undefined,
+            cors: false,
+            cache: undefined,
+            header: undefined,
+            credentials: undefined,
+            redirect: undefined,
+            referrer: undefined,
+            integrity: undefined,
+            referrerPolicy: undefined,
+            callback: undefined,
+            async: true
+        };
     },
-    get:function (type,src,func,head) {
-        var node=zzz.create(type);
-        node.className="hidden";
-        console.log((src));
-        //JSONP
-        //TODO: separate this.
-        //onload,onreadystatechange
-        if(type==="script"){
-            if(func) {
-                var uniqueText = zzz.random.string(30);
-                //zzz.value.callback.lib[zzz.value.callback.index]=uniqueText;
-                window[uniqueText] = function (response) {
-                    func(response);
-                    delete window[uniqueText];
+    headStructure:{
+        Date:"",//standard format:Web, 21 Oct 2015 07:28:00 GMT
+        Cookie:"",//cookie
+    },
+    head:{
+        create:function(settings){
+            var head=new Headers();
+            for(var i in settings){
+                i=i[0].toUpperCase()+i.substr(1);
+                head.append(i,settings.i);
+            }
+            return head;
+        }
+    },
+    send:function(){throw new Error("sending fetch");},
+    create:function(url,settings){
+        var request=zzz.fetch.requestStructure();
+        request.url=url;
+        zzz.addAttr(request,settings);
+        var promise=zzz.fetch.fetchEnabled?zzz.fetch.fetch(request):zzz.fetch.ajax(request);
+        return promise;
+    },
+    init:function () {
+        try {
+            if (window.fetch || WorkerGlobalScope.fetch) zzz.fetch.fetchEnabled=true;
+        }catch (e) {}
+        try{
+            if(XMLHttpRequest) zzz.fetch.ajaxEnabled=true;
+        }catch (e) {}
+        if(zzz.fetch.fetchEnabled) {
+            zzz.fetch.fetch = function (settings) {
+                if (!settings.url) return false;
+                if (zzz.equal.type(settings.input, "string")) {
+                }
+                var init = {
+                    method: settings.method || (settings.data ? "POST" : "GET"),
+                    mode: settings.cors?"cors":"same-origin",
+                    body:settings.data||undefined,
+                    credentials: settings.credentials || "include",
+                    cache: settings.cache || "reload",
+                    redirect: settings.redirect || undefined,
+                    referrer: settings.referrer || undefined,
+                    integrity: settings.integrity || undefined,
+                    referrerPolicy: settings.referrerPolicy || undefined
                 };
-                zzz.set(node, "src", zzz.path.merge(src, {callback: uniqueText}));
-            }
-            else{
-                //normal JSON
-                zzz.set(node, "src", src);
-            }
-            //zzz.value.callback.index++;
+                var promise = zzz.fetch.send(settings.url, init);
+                if (settings.callback) return promise.then(settings.callback);
+                else return promise;
+            };
         }
-        //ELSE
-        else {
-            zzz.set(node, "src", src);
-            let wrapper=function(){func(node,true);};
-            let wrapper_fail=function(){func(node,false);};
-            zzz.incidence.bind(node,"load",wrapper);
-            zzz.incidence.bind(node,"error",wrapper_fail);
-          setTimeout(wrapper,10000);
+        else if(zzz.fetch.ajaxEnabled){
+            zzz.fetch.ajax=function (settings) {
+                if(!settings.url) return false;
+                var xhr=new XMLHttpRequest();
+                if(settings.callback) xhr.onreadystatechange=settings.callback;
+                if(settings.timeout) xhr.timeout=settings.timeout;
+                if(settings.ontimeout) xhr.ontimeout=settings.ontimeout;
+                xhr.open(settings.method||"GET",settings.url,settings.async===undefined?true:settings.async);
+                xhr.send(settings.data);
+                return xhr;
+            }
         }
-        zzz.get.id("scripts").appendChild(node);
+    },
+    judge:function (response) {
+        console.log(response);
+        if(response.complete) return "success";
+        if(response.ok!==undefined) return response.ok?"success":"fail";
+        return response.readyState===4?(response.status===200?"pending":"fail"):"success";
+    },
+    //jsonp without cors callback
+    cors:function(src,type,parent,callback) {
+        if(!parent) parent=document.body;
+        if(!type) type="script";
+        var node=zzz.create(type,{src:src},{display:"none"});
+        if(callback) {
+            let wrapper = function () {
+                callback({node:node,ok:true});
+            };
+            let wrapper_fail = function () {
+                callback({node:node,ok:false});
+            };
+            let wrapper_change=function(){
+                callback({node:node,readyState:node.readyState});
+            };
+            zzz.incidence.bind(node, "load", wrapper);
+            zzz.incidence.bind(node, "readystatechange", wrapper_change);
+            zzz.incidence.bind(node, "error", wrapper_fail);
+        }
+        parent.appendChild(node);
+        return node;
+    },
+    //jsonp with cors callback
+    get:function (src,callback,parent,head) {
+        if(!parent) parent=document.body;
+        var node=zzz.create("script",{src:src},{display:"none"});
+        var uniqueText = zzz.random.string(30);
+        window[uniqueText] = function (response) {
+            callback(response);
+            delete window[uniqueText];
+        };         
+        zzz.set(node, "src", zzz.path.merge(src, {callback: uniqueText}));
+        parent.appendChild(node);
+        return node;
+    },
+    //resource loading
+    css:function (src,parent) {
+        var node=zzz.create("link",{href:src,rel:"stylesheet",type:"text/css"});
+        if(!parent) parent=document.body;
+        parent.appendChild(node);
+        return node;
+    },
+    font:function (name,src) {
+        var node = zzz.create("style");
+        node.innerText = "@font-face{font-family:" + name + ";src:url('" + src + "')}";
+        document.body.appendChild(node);
+    },
+    js:function (src,parent) {
+        if(!parent) parent=document.body;
+        var node=zzz.create("script",{src:src});
+        parent.appendChild(node);
     }
 };
 //canvas
 zzz.paint={
+    canvasEnabled:false,
+    init:function(){
+        var node=zzz.create("canvas");
+        if(node.getContext) this.canvasEnabled=true;
+    },
   get:function (element) {
     return element.getContext("2d");
   },
@@ -1595,7 +1679,7 @@ zzz.anim={
                         zzz.anim.translate.calculate(currentStyle[i].g,previousStyle[i]?previousStyle[i].g:null)+
                         ","+
                         zzz.anim.translate.calculate(currentStyle[i].b,previousStyle[i]?previousStyle[i].b:null);
-                    if(currentStyle[i].a||(previousStyle[i]&&previousStyle[i].a)) result.push("rgba("+core+","+zzz.anim.translate.calculate(currentStyle[i].a,previousStyle[i]?previousStyle[i].a:null)+")");
+                    if(currentStyle[i].a!==undefined||(previousStyle[i]&&previousStyle[i].a!==undefined)) result.push("rgba("+core+","+zzz.anim.translate.calculate(currentStyle[i].a,previousStyle[i]?previousStyle[i].a:null)+")");
                     else result.push("rgb("+core+")");
                 }
                 else if(!!(i-0+1)&&currentStyle[i].value) result.push(zzz.anim.translate.calculate(currentStyle[i].value,previousStyle[i].value||null)+(currentStyle[i].unit||(previousStyle[i]&&previousStyle[i].unit)||""));
@@ -1616,13 +1700,16 @@ zzz.anim={
     },
     act:function(element,currentStyle,previousStyle){
         if(!previousStyle) previousStyle={};
+        if(!zzz.anim.elements[element]) zzz.anim.elements[element]={};
         var i,previousValue;
         for(i in currentStyle){
             if(zzz.equal.type(currentStyle[i],"string")) currentStyle[i]=zzz.anim.translate.wrap(currentStyle[i]);
             previousValue=previousStyle[i];
-            if(previousValue===undefined||previousValue===null) previousValue=zzz.anim.elements[element]?zzz.anim.elements[element][i]:null;
+            if(previousValue===undefined||previousValue===null) previousValue=zzz.anim.elements[element][i];
             if(previousValue===undefined||previousValue===null) previousValue=zzz.anim.translate.split(i,zzz.get.style(element,i));
             currentStyle[i]=zzz.anim.translate.merge(currentStyle[i],previousValue);
+            console.log(currentStyle[i]);
+            zzz.anim.elements[element][i]=zzz.anim.translate.split(i,currentStyle[i]);
         }
         zzz.anim.set(element,currentStyle);
     },
@@ -1708,7 +1795,7 @@ zzz.web={
       else{
           //common url
           let executed=false;
-          zzz.ajax.get("img",type,function (node) {
+          zzz.fetch.cors(type,"img",null,function (node) {
             if(!node) return;
             if(executed) return;
             executed=true;
@@ -1740,7 +1827,7 @@ zzz.api.bingWallpaper={
             var returnText=this.node.innerHTML;
             zzz.value.bingWallpaper=returnText;
         };
-        zzz.ajax.get(" https://cn.bing.com/HPImageArchive.aspx?format=xml&idx="+d.toString()+"&n=1",getText);
+        zzz.fetch.cors("https://cn.bing.com/HPImageArchive.aspx?format=xml&idx="+d.toString()+"&n=1","img",null,getText);
     }
 };
 
@@ -1774,12 +1861,15 @@ zzz.api.translation={
         if(!fromLanguage) fromLanguage="auto";
         let url=zzz.api.translation.getURL(engine,text,fromLanguage,toLanguage,zzz.value.translation.id[engine],zzz.value.translation.token[engine]);
         let unpack=function(response){
-            let pack=response.trans_result||[response.translation];
-            console.log(pack);
-            func(pack[0]);
+            if(zzz.fetch.judge(response)==="success") {
+                let pack = response.trans_result || [response.translation];
+                console.log(pack);
+                func(pack[0]);
+            }
+            else if(zzz.fetch.judge(response)==="fail") warn("translation unavailable");
         };
         console.log(url);
-        zzz.ajax.get("script",url,unpack);
+        zzz.fetch.get(url,unpack);
     }
 };
 
@@ -1810,9 +1900,9 @@ zzz.api.update={
 
 //wayback machine api
 zzz.api.archive={
-  save:function (url,callback) {
-      return zzz.ajax.get("script",'https://web.archive.org/save/'+zzz.path.deleteEnd(url),callback||null);
-  },
+    save:function (url,callback) {
+        return zzz.fetch.create('https://web.archive.org/save/'+zzz.path.deleteEnd(url),{callback:callback||null});
+    },
     open:function (url,func) {
       if(!func) func=function(){};
       let callback=function(response){
@@ -1825,7 +1915,7 @@ zzz.api.archive={
           }
           func(false);
       };
-        zzz.ajax.get("script",'http://archive.org/wayback/available?url='+zzz.path.deleteEnd(url),callback);
+        zzz.fetch.get('http://archive.org/wayback/available?url='+zzz.path.deleteEnd(url),{callback:callback});
     },
     find:function (url) {
         var set=zzz.path.split(url);
@@ -1835,7 +1925,40 @@ zzz.api.archive={
     }
 };
 
+//OCR API
+//source:baidu
+zzz.api.ocr={
+    number:function (imageb64data,callback,parent,head) {
+        var accesstoken=zzz.fetch.ajax({url:"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id="+zzz.value.ocr.id+"&client_secret="+zzz.value.ocr.token,async:false}).responseText;
+        var url="https://aip.baidubce.com/rest/2.0/ocr/v1/numbers";
+        zzz.path.merge(url,{access_token:accesstoken});
+        zzz.fetch.create(url,{cors:true,type:"post",data:imageb64data,callback:callback});
+    },
+    b64:function (element) {
+        var tag=element.tagName.toLowerCase();
+        if(tag==="img"){
+            //try canvas
+            if(zzz.paint.canvasEnabled){
+                var canvas = zzz.create("canvas");
+                var type=element.src;
+                if(type.lastIndexOf(".")!==-1) type=type.substr(type.lastIndexOf(".")+1);
+                else if(type.substr(0,4)==="data") type=type.slice(11,type.search("base4"));
+                else type="jpeg";
+                canvas.width = element.width;
+                canvas.height = element.height;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(element, 0, 0, element.width, element.height);
+                var dataURL = canvas.toDataURL("image/"+type);
+                return dataURL;
+            }
+            //todo: add filereader
+        }
+        else if(tag==="canvas"){
 
+        }
+        else throw new Error("image type unsupported");
+    }
+};
 //string
 zzz.string={
   distance:function (str1,str2) {
@@ -2036,6 +2159,7 @@ zzz.init=function () {
     zzz.incidence.init();
     zzz.browser.init();
     zzz.message.init();
+    zzz.paint.init();
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
 };
