@@ -244,9 +244,28 @@ window.confirmSelect=function(stuName,courseName,classNo,onlySupp,index,seqNo,fr
         window.refreshLimit(stuName,courseName,classNo,onlySupp,index,seqNo,limitedNbr,refreshUrl2);
         return false;
     }else{
-        if(window.alidate()==false) return false;
+        if(window.validate()==false) return false;
         return true;
     }
+};
+window.validate=function() {
+    var valid=false;
+    $.ajax({
+        url: "/elective2008/edu/pku/stu/elective/controller/supplement/validate.do",
+        type: "post",
+        data: "validCode=" + codeInput.value,
+        dataType: "json",
+        async: false,
+        success:function (data) {
+            valid=data.valid==2;
+            if(!valid) code.previousElementSibling.innerText="错了"
+        },
+        fail:function (data) {
+            valid=false;
+            code.previousElementSibling.innerText="断网了"
+        }
+    });
+    return valid;
 };
 window.hideall=function(hid){
     var hide=function (e) {elements[e].style.display="none";};
@@ -270,6 +289,8 @@ window.transparent=function(tp){
 table.onclick=select;
 var status_hide=false;
 var transparent_count=0;
+zzz.get.cls("subTitle").innerText="显示/隐藏满的与不要的";
+zzz.get.cls("errmsg").innerText="增减透明度";
 zzz.get.cls("subTitle").onclick=function (){hideall(!status_hide)};
 zzz.get.cls("errmsg").onclick=function () {
     transparent((transparent_count%6)<3);
