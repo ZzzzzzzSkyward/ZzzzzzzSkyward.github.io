@@ -205,6 +205,10 @@ window.addClass=function(arr){
 window.select=function (e) {
     var ele=e.target||e.srcElement;
     var par=ele.parentElement;
+    while(par.tagName.toLowerCase()!=="tr"){
+        ele=par;
+        par=ele.parentElement;
+    }
     if(par.firstElementChild===ele) {
         var v = par.value;
         var check=confirm("'" + info[v].join("','") + "'");
