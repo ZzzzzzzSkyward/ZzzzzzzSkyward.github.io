@@ -244,7 +244,7 @@ window.confirmSelect=function(stuName,courseName,classNo,onlySupp,index,seqNo,fr
         window.refreshLimit(stuName,courseName,classNo,onlySupp,index,seqNo,limitedNbr,refreshUrl2);
         return false;
     }else{
-        if(window.validate()==false) return false;
+        if(window.validate()===false) return false;
         return true;
     }
 };
@@ -253,16 +253,17 @@ window.validate=function() {
     $.ajax({
         url: "/elective2008/edu/pku/stu/elective/controller/supplement/validate.do",
         type: "post",
-        data: "validCode=" + codeInput.value,
+        data: "validCode=" + code.value||code.innerText,
         dataType: "json",
         async: false,
         success:function (data) {
             valid=data.valid==2;
-            if(!valid) code.previousElementSibling.innerText="错了"
+            if(!valid){
+                code.previousElementSibling.innerText="错了";
+            }
         },
         fail:function (data) {
-            valid=false;
-            code.previousElementSibling.innerText="断网了"
+            code.previousElementSibling.innerText="断网了";
         }
     });
     return valid;
