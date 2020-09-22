@@ -334,7 +334,8 @@ append(validImg.style,{
 append(document.getElementsByClassName("errmsg")[1],{
    innerHTML:"&nbsp;&nbsp;&nbsp;&nbsp;刷新",
    onclick:function () {
-        location.replace("https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/electSupplement.do");
+        history.go(-1);
+        location.reload(true);
    }
 });
 try {
