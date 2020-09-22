@@ -1,9 +1,12 @@
 "use strict";
-if(location.href!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do") throw new Error("not usable");
-if(location.search){
+if(location.search&&(location.href.search("electSupplement")!==-1)){
     history.go(-1);
     throw new Error("");
 }
+if(
+    location.href!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do"||
+    location.href!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/supplement.jsp"
+) throw new Error("not usable");
 if(!window.localStorage["desired"]) localStorage["desired"]="[]";
 window.desiredClass=JSON.parse(window.localStorage["desired"]);
 window.zzz={};
