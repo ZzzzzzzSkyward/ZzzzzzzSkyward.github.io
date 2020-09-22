@@ -320,4 +320,3 @@ try {
     });
 }catch(e){}
 
-hideall(!status_hide);
