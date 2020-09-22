@@ -187,7 +187,7 @@ window.choose=function (func,isreverse) {
                 break;
             }
         }
-        if(flbg&isreverse){
+        if(flbg&&isreverse){
             func(j);
         }
     }
@@ -196,7 +196,7 @@ window.chooseFull=function(func,isreverse){
     if(isreverse===undefined) isreverse=false;
     for(let j in info){
         let flag=info[j][info[j].length-1]>=info[j][info[j].length-2];
-        if(!flag^isreverse){
+        if(flag^isreverse){
             func(j);
         }
     }
@@ -307,6 +307,11 @@ append(toptable.style,{
     top:0,
     left:0
 });
+append(zzz.get.id("validCodeImg").previousElementSibling,{
+   position:"fixed",
+   left:"0",
+    top:"30px"
+});
 append(validImg.style,{
     position: "fixed",
     left:"10px",
@@ -321,3 +326,4 @@ try {
     });
 }catch(e){}
 
+hideall(!status_hide);
