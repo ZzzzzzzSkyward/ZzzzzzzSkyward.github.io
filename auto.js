@@ -4,8 +4,8 @@ if(location.search&&(location.pathname.search("electSupplement")!==-1)){
     throw new Error("");
 }
 if(
-    location.pathname!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do"&&
-    location.pathname!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/supplement.jsp"
+    location.pathname!=="/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do"&&
+    location.pathname!=="/elective2008/edu/pku/stu/elective/controller/supplement/supplement.jsp"
 ) throw new Error("not usable");
 if(!window.localStorage["desired"]) localStorage["desired"]="[]";
 window.desiredClass=JSON.parse(window.localStorage["desired"]);
