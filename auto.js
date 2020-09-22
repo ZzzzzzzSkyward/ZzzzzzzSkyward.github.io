@@ -155,8 +155,8 @@ window.getTBody=function () {
                 }
                 else idx++;
             }
-            info[index][idx]=parseInt(info[index][idx-1].replace(/^\d*\//,""));
-            info[index][idx-1]=parseInt(info[index][idx-1].replace(/\/\d*$/,""));
+            info[index][idx]=parseInt(info[index][idx-1].replace((/^\d* \/ /,""));
+            info[index][idx-1]=parseInt(info[index][idx-1].replace(/\/ \d*$/,""));
             index++;
             idx=1;
             elements.push(i);
