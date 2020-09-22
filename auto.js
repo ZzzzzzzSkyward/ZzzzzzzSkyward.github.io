@@ -1,4 +1,9 @@
 "use strict";
+if(location.href!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do") throw new Error("not usable");
+if(location.search){
+    history.go(-1);
+    throw new Error("");
+}
 if(!window.localStorage["desired"]) localStorage["desired"]="[]";
 window.desiredClass=JSON.parse(window.localStorage["desired"]);
 window.zzz={};
@@ -310,10 +315,11 @@ append(toptable.style,{
     top:0,
     left:0
 });
-append(zzz.get.id("validCodeImg").previousElementSibling,{
+append(zzz.get.id("validCodeImg").previousElementSibling.style,{
    position:"fixed",
    left:"0",
-    top:"30px"
+    top:"30px",
+    backgroundColor:"rgba(255,255,255,0.9)"
 });
 append(validImg.style,{
     position: "fixed",
@@ -321,6 +327,12 @@ append(validImg.style,{
     top:"50px",
     opacity:"0.9",
     width:"100px"
+});
+append(document.getElementsByClassName("errmsg")[1],{
+   innerHTML:"&nbsp;&nbsp;&nbsp;&nbsp;刷新",
+   onclick:function () {
+        location.replace("https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/electSupplement.do");
+   }
 });
 try {
     var b=toptable.firstElementChild.firstElementChild.firstElementChild;
