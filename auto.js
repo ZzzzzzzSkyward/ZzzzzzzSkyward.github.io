@@ -196,7 +196,7 @@ window.chooseFull=function(func,isreverse){
     if(isreverse===undefined) isreverse=false;
     for(let j in info){
         let flag=info[j][info[j].length-1]>=info[j][info[j].length-2];
-        if(flag^isreverse){
+        if(!flag^isreverse){
             func(j);
         }
     }
@@ -321,4 +321,3 @@ try {
     });
 }catch(e){}
 
-hideall(!status_hide);
