@@ -4,7 +4,7 @@ if(location.search&&(location.href.search("electSupplement")!==-1)){
     throw new Error("");
 }
 if(
-    location.href!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do"||
+    location.href!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do"&&
     location.href!=="https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/supplement.jsp"
 ) throw new Error("not usable");
 if(!window.localStorage["desired"]) localStorage["desired"]="[]";
