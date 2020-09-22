@@ -272,11 +272,11 @@ window.hideall=function(hid){
     var hide=function (e) {elements[e].style.display="none";};
     var show=function (e) {elements[e].style.display="table-row";};
     if(hid){
-        choose(hide);
+        choose(hide,true);
         chooseFull(hide);
     }
     else{
-        choose(show);
+        choose(show,true);
         chooseFull(show);
     }
     status_hide=hid;
