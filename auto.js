@@ -346,7 +346,7 @@ append(validImg.style,{
     opacity:"0.9",
     width:"100px"
 });
-append(document.getElementsByClassName("errmsg")[1],{
+append(document.getElementsByClassName("errmsg")[0],{
    innerHTML:"&nbsp;&nbsp;&nbsp;&nbsp;刷新",
    onclick:function () {
         history.go(-1);
@@ -360,6 +360,6 @@ try {
     });
 }catch(e){}
 var beautify=function(){
-    append(zzz.get.id("subTitle"))
+
 };
 hideall(!status_hide);
