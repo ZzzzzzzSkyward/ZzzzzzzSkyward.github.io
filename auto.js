@@ -25,6 +25,9 @@ zzz.get.cls=function (className) {
     }catch(e){}
     return  a;
 };
+zzz.get.tag=function(tag){
+    return document.getElementsByTagName(tag);
+};
 zzz.fetch={
     fetchEnabled:false,
     ajaxEnabled:false,
@@ -279,18 +282,28 @@ window.validate=function() {
     });
     return valid;
 };
+var status_hideFull=false;
 window.hideall=function(hid){
     var hide=function (e) {elements[e].style.display="none";};
     var show=function (e) {elements[e].style.display="table-row";};
     if(hid){
         choose(hide,true);
-        chooseFull(hide);
     }
     else{
         choose(show,true);
-        chooseFull(show);
     }
     status_hide=hid;
+};
+window.hideFull=function(hid){
+    var hide=function (e) {elements[e].style.display="none";};
+    var show=function (e) {elements[e].style.display="table-row";};
+    if(hid){
+        chooseFull(hide);
+    }
+    else{
+        chooseFull(show);
+    }
+    status_hideFull=hid;
 };
 window.transparent=function(tp){
     var trans=function (e) {elements[e].style.opacity=parseFloat(getComputedStyle(elements[e])["opacity"])-0.3;};
@@ -301,8 +314,10 @@ window.transparent=function(tp){
 table.onclick=select;
 var status_hide=false;
 var transparent_count=0;
-zzz.get.cls("subTitle").innerText="显示/隐藏满的与不要的";
-zzz.get.cls("pkuportal-remark").innerHTML="       增减透明度                              ";
+zzz.get.cls("subTitle").innerText="显示/隐藏满的";
+zzz.get.cls("errmsg")[0].innerText="与不要的";
+zzz.get.cls("errmsg")[0].onclick=function(){hideFull(!status_hideFull);};
+zzz.get.cls("pkuportal-remark").innerHTML="增减透明度";
 zzz.get.cls("subTitle").onclick=function (){hideall(!status_hide)};
 zzz.get.cls("pkuportal-remark").onclick=function () {
     transparent((transparent_count%6)<3);
@@ -344,5 +359,7 @@ try {
         textAlign: "left"
     });
 }catch(e){}
-
+var beautify=function(){
+    append(zzz.get.id("subTitle"))
+};
 hideall(!status_hide);
