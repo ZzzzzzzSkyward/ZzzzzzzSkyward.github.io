@@ -1247,7 +1247,7 @@ zzz.fetch={
                 else return promise;
             };
         }
-        else if(zzz.fetch.ajaxEnabled){
+        if(zzz.fetch.ajaxEnabled){
             zzz.fetch.ajax=function (settings) {
                 if(!settings.url) return false;
                 var xhr=new XMLHttpRequest();
@@ -1929,10 +1929,11 @@ zzz.api.archive={
 //source:baidu
 zzz.api.ocr={
     number:function (imageb64data,callback,parent,head) {
-        var accesstoken=zzz.fetch.ajax({url:"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id="+zzz.value.ocr.id+"&client_secret="+zzz.value.ocr.token,async:false}).responseText;
+        zzz.fetch.get("https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id="+zzz.value.ocr.id+"&client_secret="+zzz.value.ocr.token,function (response) {
         var url="https://aip.baidubce.com/rest/2.0/ocr/v1/numbers";
-        zzz.path.merge(url,{access_token:accesstoken});
+        zzz.path.merge(url,{access_token:response.access_token});
         zzz.fetch.create(url,{cors:true,type:"post",data:imageb64data,callback:callback});
+        });
     },
     b64:function (element) {
         var tag=element.tagName.toLowerCase();
@@ -2151,7 +2152,65 @@ zzz.api.unicode={
   }
 };
 
-
+//steam cdkey register api
+zzz.api.steam={
+    buffer:[],
+    queue:[],
+    index:0,
+    queue_index:0,
+    id:window.g_sessionID||"",
+    onsend:false,
+    register:function (cdk) {
+        if (!cdk) return;
+        if (!zzz.api.steam.id) zzz.api.steam.id=window.g_sessionID||"";
+        zzz.api.steam.buffer += cdk;
+        zzz.api.steam.send(0);
+    },
+    send:function(status){
+        var short=zzz.api.steam;
+        if(!short.buffer[short.index]){
+            short.onsend=false;
+            return;
+        }
+        if(status===0){
+            if(short.onsend) return;
+        }
+        fetch("https://store.steampowered.com/account/ajaxregisterkey/",
+            {
+                body: "product_key=" + short.buffer[short.index++] + "&sessionid=" + short.id,
+                method: "POST",
+                headers: {
+                    'Content-type': "application/x-www-form-urlencoded;charset=UTF-8"
+                }
+            }
+            ).then(resp=>{return resp.json();}).then(function (response) {
+                if(response.success===1) {
+                    short.buffer=[];
+                    short.index=0;
+                    short.queue_index++;
+                    short.onsend=false;
+                    return;
+                }
+                else short.send(1);
+        });
+    },
+    batch:function (cdk_string) {
+        var short=zzz.api.steam,j=0;
+        short.queue=cdk_string.split("\n");
+        for(let i of short.queue){
+            i=i.trim();
+            if(i.length===17&&(i.search(/[^0-9a-zA-Z\?\-]/)===-1)) {
+                setTimeout(function () {
+                    zzz.api.steam.cope(i);
+                }, j * 1000);
+                j++;
+            }
+        }
+    },
+    cope:function(str){
+        for(let j=0;j<6;j++) zzz.api.steam.register(str.replace("?",j.toString()));
+    }
+};
 
 //overall initialize
 zzz.init=function () {
@@ -2160,6 +2219,7 @@ zzz.init=function () {
     zzz.browser.init();
     zzz.message.init();
     zzz.paint.init();
+    zzz.fetch.init();
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
 };
