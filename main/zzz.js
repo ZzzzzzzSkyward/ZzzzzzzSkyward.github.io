@@ -2287,17 +2287,75 @@ zzz.api.steam={
 zzz.api.tieba={
     isTieba:false,
     init:function () {
-        var domain=zzz.browser.host;
-        var short=zzz.value.tieba={};
-        if("tieba.baidu.com"===domain) zzz.api.tieba.isTieba=true;
+        var domain = zzz.browser.host;
+        var short = zzz.value.tieba = {};
+        if ("tieba.baidu.com" === domain) zzz.api.tieba.isTieba = true;
         else return;
-        short.text=zzz.get.id("ueditor_replace");
-        short.button=zzz.get.cls("ui_btn ui_btn_m j_submit poster_submit")[0];
+        short.text = zzz.get.id("ueditor_replace");
+        short.button = zzz.get.cls("ui_btn ui_btn_m j_submit poster_submit")[0];
+        short.posts = [];
+        zzz.api.tieba.analyze();
+    },
+    analyze:function(){
+        var short=zzz.value.tieba.posts;
+        var nodes=zzz.get.cls("l_post l_post_bright j_l_post clearfix");
+        var floor=1;
+        for(let i of nodes){
+            //ergodic
+            //data:[floor,element]
+            //if this floor is an advertisement, then ignore.
+            let isAd=false;
+            let info=i.getElementsByClassName("post-tail-wrap")[0].getElementsByClassName("tail-info");
+            isAd=!!info.length;
+            if(isAd) continue;
+            for (let j of info) {
+                if (j.innerText.indexOf("楼") !== -1) {
+                    floor = zzz.toNum(j);
+                    break;
+                }
+            }
+            let contentElement=i.getElementsByClassName("d_post_content j_d_post_content")[0];
+            short[i]=[floor,nodes[i]];
+            floor++;
+        }
     },
     post:function (text) {
         var short=zzz.value.tieba;
         short.text.innerHTML=text;
         short.button.click();
+    },
+    replyFloor:function (floor,text) {
+        var short=zzz.value.tieba.posts;
+        if(floor<=1) return zzz.api.tieba.post(text);
+        else floor=Math.floor(floor);
+        if(isNaN(floor)) return;
+        var floorElement,i=floor-2;
+        for(;i<short.length;i++){
+            if(short[i][0]>=floor) break;
+        }
+        if(short[i][0]!==floor) throw new Error("tieba api replyFloor received non-existent floor param.");
+        var replyStatusElement=short[i][1].getElementsByClassName("j_lzl_r p_reply").firstElementChild,replyStatus;
+        replyStatus=zzz.get.style(replyStatusElement,"display")!=="none";
+        //if there is no reply yet, we can safely reply to this floor
+        if(replyStatus){
+            replyStatusElement.click();
+            if(!zzz.get.id("j_editor_for_container")) replyStatusElement.click();
+        }
+        //else you should first click I say too button.
+        else{
+            var sayElement=short[i][1].getElementsByClassName("j_lzl_p btn-sub btn-small pull-right");
+            sayElement.click();
+            if(!zzz.get.id("j_editor_for_container")) sayElement.click();
+            if(!zzz.get.id("j_editor_for_container")) sayElement.click();
+        }
+        var func=function(){
+            var txtPanel=zzz.get.id("j_editor_for_container");
+            if(!txtPanel) return;
+            txtPanel.innerHTML=text;
+            var button=zzz.get.cls("lzl_panel_submit j_lzl_p_sb")[0];
+            button.click();
+        };
+        setTimeout(func,10);
     }
 };
 
