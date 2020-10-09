@@ -2288,7 +2288,8 @@ zzz.api.tieba={
     isTieba:false,
     init:function () {
         var domain = zzz.browser.host;
-        var short = zzz.value.tieba = {};
+        if(!zzz.value.tieba) zzz.value.tieba = {};
+        var short = zzz.value.tieba;
         if ("tieba.baidu.com" === domain) zzz.api.tieba.isTieba = true;
         else return;
         short.text = zzz.get.id("ueditor_replace");
@@ -2324,6 +2325,10 @@ zzz.api.tieba={
         var short=zzz.value.tieba;
         short.text.innerHTML=text;
         short.button.click();
+    },
+    emoji:function(type){
+      var nodeText='<img pic_type="1" src="//tb2.bdstatic.com/tb/editor/images/face/i_f{type}.png?t=20140803" class="BDE_Smiley" onload="EditorUI.resizeImage(this, 560)" unselectable="on" width="30" height="30">';
+      return nodeText.replace("{type}",zzz.value.tieba.emoji(type)||"01");
     },
     replyFloor:function (floor,text) {
         var short=zzz.value.tieba.posts;

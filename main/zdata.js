@@ -329,7 +329,7 @@ zzz.value.userAgent={
 };
 zzz.value.init=function(){
     var u=zzz.value.unicode;
-    zzz.addAttr(zzz.value.unicodeAlias,{
+    var set= {
         a1: u.pinyin.a[0],
         a2: u.pinyin.a[1],
         a3: u.pinyin.a[2],
@@ -358,8 +358,8 @@ zzz.value.init=function(){
         "华氏度":u.fahrenheit_degree,
         "苯":u.chemistry.benzene,
         "?":u.question_reverted
-    }
-    );
+    };
+    for(let i in set) zzz.value.unicodeAlias[i]=set[i];
     for(let i in zzz.value.unicode){
         if(zzz.equal.type(zzz.value.unicode[i],"number")) zzz.value.unicodeAlias[i]=zzz.value.unicode[i];
     }
@@ -370,5 +370,24 @@ zzz.value.ocr={
 };
 zzz.value.storage={
     defaultExpire:60*60*24
+};
+zzz.value.tieba={
+    emoji:function(name){
+        if(this.emoji_alias[name]) name=this.emoji_alias[name];
+        var i=0;
+        while(i<this.emoji_storage.length) {
+            if (this.emoji_storage[i]===name) break;
+            i++;
+        }
+        if(i===this.emoji_storage.length) return 0;
+        else return i<10?("0"+i):i.toString();
+    },
+    emoji_storage:["hehe","haha","tushe","a","ku","nu","kaixin","han","lei","heixian","bishi","bugaoxing","zhenbang","qian","yiwen","yinxian","tu","yi","weiqu","huaxin","hu","xiaoyan","leng","taikaixin","huaji","mianqiang","kuanghan","shuijiao","jingku","shengqi","jingya","pen","aixin","xinsui",],
+    emoji_alias:{
+        "滑稽":"huaji",
+        "funny":"huaji",
+        "angry":"nu",
+        "阴险":"yinxian"
+    }
 };
 zzz.value.init();
