@@ -2164,34 +2164,22 @@ zzz.api.steam={
         if (!cdk) return;
         if (!zzz.api.steam.id) zzz.api.steam.id=window.g_sessionID||"";
         zzz.api.steam.buffer += cdk;
-        zzz.api.steam.send(0);
+        zzz.api.steam.send(cdk);
     },
-    send:function(status){
+    send:function(c){
         var short=zzz.api.steam;
-        if(!short.buffer[short.index]){
-            short.onsend=false;
-            return;
-        }
-        if(status===0){
-            if(short.onsend) return;
-        }
         fetch("https://store.steampowered.com/account/ajaxregisterkey/",
             {
-                body: "product_key=" + short.buffer[short.index++] + "&sessionid=" + short.id,
+                body: "product_key=" + c + "&sessionid=" + short.id,
                 method: "POST",
                 headers: {
                     'Content-type': "application/x-www-form-urlencoded;charset=UTF-8"
                 }
             }
-            ).then(resp=>{return resp.json();}).then(function (response) {
-                if(response.success===1) {
-                    short.buffer=[];
-                    short.index=0;
-                    short.queue_index++;
-                    short.onsend=false;
-                    return;
-                }
-                else short.send(1);
+            ).then(function (res) {
+                return res.json();
+        }).then(function (res) {
+            console.log(res);
         });
     },
     batch:function (cdk_string) {
@@ -2202,13 +2190,15 @@ zzz.api.steam={
             if(i.length===17&&(i.search(/[^0-9a-zA-Z\?\-]/)===-1)) {
                 setTimeout(function () {
                     zzz.api.steam.cope(i);
-                }, j * 1000);
+                }, zzz.floor(j) * 7000);
                 j++;
+                j+=zzz.random();
             }
         }
     },
     cope:function(str){
-        for(let j=0;j<6;j++) zzz.api.steam.register(str.replace("?",j.toString()));
+        for(let j=0;j<6;j++)
+            setTimeout(function (){zzz.api.steam.register(str.replace("?",j.toString()));},j*1000);
     }
 };
 
