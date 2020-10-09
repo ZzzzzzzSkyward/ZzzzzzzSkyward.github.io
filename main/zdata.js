@@ -1,3 +1,5 @@
+if(!zzz) var zzz={};
+if(!zzz.value) zzz.value={};
 zzz.value.ajaxinfo={
     100:"客户必须继续发出请求",
     101:"客户要求服务器根据请求转换HTTP协议版本",
@@ -365,5 +367,8 @@ zzz.value.init=function(){
 zzz.value.ocr={
     token:"MRMkori4tA25THsgNLknYrGxXlj0zCMA",
     id:"u1pi9cNR8hGBPozNI7A9BnCE"
+};
+zzz.value.storage={
+    defaultExpire:60*60*24
 };
 zzz.value.init();
