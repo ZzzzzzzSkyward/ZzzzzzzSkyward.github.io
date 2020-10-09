@@ -2305,9 +2305,10 @@ zzz.api.tieba={
             //data:[floor,element]
             //if this floor is an advertisement, then ignore.
             let isAd=false;
-            let info=i.getElementsByClassName("post-tail-wrap")[0].getElementsByClassName("tail-info");
+            let info=i.getElementsByClassName("post-tail-wrap");
             isAd=!info.length;
             if(isAd) continue;
+            info=info[0].getElementsByClassName("tail-info");
             for (let j of info) {
                 if (j.innerText.indexOf("楼") !== -1) {
                     floor = zzz.toNum(j.innerText);
