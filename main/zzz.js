@@ -2299,7 +2299,7 @@ zzz.api.tieba={
     analyze:function(){
         var short=zzz.value.tieba.posts;
         var nodes=zzz.get.cls("l_post l_post_bright j_l_post clearfix");
-        var floor=1;
+        var floor=1,index=0;
         for(let i of nodes){
             //ergodic
             //data:[floor,element]
@@ -2316,8 +2316,8 @@ zzz.api.tieba={
                 }
             }
             let contentElement=i.getElementsByClassName("d_post_content j_d_post_content")[0];
-            short[i]=[floor,nodes[i]];
-            floor++;
+            short[index]=[floor,i];
+            index++;
         }
     },
     post:function (text) {
@@ -2335,7 +2335,7 @@ zzz.api.tieba={
             if(short[i][0]>=floor) break;
         }
         if(short[i][0]!==floor) throw new Error("tieba api replyFloor received non-existent floor param.");
-        var replyStatusElement=short[i][1].getElementsByClassName("j_lzl_r p_reply").firstElementChild,replyStatus;
+        var replyStatusElement=short[i][1].getElementsByClassName("j_lzl_r p_reply")[0].firstElementChild,replyStatus;
         replyStatus=zzz.get.style(replyStatusElement,"display")!=="none";
         //if there is no reply yet, we can safely reply to this floor
         if(replyStatus){
@@ -2344,7 +2344,7 @@ zzz.api.tieba={
         }
         //else you should first click I say too button.
         else{
-            var sayElement=short[i][1].getElementsByClassName("j_lzl_p btn-sub btn-small pull-right");
+            var sayElement=short[i][1].getElementsByClassName("j_lzl_p btn-sub btn-small pull-right")[0];
             sayElement.click();
             if(!zzz.get.id("j_editor_for_container")) sayElement.click();
             if(!zzz.get.id("j_editor_for_container")) sayElement.click();
