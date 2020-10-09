@@ -2306,7 +2306,7 @@ zzz.api.tieba={
             //if this floor is an advertisement, then ignore.
             let isAd=false;
             let info=i.getElementsByClassName("post-tail-wrap")[0].getElementsByClassName("tail-info");
-            isAd=!!info.length;
+            isAd=!info.length;
             if(isAd) continue;
             for (let j of info) {
                 if (j.innerText.indexOf("楼") !== -1) {
