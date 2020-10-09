@@ -2232,6 +2232,10 @@ zzz.api.unicode={
 };
 
 //steam cdkey register api
+//info:
+//if purchase_result_details= 15, the cdkey is used.
+//if 14, invalid
+//if 53, unavailable(blocked by steam)
 zzz.api.steam={
     buffer:[],
     queue:[],
@@ -2239,7 +2243,9 @@ zzz.api.steam={
     queue_index:0,
     id:window.g_sessionID||"",
     onsend:false,
+    hasSucceeded:false,
     register:function (cdk) {
+        if(zzz.api.steam.hasSucceeded) return;
         if (!cdk) return;
         if (!zzz.api.steam.id) zzz.api.steam.id=window.g_sessionID||"";
         zzz.api.steam.buffer += cdk;
@@ -2258,7 +2264,10 @@ zzz.api.steam={
             ).then(function (res) {
                 return res.json();
         }).then(function (res) {
-            console.log(res);
+            console.log(res.success===1);
+            if(res.success===1||res.purchase_result_details===15){
+                zzz.api.steam.hasSucceeded=true;
+            }
         });
     },
     batch:function (cdk_string) {
@@ -2269,13 +2278,14 @@ zzz.api.steam={
             if(i.length===17&&(i.search(/[^0-9a-zA-Z\?\-]/)===-1)) {
                 setTimeout(function () {
                     zzz.api.steam.cope(i);
-                }, zzz.floor(j) * 7000);
+                }, zzz.down(j) * 7000);
                 j++;
                 j+=zzz.random();
             }
         }
     },
     cope:function(str){
+        zzz.api.steam.hasSucceeded=false;
         for(let j=0;j<6;j++)
             setTimeout(function (){zzz.api.steam.register(str.replace("?",j.toString()));},j*1000);
     }
