@@ -380,7 +380,8 @@ zzz.value.tieba={
             i++;
         }
         if(i===this.emoji_storage.length) return 0;
-        else return i<10?("0"+i):i.toString();
+        i++;
+        return i<10?("0"+i):i.toString();
     },
     emoji_storage:["hehe","haha","tushe","a","ku","nu","kaixin","han","lei","heixian","bishi","bugaoxing","zhenbang","qian","yiwen","yinxian","tu","yi","weiqu","huaxin","hu","xiaoyan","leng","taikaixin","huaji","mianqiang","kuanghan","shuijiao","jingku","shengqi","jingya","pen","aixin","xinsui",],
     emoji_alias:{

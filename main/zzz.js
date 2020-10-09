@@ -2336,6 +2336,14 @@ zzz.api.tieba={
         else floor=Math.floor(floor);
         if(isNaN(floor)) return;
         var floorElement,i=floor-2;
+        //replace emoji
+        var index=text.search("{emoji:");
+        while(index!==-1){
+            let rightBorder=text.indexOf("}",index+1);
+            let emoji_name=text.slice(index+7,rightBorder).trim();
+            text=text.replace(/{emoji:.*?}/,zzz.api.tieba.emoji(emoji_name));
+            index=text.search("{emoji:");
+        }
         for(;i<short.length;i++){
             if(short[i][0]>=floor) break;
         }
