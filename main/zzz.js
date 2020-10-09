@@ -4,7 +4,7 @@ time:2020.7.7
 author:zzs
 */
 "use strict";
-var zzz= {};
+if(!zzz) var zzz={};
 zzz.version=20200915;
 zzz.value={};
 
@@ -589,7 +589,7 @@ zzz.time={
             result[5] = ztime.year;
             return result;
         }
-        throw new Error("zzz.time.readDate requires a ztimeStructure.");
+        else throw new Error("zzz.time.readDate requires a ztimeStructure.");
     },
     convertToDate:function(ztime){
         if(!(ztime instanceof ztimeStructure)) return;
@@ -692,6 +692,18 @@ zzz.time={
         else if (ztime instanceof ztimeStructure) ztime = zzz.time.convertToDate(ztime);
         else if (!(ztime instanceof Date)) return;
         return ztime.toUTCString();
+    },
+    ms:function (ztime) {
+        if(ztime instanceof ztimeStructure){
+            return ztime.milisecond+
+                ztime.second*1000+
+                ztime.minute*1000*60+
+                ztime.hour*1000*60*60+
+                ztime.day*1000*60*60*24+
+                ztime.month*1000*60*60*24*30+
+                ztime.year*1000*60*60*24*30*365;
+        }
+        else return 0;
     }
 };
 
@@ -724,13 +736,14 @@ zzz.storage={
             this.db=document.cookie;
             this.get=function (key) {
                 var cookie=document.cookie.split(";");
-                var set=["",""];
+                var index;
                 for(var i of cookie){
-                    set=i.split("=");
-                    if(set[0]===key) return set[1];
+                    index=i.indexOf("=");
+                    if(i.slice(0,index)===key) return i.slice(index+1);
                 }
                 return null;
-            }
+            };
+            this.readCookie();
         }
     },
     add:function (item,key,value) {
@@ -741,7 +754,73 @@ zzz.storage={
     },
     json:function (key) {
         return JSON.parse(zzz.storage.get(key));
-    }
+    },
+    readCookie:function () {
+        var cookie=document.cookie.split(";");
+        var result=zzz.storage.cookie;
+        var index=0;
+        for(var i of cookie){
+            index=i.indexOf("=");
+            result[i.slice(0,index)]=i.slice(index+1);
+        }
+        return zzz.storage.cookie;
+    },
+    getc:function (key){
+        zzz.storage.readCookie();
+        var result=zzz.storage.cookie[key];
+        if(result) return result;
+        else return null;
+    },
+    setc:function (key,value,expire) {
+        zzz.storage.cookie[key]=value;
+        zzz.storage.expire[key]=expire||zzz.storage.setDiffTime();
+        zzz.storage.refreshCookie();
+    },
+    delc:function(key){
+        document.cookie=key+"="+zzz.storage.cookie[key]+";expires="+(new Date()).toGMTString()+";";
+        delete zzz.storage.cookie[key];
+    },
+    setDiffTime:function(diffztime){
+        if(diffztime===undefined||diffztime===null) diffztime=zzz.value.storage.defaultExpire*1000;
+        else {
+            if (diffztime instanceof Date) diffztime = diffztime.getTime();
+            else if(diffztime instanceof ztimeStructure) diffztime=zzz.time.ms(diffztime);
+            else if(typeof diffztime ==="string") diffztime=zzz.toNum(diffztime);
+        }
+        var currentTime=new Date();
+        currentTime.setTime(currentTime.getTime()+diffztime);
+        return currentTime.toGMTString();
+    },
+    setTime:function(time){
+        if(time instanceof ztimeStructure) time=zzz.time.convertToDate(time);
+        return time.toGMTString();
+    },
+    refreshCookie:function(){
+        var cookieText="";
+        for(let i in zzz.storage.cookie){
+            cookieText=i+"="+zzz.storage.cookie[i]+";";
+            if(zzz.storage.expire[i]) cookieText+="expires="+zzz.storage.expire[i]+";";
+            document.cookie=cookieText;
+        }
+    },
+    c:function () {
+        if(arguments.length===0) return zzz.storage.readCookie();
+        else if(arguments.length===1) return zzz.storage.getc(arguments[0]);
+        else if(arguments.length===2){
+            if(zzz.equal.type(arguments[1],"object")){
+                for(let i in arguments[1]){
+                    zzz.storage.cookie[i]=arguments[1][i];
+                }
+                zzz.storage.refreshCookie();
+            }
+            else{
+                zzz.storage.setc(arguments[0],arguments[1]);
+            }
+        }
+        else if(arguments.length===3) zzz.storage.setc(arguments[0],arguments[1],arguments[2])
+    },
+    cookie:{},
+    expire:{}
 };
 
 //browser check
@@ -777,7 +856,7 @@ zzz.browser.open.inner=function(settings){
     }
     else{
         src=settings.src;
-        settings.src=null;
+        delete settings.src;
     }
     if(!src) return;
     var node=zzz.create("iframe");
@@ -1163,7 +1242,7 @@ zzz.message={
     close:function (name) {
         if(!this.nameStorage[name]) return false;
         this.nameStorage[name].close();
-        this.nameStorage[name]=null;
+        delete this.nameStorage[name];
         return name;
     }
 };
@@ -2201,6 +2280,27 @@ zzz.api.steam={
             setTimeout(function (){zzz.api.steam.register(str.replace("?",j.toString()));},j*1000);
     }
 };
+
+//baidu tieba API
+//only usable when domain is tieba.baidu.com
+//please initialize first
+zzz.api.tieba={
+    isTieba:false,
+    init:function () {
+        var domain=zzz.browser.host;
+        var short=zzz.value.tieba={};
+        if("tieba.baidu.com"===domain) zzz.api.tieba.isTieba=true;
+        else return;
+        short.text=zzz.get.id("ueditor_replace");
+        short.button=zzz.get.cls("ui_btn ui_btn_m j_submit poster_submit")[0];
+    },
+    post:function (text) {
+        var short=zzz.value.tieba;
+        short.text.innerHTML=text;
+        short.button.click();
+    }
+};
+
 
 //overall initialize
 zzz.init=function () {
