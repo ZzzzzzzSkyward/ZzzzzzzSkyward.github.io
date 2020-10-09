@@ -2310,7 +2310,7 @@ zzz.api.tieba={
             if(isAd) continue;
             for (let j of info) {
                 if (j.innerText.indexOf("楼") !== -1) {
-                    floor = zzz.toNum(j);
+                    floor = zzz.toNum(j.innerText);
                     break;
                 }
             }
