@@ -2265,7 +2265,7 @@ zzz.api.steam={
                 return res.json();
         }).then(function (res) {
             console.log(res.success===1);
-            if(res.success===1||res.purchase_result_details===15){
+            if(res.success===1||res.purchase_result_details===15||res.purchase_result_details===53){
                 zzz.api.steam.hasSucceeded=true;
             }
         });
