@@ -2248,7 +2248,6 @@ zzz.api.steam={
         if(zzz.api.steam.hasSucceeded) return;
         if (!cdk) return;
         if (!zzz.api.steam.id) zzz.api.steam.id=window.g_sessionID||"";
-        zzz.api.steam.buffer += cdk;
         zzz.api.steam.send(cdk);
     },
     send:function(c){
@@ -2265,7 +2264,10 @@ zzz.api.steam={
                 var result={};
                 try{
                     result=res.json();
-                }catch(e){result={};}
+                }catch(e){
+                    result={};
+                    zzz.api.steam.hasSucceeded=true;
+                }
                 return result;
         }).then(function (res) {
             console.log(res.success===1);
@@ -2292,6 +2294,9 @@ zzz.api.steam={
         zzz.api.steam.hasSucceeded=false;
         for(let j=0;j<=6;j++)
             setTimeout(function (){zzz.api.steam.register(str.replace("?",j.toString()));},j*1000);
+    },
+    run:function () {
+        zzz.eval("zzz.api.steam.batch(`"+prompt("enter steam cdkeys")+"`);");
     }
 };
 
