@@ -300,8 +300,8 @@ zzz.value.unicode= {
 };
 zzz.value.unicodeAlias={};
 zzz.value.hex=function(character){
-    if(!zzz.equal.type(character,"string")) return;
-    if(zzz.equal(character-0,"NaN")) return character.charCodeAt(0)-zzz.value.A+10;
+    if(!(typeof character==="string")) return;
+    if(isNaN(character-0)) return character.charCodeAt(0)-zzz.value.A+10;
     else return character-0;
 };
 zzz.value.userAgent={

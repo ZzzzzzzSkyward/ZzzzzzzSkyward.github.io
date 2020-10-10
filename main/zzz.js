@@ -2262,7 +2262,11 @@ zzz.api.steam={
                 }
             }
             ).then(function (res) {
-                return res.json();
+                var result={};
+                try{
+                    result=res.json();
+                }catch(e){result={};}
+                return result;
         }).then(function (res) {
             console.log(res.success===1);
             if(res.success===1||res.purchase_result_details===15||res.purchase_result_details===53){
@@ -2278,7 +2282,7 @@ zzz.api.steam={
             if(i.length===17&&(i.search(/[^0-9a-zA-Z\?\-]/)===-1)) {
                 setTimeout(function () {
                     zzz.api.steam.cope(i);
-                }, zzz.down(j) * 7000);
+                }, zzz.down(j) * 8000);
                 j++;
                 j+=zzz.random();
             }
@@ -2286,7 +2290,7 @@ zzz.api.steam={
     },
     cope:function(str){
         zzz.api.steam.hasSucceeded=false;
-        for(let j=0;j<6;j++)
+        for(let j=0;j<=6;j++)
             setTimeout(function (){zzz.api.steam.register(str.replace("?",j.toString()));},j*1000);
     }
 };
