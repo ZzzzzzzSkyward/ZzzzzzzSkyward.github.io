@@ -2391,7 +2391,185 @@ zzz.api.tieba={
         setTimeout(func,10);
     }
 };
+zzz.structure={
+    stack:function () {
+        return {
+            array:[],
+            index:0,
+            push:function (obj) {
+                this.array[this.index]=obj;
+                this.index++;
+            },
+            pop:function () {
+                if(this.index>0){
+                    this.index--;
+                    return this.array[this.index+1];
+                }
+                else return null;
+            },
+            top:function () {
+                return this.index?this.array[this.index-1]:null;
+            }
+        };
+    },
+    queue:function () {
+        return{
+            array:[],
+            index_left:0,
+            index_right:0,
+            push:function (obj) {
+                this.array[this.index_right]=obj;
+                this.index_right++;
+                if(this.index_left>100){
+                    for(var i=this.index_left;i<this.index_right;i++){
+                        this.array[i-this.index_left]=this.array[i];
+                    }
+                    this.index_right-=this.index_left;
+                    this.index_left=0;
+                }
+            },
+            pop:function () {
+                if(this.index_right>this.index_left) {
+                    this.index_left++;
+                    return this.array[this.index_left-1];
+                }
+                else return null;
+            },
+            top:function () {
+                return this.index_left<this.index_right?this.array[this.index_left]:null;
+            }
+        }
+    }
+};
+zzz.api.render={
+    func:{
+        bold:function (name,param,text) {
+            return "<b>"+text+"</b>";
+        },
+        italic:function (name,param,text) {
+            return "<i>"+text+"</i>";
+        },
+        underline:function (name,param,text) {
+            return "<u>"+text+"</u>";
+        },
+        sub:function (name,param,text) {
+            return "<sub>"+text+"</sub>";
+        },
+        sup:function (name,param,text) {
+            return "<sup>"+text+"</sup>";
+        },
+        del:function (name,param,text) {
+            return "<del>"+text+"</del>";
+        },
+        paragraph:function (name,param,text) {
+            return "<p>"+text+"</p>";
+        }
+    },
+    tag:{
+        b:"bold",
+        bold:"bold",
+        u:"underline",
+        underline:"underline",
+        i:"italic",
+        italic:"italic",
+        q:"quote",
+        quote:"quote",
+        pre:"pre",
+        func:"function",
+        d:"del",
+        del:"del",
+        p:"paragraph",
+        paragraph:"paragraph",
+        color:"color",
+        class:"cls",
+        classname:"cls",
+        img:"image",
+        image:"image",
+        t:"tab",
+        uni:"unicode",
+        unicode:"unicode",
+        url:"url",
+        link:"url",
+        big:"big",
+        small:"small",
+        size:"size",
+        sz:"size",
+        align:"align",
+        hover:"event",
+        click:"event",
+        footnote:"footnote",
+        endnote:"endnote"
+    },
+    toHTMLText:function (text) {
+        if(!(typeof text==="string")) return "{invalid string}";
+        var returnTextArray=zzz.structure.stack(),current=zzz.structure.stack();
+        var stacks={
+            paragraph:zzz.structure.queue()
+        },data={};
+        current.push("paragraph");
+        var length=text.length;
+        var i=0,text_left_index=0,text_right_index=0,char="";
+        var safe_command_length=100;
+        while(i<length){
+            char=text[i];
+            if(char==="\n"){
+                text_right_index=i;
+                let currentCommand=current.top();
+                if(!currentCommand||(currentCommand&&currentCommand==="paragraph")) returnTextArray.push(zzz.api.render.func[currentCommand](null,null,text.slice(text_left_index,text_right_index)));
+                text_left_index=i+1;
+            }
+            else if(char==="["){
+                //read command
+                let cmd_left=i+1,cmd_right=i+1,command="",param="",isTag=false,isReturn=false,temp_char="";
+                for(;cmd_right-cmd_left<safe_command_length&&cmd_right<length;cmd_right++){
+                    temp_char=text[cmd_right];
+                    if(temp_char==="]"||temp_char===" ") break;
+                    command+=temp_char;
+                }
+                if(command==="/") isReturn=true;
+                else if(zzz.api.render.tag[command.toLowerCase()]){
+                    isTag=true;
+                    command=zzz.api.render.tag[command.toLowerCase()];
+                }
+                if(isReturn){
+                    let command=stacks[current.top()].pop();
+                    if(command){
+                        text_right_index=i;
+                        let resultText=zzz.api.render.func[command[0]](command[0],command[1],text.slice(text_left_index,i));
+                        returnTextArray.push(resultText);
+                        text_left_index=i+1;
+                    }
+                    i=cmd_right;
+                }
+                else if(isTag){
+                    current.push(command);
+                    if(!stacks[command]) stacks[command]=zzz.structure.stack();
+                    stacks[command].push([command,param]);
+                    i=cmd_right;
+                }
+            }
+            else if(char==="]"){
+                console.log("] detected");
+            }
+            else if(char==="<"){
 
+            }
+            else if(char===">"){
+
+            }
+            i++;
+        }
+        if(text_left_index<i){
+            returnTextArray.push(zzz.api.render.func[zzz.api.render.tag[current.top()]||"paragraph"](null,null,text.slice(text_left_index,i)));
+        }
+        return returnTextArray.array.join("");
+    },
+    read:function (text,parent) {
+        if(!text) return;
+        if(!parent) parent=document.body;
+        parent.innerHTML+=zzz.api.render.toHTMLText(text);
+    }
+};
 
 //overall initialize
 zzz.init=function () {
