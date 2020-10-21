@@ -1,5 +1,6 @@
 var pagejs_version=20200915;
 var searchMethod={};
+var searchMethodBreaker={};
 var pagejs=1;
 var searchSettings={
     defalut:"bing-cn",
@@ -15,11 +16,18 @@ var searchSettings={
     bar:zzz.get.id("search_bar"),
     engine:zzz.get.cls("search_engine")[0],
     text:function (element,text) {
-        if(!text) return this[element].innerText!==undefined?this[element].innerText:this[element].value;
+        if(text===undefined) return this[element].innerText!==undefined?this[element].innerText:this[element].value;
         else{
             this[element].innerText=text;this[element].value=text;
+            //focus
+            if(element==="bar"){
+                zzz.clip.focus(searchSettings.bar,text.length-1);
+            }
         }
-    }
+        return this;
+    },
+    hintEngine:"",
+    hintTargeted:false
 };
 /*
 list={
@@ -27,17 +35,20 @@ list={
     language语言=Simplified Chinese/Traditional Chinese/English/All
     site网站
  */
-var addSearchMethod=function (name,text) {
+var addSearchMethod=function (name,text,breaker) {
     searchMethod[name]=text;
+    if(breaker) searchMethodBreaker[name]=breaker;
 };
 var useSearchMethod=function(name,input){
     return searchMethod[name].replace("{keyword}",input);
 };
-var readSearchText=function (text) {
-    return text.replace(/[ ]+/g,"+");
+var readSearchText=function (text,breaker) {
+    if(!breaker) breaker="+";
+    return text.replace(/[ ]+/g,breaker);
 };
 var convertTextToSearch=function (method,text) {
-    return useSearchMethod(method,readSearchText(text));
+    text=text.replace("/n"," ").trim();
+    return useSearchMethod(method,readSearchText(text,searchMethodBreaker[method]));
 };
 var addFromRawText=function(text,keyword,name){
     if(!name) name=zzz.path.split(text).subdomain;
@@ -109,7 +120,7 @@ var showKey=function(e){
         zzz.set(a,"id","messageKey");
         document.body.appendChild(a);
     }
-        a.innerText=interpret.key+" "+zzz.value.convertTokey(interpret.key);
+        a.innerText=interpret.code+" "+interpret.key;
     zzz.set.style(a,"visibility","visible");
         zzz.set.style(a,"opacity",1);
         setTimeout(function () {
@@ -136,9 +147,42 @@ var savePreference=function () {
         if(originalData!==currentData) zzz.storage.set(i,currentData);
     }
 };
+var hintCommand=function (text) {
+    var keyword="fix set fy translate bg unicode \\u random archive openarchive add search download time date fanyi help update".split(" ");
+    //todo : priority queue
+    var bestMatch=[{index:-1,distance:99999}];
+    keyword.forEach(function (value, index, array) {
+        var distance=zzz.string.distance(text,value);
+        if(distance<zzz.abs(text.length-value.length))
+        if(distance<bestMatch[0].distance) bestMatch[0]={index:index,distance:distance};
+    });
+    if(bestMatch[0].index===-1) return "";
+    else return keyword[bestMatch[0].index];
+};
+var hintEngine=function (text) {
+    //todo : priority queue
+    var bestMatch=[{name:"",distance:99999}],value,isUnique=2;
+    for(let index in searchMethod){
+        var distance=zzz.string.distance(text,index);
+        if(distance<Math.max(text.length,index.length)) {
+            if (distance < bestMatch[0].distance) {
+                bestMatch = [{name: index, distance: distance}];
+                isUnique--;
+            } else if (distance === bestMatch[0].distance) {
+                bestMatch[bestMatch.length] = {name: index, distance: distance};
+                isUnique--;
+            }
+        }
+        console.log(index,distance);
+    }
+    if(isUnique===1) searchSettings.hintTargeted=true;
+    if(bestMatch[0].index===-1) return "";
+    else return bestMatch[0].name;
+};
 var interpretCmd=function (e,isEqual) {
-    var text=searchSettings.text("bar");
+    var text=searchSettings.text("bar").replace(/\n$/,"");
     isEqual=isEqual!=="=";
+    if(!isEqual) text=text.slice(0,text.length-1);
     var cmdLine=text.split(" ");
     var command="";
     cmdLine[cmdLine.length-1]=cmdLine[cmdLine.length-1].replace(/[\n ]/g,"");
@@ -220,7 +264,7 @@ var interpretCmd=function (e,isEqual) {
         });
     }
     //unicode
-    else if(command==="unicode"){
+    else if(command==="unicode"||command==="\\u"){
         if(cmdLine[2]&&cmdLine[2].length===1){
             //add
             zzz.storage.add("unicode",cmdLine[1],cmdLine[2].charCodeAt(0));
@@ -410,14 +454,38 @@ var gadget={
 };
 var tackleInput=function (e) {
     var n=zzz.incidence.interpret(e),result=true;
-    if(zzz.value.convertTokey(n.key)==="enter") {
+    if(n.key==="enter") {
         if(n.ctrl) defaultSearch();
         else result=interpretCmd(e);
         if(result) e.preventDefault();
     }
-    else if(zzz.value.convertTokey(n.key)==="="){
+    else if(n.key==="="){
         result=interpretCmd(e,"=");
         if(result) e.preventDefault();
+        let renewedText=searchSettings.text("bar").replace(/\n$/,"");
+        if(result&&renewedText[renewedText.length-1]==="=") searchSettings.text("bar",renewedText.slice(0,renewedText.length-1));
+    }
+    else if(n.key!=="delete"&&n.key!=="backspace"){
+        //try to get hint
+        //var text=(searchSettings.text("bar").replace(/\n$/,(n.code>=65&&n.code<=90)?(n.capslock?n.key.toUpperCase():n.key):"")).replace("\n"," ").trim().split(" ");
+        var text=searchSettings.text("bar").replace("\n"," ").trim().split(" ");
+        if(text.length===1&&text[0].length>2){
+            var hintText=hintCommand(text[0]);
+            if(hintText) searchSettings.text("engine","did you mean "+hintText);
+        }
+        else if(text.length===2&&(text[0]==="search"||text[0]==="sh")){
+            var hintText=hintEngine(text[1]);
+            if(hintText){
+                searchSettings.text("engine","did you mean "+hintText);
+                searchSettings.hintEngine=hintText;
+                if(searchSettings.hintTargeted){
+                    searchSettings.hintTargeted=false;
+                    text[1]=hintText;
+                    searchSettings.text("bar",text.join(" ")+" \n");
+                    e.preventDefault();
+                }
+            }
+        }
     }
     resizer();
 };
@@ -427,11 +495,11 @@ var initializer=function(){
         return;
     }
     zzz.value.search.forEach(function (item,index,array) {
-        addSearchMethod(item[0],item[1]);
+        addSearchMethod(item[0],item[1],item.length>2?item[2]:undefined);
     });
     zzz.value.homepage={};
     zzz.value.homepage.search_bar=1;
-    zzz.incidence.bind(searchSettings.bar,"keydown",tackleInput);
+    zzz.incidence.bind(searchSettings.bar,"keyup",tackleInput);
     readPreference();
     //zzz.incidence.bind(document.body,"keydown",showKey);
     zzz.incidence.bind(zzz.get.cls("enter_button")[0],"click",interpretCmd);

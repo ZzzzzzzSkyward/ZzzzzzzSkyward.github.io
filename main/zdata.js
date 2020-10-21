@@ -171,7 +171,7 @@ zzz.value.keyCode= {
 };
 zzz.value.convertTokey=function (code) {
     if(code>=48&&code<=57) return code-48+"";
-    else if(code>=58&&code<=90) return String.fromCharCode(code).toLowerCase();
+    else if(code>=65&&code<=90) return String.fromCharCode(code+32);
     else if(code>=96&&code<=105) return code-96+"num";
     else if(code>=112&&code<=123) return "F"+(code-111);
     else return zzz.value.keyCode[code];
@@ -184,10 +184,10 @@ zzz.value.weekday=["","Mon","Tues","Wednes","Thurs","Fri","Satur","Sun"];
 zzz.value.month=[31,28,31,30,31,30,31,31,30,31,30,31,30];
 zzz.value.search=[
     ["baidu","http://www.baidu.com/s?wd={keyword}"],//si,ie,..
-    ["bing-cn","https://cn.bing.com/search?&q={keyword}"],
-    ["bing-en","https://cn.bing.com/search?&q={keyword}&ensearch=1"],
+    ["bing-cn","https://cn.bing.com/search?q={keyword}"],
+    ["bing-en","https://cn.bing.com/search?q={keyword}&ensearch=1"],
     ["google","https://www.google.com/search?q={keyword}"],
-    ["zhihu","https://www.zhihu.com/search?type=content&q={keyword}"],
+    ["zhihu","https://www.zhihu.com/search?type=content&q={keyword}"," "],
     ["github","https://github.com/search?q={keyword}"],
     ["taobao","https://s.taobao.com/search?q={keyword}"],
     ["bilibili","https://search.bilibili.com/all?keyword={keyword}"],
