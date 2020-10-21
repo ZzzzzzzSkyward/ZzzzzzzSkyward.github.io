@@ -1,4 +1,4 @@
-var pagejs_version=20200915;
+var pagejs_version=20201021;
 var searchMethod={};
 var searchMethodBreaker={};
 var pagejs=1;
@@ -161,23 +161,27 @@ var hintCommand=function (text) {
 };
 var hintEngine=function (text) {
     //todo : priority queue
-    var bestMatch=[{name:"",distance:99999}],value,isUnique=2;
+    var bestMatch=[{name:"",distance:99999}],value;
     for(let index in searchMethod){
         var distance=zzz.string.distance(text,index);
         if(distance<Math.max(text.length,index.length)) {
             if (distance < bestMatch[0].distance) {
                 bestMatch = [{name: index, distance: distance}];
-                isUnique--;
             } else if (distance === bestMatch[0].distance) {
                 bestMatch[bestMatch.length] = {name: index, distance: distance};
-                isUnique--;
             }
         }
-        console.log(index,distance);
     }
-    if(isUnique===1) searchSettings.hintTargeted=true;
-    if(bestMatch[0].index===-1) return "";
-    else return bestMatch[0].name;
+    if(bestMatch.length===1&&bestMatch[0].name&&bestMatch[0].name.search(text)===0){
+        searchSettings.hintTargeted=true;
+        return bestMatch[0].name;
+    }
+    else if(bestMatch[0].index===-1) return "";
+    else{
+        let names="";
+        for(let i of bestMatch) names+=i.name+" or ";
+        return names;
+    }
 };
 var interpretCmd=function (e,isEqual) {
     var text=searchSettings.text("bar").replace(/\n$/,"");
@@ -187,7 +191,7 @@ var interpretCmd=function (e,isEqual) {
     var command="";
     cmdLine[cmdLine.length-1]=cmdLine[cmdLine.length-1].replace(/[\n ]/g,"");
     command=searchSettings.fixed||cmdLine[0];
-    console.log(cmdLine);
+    console.log(cmdLine,e.key);
     var i=0;
     //jump
     if(isEqual&&searchSettings.jump[cmdLine[0]]){
@@ -332,7 +336,7 @@ var interpretCmd=function (e,isEqual) {
             warn();
             return false;
         }
-        if(calculation) searchSettings.text("engine",calculation);
+        if(calculation!==undefined) searchSettings.text("engine",calculation);
     }
     //introduction
     else if(isEqual&&cmdLine[0]==="help"&&cmdLine.length===1){
@@ -524,6 +528,8 @@ var initializer=function(){
     }
     searchSettings.text("engine",searchSettings.current);
     zzz.incidence.bind(document.body,"unload",savePreference);
+    searchSettings.bar.focus();
+    zzz.clip.focus(searchSettings.bar,0);
 };
 initializer();
 pageUpdate={

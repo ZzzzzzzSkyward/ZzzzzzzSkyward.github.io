@@ -1,11 +1,11 @@
 /*
 version:1.0
-time:2020.7.7
+time:2020.10.21
 author:zzs
 */
 "use strict";
 if(!zzz) var zzz={};
-zzz.version=20200915;
+zzz.version=20201021;
 zzz.value={};
 
 //eval
