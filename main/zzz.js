@@ -1053,6 +1053,10 @@ zzz.get.style=function(element,style){
 zzz.create=function(tag,attributes,styles){
   var element=document.createElement(tag);
   if(attributes){
+      for(var i in ["innerText","className","innerHTML","id","name"]){
+          if(attributes[i]) element[i]=attributes[i];
+          delete attributes[i];
+      }
       for(var i in attributes) element.setAttribute(i,attributes[i]);
   }
   if(styles){
@@ -2597,6 +2601,40 @@ zzz.api.render={
     }
 };
 
+//pku hole stars api
+zzz.api.hole={
+    customizedClass:"stars",
+    refresh:function(){
+        var items=zzz.get.cls("flow-item-row flow-item-row-with-prompt");
+        var minStars=zzz.toNum(zzz.get.cls(zzz.api.hole.customizedClass)[0].innerText)||0;
+        for(let i of items) {
+            let node=i.getElementsByClassName("box-header-badge")[0];
+            if(!node) continue;
+            if (zzz.toNum(node.innerText) < minStars) i.style.display = 'none';
+        }
+    },
+    init:function () {
+        var parent = zzz.get.cls("control-bar")[0],
+            number = zzz.create("span", {
+                    class: "no-underline control-btn "+zzz.api.hole.customizedClass,
+                    innerHTML: "1",
+                    contenteditable: "true"
+                }
+            ),
+            button = zzz.create("a", {
+                class: "no-underline control-btn",
+                onclick: "zzz.api.hole.refresh('star')",
+                innerText:"\u2605星星"
+            }),
+            button2 = zzz.create("a", {
+            class: "no-underline control-btn",
+            onclick: "zzz.api.hole.refresh('comment')",
+            innerText:"\u2605回复"
+        });
+        parent.appendChild(number);
+        parent.appendChild(button);
+    }
+};
 //overall initialize
 zzz.init=function () {
     zzz.storage.init();
