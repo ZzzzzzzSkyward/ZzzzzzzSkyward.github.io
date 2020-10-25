@@ -11,6 +11,12 @@
             window.zzz.load.js("../main/zdata.js");
             setTimeout(init_next,1000);
         };
+        var formatit=function (i) {
+            i=i.toString();
+            var arr=new Array(4-i.length);
+            for(let j in arr) arr[j]="0";
+            return arr.join("")+i;
+        };
         var init_next=function () {
             var page=zzz.toNum(zzz.browser.path)||1;
             if(!page) page=1;
@@ -18,12 +24,13 @@
                 document.body.innerHTML+="<p>一共1-15页，请输入正确页数</p>";
                 return;
             }
-            var len=[0,];
+            var len=[0,39,175,100,74,66,76,70,64,89,67,60,70,78,112,136];
             var parent=document.body;
+            var text="";
             for(let i=0;i<=len[page];i++){
-                let node=zzz.create("img",{src:""});
-                parent.appendChild(node);
+                text+="<img src='"+"../open_file/"+page+formatit(i)+".jpg"+"' loading:'lazy' />";
             }
+            parent.innerHTML+=text;
         }
     </script>
 </head>
