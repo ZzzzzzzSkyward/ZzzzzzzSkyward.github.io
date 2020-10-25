@@ -17,7 +17,7 @@
             return text+i;
         };
         var init_next=function () {
-            var page=zzz.toNum(zzz.browser.path)||1;
+            var page=zzz.toNum(zzz.path.split(zzz.browser.uri).component.pn)||1;
             if(!page) page=1;
             if(page<1||page>15){
                 document.body.innerHTML+="<p>一共1-15页，请输入正确页数</p>";
@@ -27,7 +27,7 @@
             var parent=document.body;
             var text="";
             for(let i=0;i<=len[page];i++){
-                text+="<img src='"+"../open_file/zrqk/"+page+"/"+formatit(i)+".jpg"+"' loading='lazy' />";
+                text+="<img class='comic' src='"+"../open_file/zrqk/"+page+"/"+formatit(i)+".jpg"+"' loading='lazy' />";
             }
             parent.innerHTML+=text;
         }
@@ -37,14 +37,14 @@
 <style>
     .comic{
         display: block;
-        width:750px;
+        width:100%;
         position: relative;
         margin: 0;
         padding: 0;
         border: 0;
     }
 </style>
-<p id="hidden">昨日青空的漫画（来自转载的转载快看漫画的网站）</p>
+<p id="hidden">昨日青空的漫画（来自转载的转载快看漫画的网站），请修改网址阅读，一共是1-15页，网址为https://zzzzzzzskyward.github.io/zrqk/?pn=1</p>
 <script src="../main/zzz.js"></script>
 <script>
     init();
