@@ -1,0 +1,43 @@
+<html>
+<head>
+    <title>《昨日青空》漫画</title>
+    <script src="../main/zzz.js"></script>
+    <script>
+        var init=function () {
+            if(!window.zzz){
+                setTimeout(init,1000);
+                return;
+            }
+            window.zzz.load.js("../main/zdata.js");
+            setTimeout(init_next,1000);
+        };
+        var init_next=function () {
+            var page=zzz.toNum(zzz.browser.path)||1;
+            if(!page) page=1;
+            if(page<1||page>15){
+                document.body.innerHTML+="<p>一共1-15页，请输入正确页数</p>";
+                return;
+            }
+            var len=[0,];
+            var parent=document.body;
+            for(let i=0;i<=len[page];i++){
+                let node=zzz.create("img",{src:""});
+                parent.appendChild(node);
+            }
+        }
+    </script>
+</head>
+<body>
+<style>
+    .comic{
+        display: block;
+        width:750px;
+        position: relative;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+</style>
+<p id="hidden">昨日青空的漫画（来自转载的转载快看漫画的网站）</p>
+</body>
+</html>
