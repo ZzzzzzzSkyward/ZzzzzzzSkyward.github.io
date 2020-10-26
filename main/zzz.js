@@ -840,12 +840,6 @@ zzz.browser={
     open:function (path,name,type) {
         console.log(path,name,type);
         window.open(path,name,type);
-    },
-    download:function (url) {
-            if(!zzz.equal.type(url,"string")) return false;
-            var node=zzz.create("a",{href:url,download:url},{display:"none"});
-            document.body.appendChild(node);
-            node.click();
     }
 };
 zzz.browser.open.inner=function(settings){
@@ -1274,6 +1268,71 @@ zzz.message={
         this.nameStorage[name].close();
         delete this.nameStorage[name];
         return name;
+    }
+};
+//file API
+//blob.size
+//blob.type
+//blob.close()
+//blob.slice
+zzz.file={
+    help:"blob(buffer,options),create(arr,MIMEtype,ending?native:intact),.close(),.size,.type,.slice()",
+    blob:function(buffer,options){
+        try {
+            return new Blob(buffer, options);
+        } catch (e) {
+            var bb = new (window.BlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder);
+            buffer.forEach(function(buf) {
+                bb.append(buf);
+            });
+            return bb.getBlob(options);
+        }
+    },
+    create:function (arr,type,nativeEnding) {
+        var options={};
+        if(type!==undefined) options.type=type.indexOf("/")===-1?zzz.value.file.encode(type):type;
+        if(ending!==undefined) options.endings=nativeEnding?"native":"transparent";
+        return new zzz.file.blob(arr,options);
+    },
+    download:function (url) {
+        if(!zzz.equal.type(url,"string")) return false;
+        var node=zzz.create("a",{href:url,download:url},{display:"none"});
+        if("download" in node) {
+            document.body.appendChild(node);
+            node.click();
+        }
+    },
+    getUrl:function (blob) {
+        try{
+            return URL.createObjectURL(blob);
+        }
+        catch(e){
+            return "";
+        }
+    },
+    delUrl:function (url) {
+        try{
+            return URL.revokeObjectURL(url);
+        }
+        catch(e){
+
+        }
+    },
+    downloadImage:function (src) {
+        //todo
+        if(zzz.paint.canvasEnabled){
+            var canvas = zzz.create("canvas");
+            var type=src;
+            if(type.lastIndexOf(".")!==-1) type=type.substr(type.lastIndexOf(".")+1);
+            else if(type.substr(0,4)==="data") type=type.slice(11,type.search("base64"));
+            else type="jpeg";
+            canvas.width = element.width;
+            canvas.height = element.height;
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(element, 0, 0, element.width, element.height);
+            var dataURL = canvas.toDataURL("image/"+type);
+            return dataURL;
+        }
     }
 };
 

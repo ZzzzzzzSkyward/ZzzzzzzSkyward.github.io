@@ -391,4 +391,96 @@ zzz.value.tieba={
         "阴险":"yinxian"
     }
 };
+zzz.value.file={
+    mime:{
+        audio:{
+            aac:"aac",
+            mp3:"mpeg",
+            oga:"ogg",
+            wav:"wav",
+            weba:"webm",
+            mid:"midi"
+        },
+        video:{
+            "3gp":"3gpp",
+            "3g2":"3gpp2",
+            webm:"webm",
+            ogv:"ogg",
+            mpeg:"mpeg",
+            avi:"x-msvideo"
+        },
+        image:{
+            gif:"gif",
+            jpeg:"jpeg",
+            jpg:"jpeg",
+            svg:"svg+xml",
+            tif:"tiff",
+            tiff:"tiff",
+            webp:"webp",
+            ico:"vnd.microsoft.icon"
+        },
+        application:{
+            bin:"octet-stream",
+            bz:"x-bzip",
+            bz2:"x-bzip2",
+            csh:"x-csh",
+            doc:"msword",
+            docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            epub:"epub+zip",
+            jar:"java-archive",
+            json:"json",
+            jsonld:"ld+json",
+            ogx:"ogg",
+            pdf:"pdf",
+            ppt:"vnd.ms-powerpoint",
+            pptx:"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            rar:"x-rar-compressed",
+            rtf:"rtf",
+            swf:"x-shockwave-flash",
+            tar:"x-tar",
+            vsd:"vnd.visio",
+            xls:"vnd.ms-excel",
+            xlsx:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            zip:"zip",
+            "7z":"x-7z-compressed"
+        },
+        text:{
+            css:"css",
+            csv:"csv",
+            htm:"html",
+            html:"html",
+            ics:"calendar",
+            js:"javascript",
+            mjs:"javascript",
+            txt:"plain"
+        },
+        font:{
+            otf:"otf",
+            woff:"woff",
+            woff2:"woff2",
+            ttf:"ttf"
+        }
+    },
+    encode:function (type) {
+        var short=zzz.value.file.mime;
+        for(let i in short){
+            if(short[i][type]) return i+"/"+short[i][type];
+        }
+        if(type) return "text/"+type;
+        else return "text/plain";
+    },
+    decode:function (mime) {
+        var index=mime.indexOf("/")||0;
+        var type=mime.slice(0,index),text=mime.slice(index);
+        var short=zzz.value.file.mime;
+        if(short[type]){
+            for(let i in short){
+                for(let j in short[i]){
+                    if(short[i][j]===text) return j;
+                }
+            }
+        }
+        return text;
+    }
+};
 zzz.value.init();
