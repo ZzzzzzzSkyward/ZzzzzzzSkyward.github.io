@@ -457,7 +457,7 @@ var gadget={
   }
 };
 var tackleInput=function (e) {
-    var n=zzz.incidence.interpret(e),result=true;
+    var n=zzz.incidence.interpret(e),result=false;
     if(n.key==="enter") {
         if(n.ctrl) defaultSearch();
         else result=interpretCmd(e);
@@ -469,28 +469,34 @@ var tackleInput=function (e) {
         let renewedText=searchSettings.text("bar").replace(/\n$/,"");
         if(result&&renewedText[renewedText.length-1]==="=") searchSettings.text("bar",renewedText.slice(0,renewedText.length-1));
     }
-    else if(n.key!=="delete"&&n.key!=="backspace"){
+    else if(n.key!=="delete"&&n.key!=="backspace"&&n.key!==" "){
         //try to get hint
         //var text=(searchSettings.text("bar").replace(/\n$/,(n.code>=65&&n.code<=90)?(n.capslock?n.key.toUpperCase():n.key):"")).replace("\n"," ").trim().split(" ");
-        var text=searchSettings.text("bar").replace("\n"," ").trim().split(" ");
-        if(text.length===1&&text[0].length>2){
-            var hintText=hintCommand(text[0]);
-            if(hintText) searchSettings.text("engine","did you mean "+hintText);
-        }
-        else if(text.length===2&&(text[0]==="search"||text[0]==="sh")){
-            var hintText=hintEngine(text[1]);
-            if(hintText){
-                searchSettings.text("engine","did you mean "+hintText);
-                searchSettings.hintEngine=hintText;
-                if(searchSettings.hintTargeted){
-                    searchSettings.hintTargeted=false;
-                    text[1]=hintText;
-                    searchSettings.text("bar",text.join(" ")+" \n");
-                    e.preventDefault();
+        var text=searchSettings.text("bar").replace(/[\n]+$/,"");
+        var code=text.charCodeAt(text.length-1);
+        //console.log(n.key,text,"'"+text[text.length-1]+"'",text.charCodeAt(text.length-1));
+        if(zzz.value.convertTokey(code)!==" ") {
+            text = text.replace(/[\n]+/g, " ").trim().split(" ");
+            //console.log(text);
+            if (text.length === 1 && text[0].length > 2) {
+                var hintText = hintCommand(text[0]);
+                if (hintText) searchSettings.text("engine", "did you mean " + hintText);
+            } else if (text.length === 2 && (text[0] === "search" || text[0] === "sh")) {
+                var hintText = hintEngine(text[1]);
+                if (hintText) {
+                    searchSettings.text("engine", "did you mean " + hintText);
+                    searchSettings.hintEngine = hintText;
+                    if (searchSettings.hintTargeted) {
+                        searchSettings.hintTargeted = false;
+                        text[1] = hintText;
+                        searchSettings.text("bar", text.join(" ") + " \n");
+                        e.preventDefault();
+                    }
                 }
             }
         }
     }
+    if(result) searchSettings.text("bar",searchSettings.text("bar").replace(/\n\n/,"\n"));
     resizer();
 };
 var initializer=function(){

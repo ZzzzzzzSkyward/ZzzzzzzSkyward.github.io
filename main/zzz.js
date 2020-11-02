@@ -1297,6 +1297,7 @@ zzz.file={
     download:function (url) {
         if(!zzz.equal.type(url,"string")) return false;
         var node=zzz.create("a",{href:url,download:url},{display:"none"});
+        node.innerText="1";
         if("download" in node) {
             document.body.appendChild(node);
             node.click();

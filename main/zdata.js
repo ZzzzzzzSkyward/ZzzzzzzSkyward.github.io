@@ -157,6 +157,7 @@ zzz.value.keyCode= {
     111:"/num",
     144:"numlock",
     145:"scrolllock",
+    160:" ",
     186:";",
     187:"=",
     188:",",
@@ -174,7 +175,8 @@ zzz.value.convertTokey=function (code) {
     else if(code>=65&&code<=90) return String.fromCharCode(code+32);
     else if(code>=96&&code<=105) return code-96+"num";
     else if(code>=112&&code<=123) return "F"+(code-111);
-    else return zzz.value.keyCode[code];
+    else if(code in zzz.value.keyCode) return zzz.value.keyCode[code];
+    else return String.fromCharCode(code);
 };
 zzz.value.domain=new Set([
     "biz","com","edu","gov","info","int","mil","name","net","org","pro","xyz","aero","cat","coop","jobs","museum","travel","mobi","asia","tel","xxx","arpa","root","tel","example","invalid","test",
