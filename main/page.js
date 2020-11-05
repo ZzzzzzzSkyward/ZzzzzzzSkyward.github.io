@@ -1,4 +1,4 @@
-var pagejs_version=20201021;
+var pagejs_version=20201104;
 var searchMethod={};
 var searchMethodBreaker={};
 var pagejs=1;
