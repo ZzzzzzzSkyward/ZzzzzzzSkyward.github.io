@@ -2673,7 +2673,7 @@ zzz.api.hole={
             if(!node) continue;
             if (zzz.toNum(node.innerText) < minStars) i.style.display = 'none';
         }
-        zzz.scroll.by(document.body,0,1,true);
+        zzz.anim.scroll.by(document.body,0,1,true);
     },
     init:function () {
         var parent = zzz.get.cls("control-bar")[0],
@@ -2695,6 +2695,31 @@ zzz.api.hole={
         });
         parent.appendChild(number);
         parent.appendChild(button);
+    }
+};
+//runner API
+//format:{
+//method:"equal" or "match" or "function"
+//string:"..."
+//function:"..."
+//}
+zzz.run={
+    init:function () {
+        if(!zzz.value.run) zzz.value.run=[];
+        var urlParts=zzz.path.split(zzz.browser.uri);
+        for(let i of zzz.value.run) {
+            try {
+                if (i.method === "equal") {
+                    if (i.string !== zzz.browser.uri) continue;
+                } else if (i.method === "match") {
+                    if (!zzz.browser.uri.match(i.string)) continue;
+                } else if (i.method === "function") {
+                    if (!(i.function && i.function(urlParts))) continue;
+                }
+                i.run();
+            }catch(e){console.log("something in zzz.run.init wrong!");}
+
+        }
     }
 };
 //overall initialize
