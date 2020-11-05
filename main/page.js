@@ -5,6 +5,7 @@ var pagejs=1;
 var searchSettings={
     defalut:"bing-cn",
     current:"bing-cn",
+    result:"",
     short:{
         "bing":"bing-cn",
         "bd":"baidu",
@@ -16,9 +17,10 @@ var searchSettings={
     bar:zzz.get.id("search_bar"),
     engine:zzz.get.cls("search_engine")[0],
     text:function (element,text) {
-        if(text===undefined) return this[element].innerText!==undefined?this[element].innerText:this[element].value;
+        if(arguments.length===1) return this[element].innerText!==undefined?this[element].innerText:this[element].value;
         else{
-            this[element].innerText=text;this[element].value=text;
+            if(text[text.length-1]!=="\n") text=text+"\n";
+            this[element].innerText=text;
             //focus
             if(element==="bar"){
                 zzz.clip.focus(searchSettings.bar,text.length-1);
@@ -35,6 +37,26 @@ list={
     language语言=Simplified Chinese/Traditional Chinese/English/All
     site网站
  */
+var splitCommand=function (text) {
+    //delete all \n at the end of the string
+    text=text.replace(/[\n]+$/,"");
+    //convert all inline \n to blank
+    text=text.replace(/\n/g," ");
+    //split by blank
+    var result=[],index=0,len=text.length,p=0,tempText="";
+    for(;index<len;index++){
+        p=text.indexOf(" ",index);
+        if(p===-1) break;
+        else{
+            tempText=text.slice(index,p);
+            if(tempText.length) result.push(tempText);
+            index=p;
+        }
+    }
+    if(index<len) result.push(text.slice(index,len));
+    else result.push("");
+    return result;
+};
 var addSearchMethod=function (name,text,breaker) {
     searchMethod[name]=text;
     if(breaker) searchMethodBreaker[name]=breaker;
@@ -183,15 +205,13 @@ var hintEngine=function (text) {
         return names;
     }
 };
-var interpretCmd=function (e,isEqual) {
-    var text=searchSettings.text("bar").replace(/\n$/,"");
+var interpretCmd=function (interpretation,isEqual) {
+    var text=searchSettings.text("bar");
     isEqual=isEqual!=="=";
-    if(!isEqual) text=text.slice(0,text.length-1);
-    var cmdLine=text.split(" ");
+    var cmdLine=splitCommand(text.replace(/\n$/,"").trim());
     var command="";
-    cmdLine[cmdLine.length-1]=cmdLine[cmdLine.length-1].replace(/[\n ]/g,"");
     command=searchSettings.fixed||cmdLine[0];
-    console.log(cmdLine,e.key);
+    console.log("your command is: ",cmdLine);
     var i=0;
     //jump
     if(isEqual&&searchSettings.jump[cmdLine[0]]){
@@ -200,7 +220,9 @@ var interpretCmd=function (e,isEqual) {
     }
     //redirect
     else if(cmdLine.length===1&&zzz.value.domain.has(zzz.path.split(cmdLine[0]).domain)&&zzz.path.split(cmdLine[0]).host){
-        zzz.browser.open(cmdLine[0]);
+        let temp=zzz.path.split(cmdLine[0]);
+        if(!temp.protocol) temp.protocol="http:";
+        zzz.browser.open(zzz.path.merge(temp));
     }
     //set fixed command
     else if(cmdLine[0]==="fix"){
@@ -234,7 +256,7 @@ var interpretCmd=function (e,isEqual) {
         }
         searchSettings.text("bar","");
     }
-    else if(cmdLine[0]==="search"){
+    else if(cmdLine[0]==="search"||cmdLine[0]==="sh"){
         if(searchSettings.short[cmdLine[1]]) cmdLine[1]=searchSettings.short[cmdLine[1]];
         if(searchMethod[cmdLine[1]]){
             var text="";
@@ -243,7 +265,7 @@ var interpretCmd=function (e,isEqual) {
         }
     }
     //random integer
-    else if(command==="random"){
+    else if(command==="random"||command==="rnd"){
         if(!cmdLine[1]) cmdLine[1]="0";
         if(!cmdLine[2]) cmdLine[2]="1";
         if(!cmdLine[3]) cmdLine[3]="=";
@@ -327,6 +349,20 @@ var interpretCmd=function (e,isEqual) {
     else if(cmdLine[0]==="download"){
         zzz.browser.download("https://ZzzzzzzSkyward.github.io/main/zjs.7z");
     }
+    //backup
+    else if(cmdLine[0]==="backup"){
+        if(cmdLine[1]!=="engine"&&cmdLine[1]!=="shortcut"){
+            warn(false,"can only be engine or shortcut");
+        }
+        else {
+            let backUp = "", database = cmdLine[1]==="engine"?searchMethod:searchSettings.jump;
+            for (let j in database) {
+                backUp += "'" + j + "':'" + database[j] + "',";
+            }
+            zzz.clip.copy(backUp);
+            warn(true,"backup copied! please paste it into settings.js");
+        }
+    }
     //math
     else if(!isEqual){
         let calculation;
@@ -367,29 +403,51 @@ var interpretCmd=function (e,isEqual) {
     resizer();
     return true;
 };
-var warn=function (info) {
+var warn=function (state,info) {
     if(searchSettings.onwarn) return;
+    if(info) searchSettings.text("engine",info);
     var timeout=1000;
     searchSettings.onwarn=true;
-    zzz.anim.act(searchSettings.engine,{
-        backgroundColor:{color:{r:"+100"}},
-        borderLeftColor:{color:{g:"-50",b:"-50"}},
-        borderRightColor:{color:{g:"-50",b:"-50"}},
-        borderTopColor:{color:{g:"-50",b:"-50"}},
-        borderBottomColor:{color:{g:"-50",b:"-50"}}
-    });
-    if(info) searchSettings.text("engine",info);
-    setTimeout(function () {
-        if(!searchSettings.onwarn) return;
-        searchSettings.onwarn=false;
-        zzz.anim.act(searchSettings.engine,{
-            backgroundColor:{color:{r:"-100"}},
-            borderLeftColor:{color:{g:"+50",b:"+50"}},
-            borderRightColor:{color:{g:"+50",b:"+50"}},
-            borderTopColor:{color:{g:"+50",b:"+50"}},
-            borderBottomColor:{color:{g:"+50",b:"+50"}}
+    if(!state) {
+        zzz.anim.act(searchSettings.engine, {
+            backgroundColor: {color: {r: "+100"}},
+            borderLeftColor: {color: {g: "-50", b: "-50"}},
+            borderRightColor: {color: {g: "-50", b: "-50"}},
+            borderTopColor: {color: {g: "-50", b: "-50"}},
+            borderBottomColor: {color: {g: "-50", b: "-50"}}
         });
-    },timeout);
+        setTimeout(function () {
+            if (!searchSettings.onwarn) return;
+            searchSettings.onwarn = false;
+            zzz.anim.act(searchSettings.engine, {
+                backgroundColor: {color: {r: "-100"}},
+                borderLeftColor: {color: {g: "+50", b: "+50"}},
+                borderRightColor: {color: {g: "+50", b: "+50"}},
+                borderTopColor: {color: {g: "+50", b: "+50"}},
+                borderBottomColor: {color: {g: "+50", b: "+50"}}
+            });
+        }, timeout);
+    }
+    else{
+        zzz.anim.act(searchSettings.engine, {
+            backgroundColor: {color: {g: "+100"}},
+            borderLeftColor: {color: {r: "-50", b: "-50"}},
+            borderRightColor: {color: {r: "-50", b: "-50"}},
+            borderTopColor: {color: {r: "-50", b: "-50"}},
+            borderBottomColor: {color: {r: "-50", b: "-50"}}
+        });
+        setTimeout(function () {
+            if (!searchSettings.onwarn) return;
+            searchSettings.onwarn = false;
+            zzz.anim.act(searchSettings.engine, {
+                backgroundColor: {color: {g: "-100"}},
+                borderLeftColor: {color: {r: "+50", b: "+50"}},
+                borderRightColor: {color: {r: "+50", b: "+50"}},
+                borderTopColor: {color: {r: "+50", b: "+50"}},
+                borderBottomColor: {color: {r: "+50", b: "+50"}}
+            });
+        }, timeout);
+    }
 };
 var defaultSearch=function (method,text) {
     if(!method) method=searchSettings.current;
@@ -456,47 +514,67 @@ var gadget={
       }
   }
 };
-var tackleInput=function (e) {
+var refreshBar=function () {
+    var text=searchSettings.result;
+    if(text instanceof Array) text=text.join(" ");
+    if(!text) return;
+    searchSettings.text("bar",text);
+    searchSettings.result="";
+};
+var tackleKeyDown=function (e) {
     var n=zzz.incidence.interpret(e),result=false;
     if(n.key==="enter") {
         if(n.ctrl) defaultSearch();
-        else result=interpretCmd(e);
-        if(result) e.preventDefault();
+        else result=interpretCmd(n);
     }
     else if(n.key==="="){
-        result=interpretCmd(e,"=");
-        if(result) e.preventDefault();
-        let renewedText=searchSettings.text("bar").replace(/\n$/,"");
-        if(result&&renewedText[renewedText.length-1]==="=") searchSettings.text("bar",renewedText.slice(0,renewedText.length-1));
+        result=interpretCmd(n,"=");
     }
-    else if(n.key!=="delete"&&n.key!=="backspace"&&n.key!==" "){
-        //try to get hint
-        //var text=(searchSettings.text("bar").replace(/\n$/,(n.code>=65&&n.code<=90)?(n.capslock?n.key.toUpperCase():n.key):"")).replace("\n"," ").trim().split(" ");
-        var text=searchSettings.text("bar").replace(/[\n]+$/,"");
-        var code=text.charCodeAt(text.length-1);
-        //console.log(n.key,text,"'"+text[text.length-1]+"'",text.charCodeAt(text.length-1));
-        if(zzz.value.convertTokey(code)!==" ") {
-            text = text.replace(/[\n]+/g, " ").trim().split(" ");
-            //console.log(text);
-            if (text.length === 1 && text[0].length > 2) {
-                var hintText = hintCommand(text[0]);
-                if (hintText) searchSettings.text("engine", "did you mean " + hintText);
-            } else if (text.length === 2 && (text[0] === "search" || text[0] === "sh")) {
-                var hintText = hintEngine(text[1]);
-                if (hintText) {
-                    searchSettings.text("engine", "did you mean " + hintText);
-                    searchSettings.hintEngine = hintText;
-                    if (searchSettings.hintTargeted) {
-                        searchSettings.hintTargeted = false;
-                        text[1] = hintText;
-                        searchSettings.text("bar", text.join(" ") + " \n");
-                        e.preventDefault();
-                    }
-                }
+    if(result){
+        e.preventDefault();
+        searchSettings.currentKey="tackled!";
+        refreshBar();
+        resizer();
+    }
+    else {
+        searchSettings.currentKey = n.key;
+    }
+};
+var tackleKeyUp=function (e) {
+    var n=zzz.incidence.interpret(e),result=false,text=searchSettings.text("bar");
+    //if not input then return
+    if(searchSettings.currentKey!==n.key) return;
+    //if no change then return
+    if(text===searchSettings.previousText) return;
+    //if the key is useless then return
+    if(n.key==="delete"||n.key==="backspace"||n.key===" "||n.key==="shift"||n.key==="control"||n.key==="tab") return;
+    //try to get hint
+    //var text=(searchSettings.text("bar").replace(/\n$/,(n.code>=65&&n.code<=90)?(n.capslock?n.key.toUpperCase():n.key):"")).replace("\n"," ").trim().split(" ");
+    var command = splitCommand(searchSettings.text("bar"));
+    //console.log(command);
+    //console.log(n.key,text,"'"+text[text.length-1]+"'",text.charCodeAt(text.length-1));
+    if (command.length === 1 && command[0].length > 2) {
+        var hint = hintCommand(command[0]);
+        if (hint) searchSettings.text("engine", "did you mean " + hint);
+    } else if (command.length === 2 && (command[0] === "search" || command[0] === "sh")) {
+        var hint = hintEngine(command[1]);
+        if (hint) {
+            searchSettings.text("engine", "did you mean " + hint);
+            searchSettings.hintEngine = hint;
+            if (searchSettings.hintTargeted) {
+                searchSettings.hintTargeted = false;
+                command[1] = hint;
+                command[2]="";
+                searchSettings.result=command;
+                refreshBar();
             }
         }
     }
-    if(result) searchSettings.text("bar",searchSettings.text("bar").replace(/\n\n/,"\n"));
+    if(result){
+        e.preventDefault();
+        refreshBar();
+    }
+    searchSettings.previousText=searchSettings.text("bar");
     resizer();
 };
 var initializer=function(){
@@ -509,7 +587,7 @@ var initializer=function(){
     });
     zzz.value.homepage={};
     zzz.value.homepage.search_bar=1;
-    zzz.incidence.bind(searchSettings.bar,"keyup",tackleInput);
+    zzz.incidence.bind(searchSettings.bar,"keyup",tackleKeyUp);
     readPreference();
     //zzz.incidence.bind(document.body,"keydown",showKey);
     zzz.incidence.bind(zzz.get.cls("enter_button")[0],"click",interpretCmd);
@@ -533,6 +611,7 @@ var initializer=function(){
         zzz.set.style(obj, i, style[i]+"px");
     }
     searchSettings.text("engine",searchSettings.current);
+    zzz.incidence.bind(searchSettings.bar,"keydown",tackleKeyDown);
     zzz.incidence.bind(document.body,"unload",savePreference);
     searchSettings.bar.focus();
     zzz.clip.focus(searchSettings.bar,0);

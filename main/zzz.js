@@ -1877,7 +1877,7 @@ zzz.anim={
             if(previousValue===undefined||previousValue===null) previousValue=zzz.anim.elements[element][i];
             if(previousValue===undefined||previousValue===null) previousValue=zzz.anim.translate.split(i,zzz.get.style(element,i));
             currentStyle[i]=zzz.anim.translate.merge(currentStyle[i],previousValue);
-            console.log(currentStyle[i]);
+            //console.log(currentStyle[i]);
             zzz.anim.elements[element][i]=zzz.anim.translate.split(i,currentStyle[i]);
         }
         zzz.anim.set(element,currentStyle);
