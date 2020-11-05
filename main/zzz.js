@@ -2705,9 +2705,10 @@ zzz.api.hole={
 //}
 zzz.run={
     init:function () {
-        if(!zzz.value.run) zzz.value.run=[];
+        if(!document.run) document.run=[];
         var urlParts=zzz.path.split(zzz.browser.uri);
-        for(let i of zzz.value.run) {
+        //to avoid tampermonkey restrictions
+        for(let i of document.run) {
             try {
                 if (i.method === "equal") {
                     if (i.string !== zzz.browser.uri) continue;
