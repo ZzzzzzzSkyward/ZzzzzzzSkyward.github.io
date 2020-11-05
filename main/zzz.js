@@ -1044,18 +1044,19 @@ zzz.get.attr=function(element,attribute){
 zzz.get.style=function(element,style){
     return getComputedStyle(element)[style];
 };
-zzz.create=function(tag,attributes,styles){
+zzz.create=function(tag,attributes,styles,parentNode){
   var element=document.createElement(tag);
   if(attributes){
-      for(var i in ["innerText","className","innerHTML","id","name"]){
+      for(var i of ["innerText","className","innerHTML","id","name"]){
           if(attributes[i]) element[i]=attributes[i];
           delete attributes[i];
       }
       for(var i in attributes) element.setAttribute(i,attributes[i]);
   }
   if(styles){
-      for(var i in styles) element.style[i]=styles[i];
+      zzz.anim.set(element,styles);
   }
+  if(parentNode) parentNode.appendChild(element);
   return element;
 };
 
@@ -2672,6 +2673,7 @@ zzz.api.hole={
             if(!node) continue;
             if (zzz.toNum(node.innerText) < minStars) i.style.display = 'none';
         }
+        zzz.scroll.by(document.body,0,1,true);
     },
     init:function () {
         var parent = zzz.get.cls("control-bar")[0],
