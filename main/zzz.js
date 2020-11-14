@@ -1,13 +1,13 @@
 /*
-version:1.1
-time:2020.11.04
+version:1.2
+time:2020.11.14
 author:zzs
 */
 "use strict";
-if(!zzz) var zzz={};
-zzz.version=20201104;
-zzz.value={};
-
+if(!window.zzz) window.zzz={};
+zzz.version=20201114;
+if(!zzz.value) zzz.value={};
+if(zzz.inited) throw new Error("zzz re-init!");
 //eval
 zzz.eval=function(string){
   return Function("'use strict';return "+string)();
@@ -2723,6 +2723,45 @@ zzz.run={
         }
     }
 };
+//downloader API
+zzz.api.download={
+    uniqueName:"download_url_display",
+    analyze:function(targetNode){
+        var result=[];
+        //valid type:image,video,audio
+        var validType=["img","video","audio"];
+        if(targetNode.tagName in validType){
+            //download this node
+            result.push(targetNode.src);
+        }
+        else{
+            for(let i of validType) {
+                var node = targetNode.getElementsByTagName(i);
+                if(node){
+                    for(let j of node) result.push(j.src);
+                }
+            }
+        }
+        return result;
+    },
+    init:function () {
+        var node=zzz.create("div",{id:zzz.api.download.uniqueName},{position:"fixed",top:0,left:0,width:"100%",height:"auto",opacity:"0.9",backgroundColor:"rgba(255,255,255,0.5)",fontSize:"1em",color:"black"},document.body);
+        zzz.incidence.bind(document.body,"mousemove",function (e) {
+            e=zzz.incidence.interpret(e);
+            var result=zzz.api.download.analyze(e.target);
+            zzz.get.id(zzz.api.download.uniqueName).innerHTML="<p>"+result.join("</p><p>")+"</p>";
+        });
+        zzz.incidence.bind(document.body,"keydown",function (e) {
+            e=zzz.incidence.interpret(e);
+            if(e.key==="d"){
+                let result=zzz.api.download.analyze(e.target);
+                if(result){
+                    for(let k of result) zzz.file.download(k);
+                }
+            }
+        })
+    }
+};
 //overall initialize
 zzz.init=function () {
     zzz.storage.init();
@@ -2733,6 +2772,7 @@ zzz.init=function () {
     zzz.fetch.init();
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
+    zzz.inited=true;
 };
 
 zzz.init();

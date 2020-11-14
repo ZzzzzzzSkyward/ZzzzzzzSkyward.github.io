@@ -1,4 +1,4 @@
-var pagejs_version=20201104;
+var pagejs_version=20201114;
 var searchMethod={};
 var searchMethodBreaker={};
 var pagejs=1;
@@ -41,7 +41,7 @@ var splitCommand=function (text) {
     //delete all \n at the end of the string
     text=text.replace(/[\n]+$/,"");
     //convert all inline \n to blank
-    text=text.replace(/\n/g," ");
+    text=text.replace(/\n/g," ").replace(String.fromCharCode(160)," ");
     //split by blank
     var result=[],index=0,len=text.length,p=0,tempText="";
     for(;index<len;index++){

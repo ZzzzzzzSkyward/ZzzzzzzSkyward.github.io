@@ -1,5 +1,6 @@
-if(!zzz) var zzz={};
+if(!zzz) window.zzz={};
 if(!zzz.value) zzz.value={};
+if(zzz.value.inited) throw new Error("zzz.value re-init!");
 zzz.value.ajaxinfo={
     100:"客户必须继续发出请求",
     101:"客户要求服务器根据请求转换HTTP协议版本",
@@ -330,6 +331,7 @@ zzz.value.userAgent={
         "WebOS","Windows [Phone/Mobile]","Zenwalk"]
 };
 zzz.value.init=function(){
+    zzz.value.inited=true;
     var u=zzz.value.unicode;
     var set= {
         a1: u.pinyin.a[0],
@@ -363,7 +365,7 @@ zzz.value.init=function(){
     };
     for(let i in set) zzz.value.unicodeAlias[i]=set[i];
     for(let i in zzz.value.unicode){
-        if(zzz.equal.type(zzz.value.unicode[i],"number")) zzz.value.unicodeAlias[i]=zzz.value.unicode[i];
+        if(!isNaN(zzz.value.unicode[i]-0)) zzz.value.unicodeAlias[i]=zzz.value.unicode[i];
     }
 };
 zzz.value.ocr={
