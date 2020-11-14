@@ -2726,18 +2726,23 @@ zzz.run={
 //downloader API
 zzz.api.download={
     uniqueName:"download_url_display",
+    targetNode:document.head,
     analyze:function(targetNode){
+        console.log(targetNode);
         var result=[];
         //valid type:image,video,audio
-        var validType=["img","video","audio"];
-        if(targetNode.tagName in validType){
+        var validType=new Set(["img","video","audio"]);
+        var tag=targetNode.tagName.toLowerCase();
+        console.log(tag);
+        if(validType.has(tag)){
             //download this node
             result.push(targetNode.src);
         }
         else{
-            for(let i of validType) {
+            for(let i of validType.keys()) {
                 var node = targetNode.getElementsByTagName(i);
                 if(node){
+                    console.log(node);
                     for(let j of node) result.push(j.src);
                 }
             }
@@ -2748,18 +2753,22 @@ zzz.api.download={
         var node=zzz.create("div",{id:zzz.api.download.uniqueName},{position:"fixed",top:0,left:0,width:"100%",height:"auto",opacity:"0.9",backgroundColor:"rgba(255,255,255,0.5)",fontSize:"1em",color:"black"},document.body);
         zzz.incidence.bind(document.body,"mousemove",function (e) {
             e=zzz.incidence.interpret(e);
-            var result=zzz.api.download.analyze(e.target);
-            zzz.get.id(zzz.api.download.uniqueName).innerHTML="<p>"+result.join("</p><p>")+"</p>";
+            zzz.api.download.targetNode=e.target;
         });
         zzz.incidence.bind(document.body,"keydown",function (e) {
             e=zzz.incidence.interpret(e);
             if(e.key==="d"){
-                let result=zzz.api.download.analyze(e.target);
+                let result=zzz.api.download.analyze(zzz.api.download.targetNode);
                 if(result){
-                    for(let k of result) zzz.file.download(k);
+                    let text="";
+                    for(let k of result){
+                        text+="<a href='"+k+"'>"+k+"</a>";
+                        console.log(k);
+                    }
+                    zzz.get.id(zzz.api.download.uniqueName).innerHTML=text;
                 }
             }
-        })
+        });
     }
 };
 //overall initialize
