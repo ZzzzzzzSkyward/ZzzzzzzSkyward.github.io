@@ -2750,7 +2750,7 @@ zzz.api.download={
         return result;
     },
     init:function () {
-        var node=zzz.create("div",{id:zzz.api.download.uniqueName},{position:"fixed",top:0,left:0,width:"100%",height:"auto",opacity:"0.9",backgroundColor:"rgba(255,255,255,0.5)",fontSize:"1em",color:"black"},document.body);
+        var node=zzz.create("div",{id:zzz.api.download.uniqueName},{zIndex:"9999",position:"fixed",top:0,left:0,width:"100%",height:"auto",opacity:"0.9",backgroundColor:"rgba(255,255,255,0.5)",fontSize:"1em",color:"black"},document.body);
         zzz.incidence.bind(document.body,"mousemove",function (e) {
             e=zzz.incidence.interpret(e);
             zzz.api.download.targetNode=e.target;
