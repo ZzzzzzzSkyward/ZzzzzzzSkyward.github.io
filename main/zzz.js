@@ -26,7 +26,7 @@ zzz.equal.num=function (a,b) {
 };
 zzz.equal.type=function (obj,type) {
   type=type.toString().toLowerCase();
-  if(type==="array"){
+  if(type==="array"||type==="arr"){
       return obj instanceof Array;
   }
   else if(type==="element"){
@@ -38,7 +38,7 @@ zzz.equal.type=function (obj,type) {
   else if(type==="nan"){
       return isNaN(obj)&&typeof obj=="number";
   }
-  else if(type==="integer"){
+  else if(type==="integer"||type==="int"){
       return typeof obj==="number"&&zzz.isInt(obj);
   }
   else{
@@ -704,6 +704,46 @@ zzz.time={
                 ztime.year*1000*60*60*24*30*365;
         }
         else return 0;
+    },
+    data:{},
+    loop:function (func,time,isLoop,isClear,name) {
+        var number=-1;
+        if(isLoop){
+            if(isClear){
+                number=zzz.time.data[func];
+                if(number===undefined) throw new Error("clearInterval unrecorded function");
+                number=number[time];
+                if(number===undefined) throw new Error("clearInterval unrecorded function time");
+                clearInterval(number);
+            }
+            else{
+                number=setInterval(func,time);
+                if(!zzz.time.data[func]) zzz.time.data[func]=[];
+                zzz.time.data[func][time]=number;
+            }
+        }
+        else{
+            if(isClear){
+                number=zzz.time.data[func];
+                if(number===undefined) throw new Error("clearInterval unrecorded function");
+                number=number[time];
+                if(number===undefined) throw new Error("clearInterval unrecorded function time");
+                clearTimeout(number);
+            }
+            else{
+                number=setTimeout(func,time);
+                if(!zzz.time.data[func]) zzz.time.data[func]=[];
+                zzz.time.data[func][time]=number;
+            }
+        }
+        if(name) zzz.time.data[name]=number;
+        return number;
+    },
+    clear:function (numberOrName,isLoop) {
+        var number=(typeof numberOrName==="string")?zzz.time.data[numberOrName]:numberOrName;
+        if(zzz.equal.type(number,"integer")) throw new Error("zzz.time.clear receives param not of number or string");
+        if(isLoop) clearInterval(number);
+        else clearTimeout(number);
     }
 };
 
@@ -877,25 +917,64 @@ zzz.browser.open.inner=function(settings){
 //TODO : work with Firefox.
 //TODO : handle for object event.
 zzz.clip={
-    copy:function (text) {
-        if(zzz.equal.type(text,"string")){
-            if (window.clipboardData) {
-                window.clipboardData.clearData();
-                window.clipboardData.setData("Text", text);
-                return true;
+    copy:{
+        text:function (text) {
+            if(zzz.equal.type(text,"string")){
+                if (window.clipboardData) {
+                    window.clipboardData.clearData();
+                    window.clipboardData.setData("Text", text);
+                    return true;
+                }
+                else if (document.execCommand) {
+                    var cb = zzz.create("textarea");
+                    document.body.appendChild(cb);
+                    cb.innerText = text;
+                    cb.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(cb);
+                    cb=null;
+                    return true;
+                }
             }
-            else if (document.execCommand) {
-                var cb = zzz.create("textarea");
-                document.body.appendChild(cb);
-                cb.innerText = text;
-                cb.select();
-                document.execCommand("copy");
-                document.body.removeChild(cb);
-                cb=null;
-                return true;
+            else return  false;
+        },
+        node:function (node) {
+            if(zzz.equal.type(node,"element")){
+                if (window.clipboardData) {
+                    window.clipboardData.clearData();
+                    window.clipboardData.setData("Text", text);
+                    return true;
+                }
+                else if (document.execCommand) {
+                    var mirror=node.cloneNode(true);
+                    document.body.appendChild(mirror);
+                    var range,selection;
+                    if (document.createRange)
+                    {
+                        range = document.createRange();//创建一个选中区域
+                        range.selectNodeContents(mirror);//选中节点的内容
+                        if(mirror.innerHTML.length > 0) {
+                            range.setStartBefore(mirror.firstChild); //设置光标起始为指定位置
+                        }
+                        range.setEndAfter(mirror.lastChild);
+                        selection = window.getSelection();//获取当前选中区域
+                        selection.removeAllRanges();//移出所有的选中范围
+                        selection.addRange(range);//添加新建的范围
+                    }
+                    else if (document.selection)//IE 8 and lower
+                    {
+                        range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
+                        range.moveToElementText(mirror);//Select the entire contents of the element with the range
+                        range.select();//Select the range (make it the visible selection
+                    }
+                    document.execCommand("copy");
+                    document.body.removeChild(mirror);
+                    mirror=null;
+                    return true;
+                }
             }
+            else return false;
         }
-        return  false;
     },
     update:function () {
         let selection=window.getSelection?window.getSelection():{
@@ -1014,6 +1093,10 @@ zzz.browser.collectData={
     },
     resizeObserver:function () {
         zzz.browser.hasResizeObserver=!!window.ResizeObserver;
+    },
+    notification:function () {
+        zzz.browser.hasNotification=!!window.Notification;
+        zzz.browser.canNotify=window.Notification&&window.Notification.permission!=="denied";
     }
 };
 zzz.browser.init=function(){
@@ -1049,7 +1132,7 @@ zzz.create=function(tag,attributes,styles,parentNode){
   if(attributes){
       for(var i of ["innerText","className","innerHTML","id","name"]){
           if(attributes[i]) element[i]=attributes[i];
-          delete attributes[i];
+          //delete attributes[i];
       }
       for(var i in attributes) element.setAttribute(i,attributes[i]);
   }
@@ -1141,6 +1224,8 @@ zzz.incidence={
           zzz.incidence.specificEventBinder=1;
       }
       else zzz.incidence.specificEventBinder=2;
+      //start mousemove
+        zzz.incidence.bind(document.body,"mousemove",zzz.incidence.mousemove);
     },
     bind:function (element,type,func,isCapture) {
         //fix for Firefox scroll
@@ -1154,7 +1239,7 @@ zzz.incidence={
         //resizeObserver API
         if(type==="resize") {
             if (zzz.browser.hasResizeObserver){
-                return zzz.instance.bindResizeObserver(element,func);
+                return zzz.incidence.bindResizeObserver(element,func);
             }
         }
         if(zzz.incidence.specificEventBinder===0){
@@ -1200,7 +1285,7 @@ zzz.incidence={
             ,type:event.type
             ,target:event.target||event.srcElement
             ,key:(event.key?(event.key.length===1?event.key:event.key.toLowerCase()):zzz.value.convertTokey(event.keyCode))||undefined
-            ,code:event.keyCode||undefined
+            ,code:event.keyCode||event.which||undefined
             ,delta:event.detail?event.detail/3:event.wheelDelta/120//firefox fix not present
         };
         return interpretation;
@@ -1212,7 +1297,19 @@ zzz.incidence={
         disable:function (element) {
             zzz.set(element,"contenteditable","false");
         }
-    }
+    },
+    waiting:false,
+    interval:100,//ms
+    mousemove:function (e) {
+        if(zzz.incidence.waiting) return;
+        e=zzz.incidence.interpret(e);
+        zzz.incidence.data.target=e.target;
+        zzz.incidence.waiting=true;
+        setTimeout(function () {
+            zzz.incidence.waiting=false;
+        },zzz.incidence.interval);
+    },
+    data:{}
 };
 
 
@@ -1291,8 +1388,9 @@ zzz.file={
     },
     create:function (arr,type,nativeEnding) {
         var options={};
+        if(!zzz.equal.type(arr,"array")) arr=[arr];
         if(type!==undefined) options.type=type.indexOf("/")===-1?zzz.value.file.encode(type):type;
-        if(ending!==undefined) options.endings=nativeEnding?"native":"transparent";
+        if(nativeEnding!==undefined) options.endings=nativeEnding?"native":"transparent";
         return new zzz.file.blob(arr,options);
     },
     download:function (url) {
@@ -1320,21 +1418,36 @@ zzz.file={
 
         }
     },
-    downloadImage:function (src) {
-        //todo
+    useURL:function(blob,func){
+        var url=zzz.file.getUrl(blob);
+        func(url);
+        zzz.file.delUrl(url);
+    },
+    imageToBlob:function (src,callback) {
+        if(!callback) return;
         if(zzz.paint.canvasEnabled){
             var canvas = zzz.create("canvas");
+            /*
             var type=src;
             if(type.lastIndexOf(".")!==-1) type=type.substr(type.lastIndexOf(".")+1);
             else if(type.substr(0,4)==="data") type=type.slice(11,type.search("base64"));
             else type="jpeg";
-            canvas.width = element.width;
-            canvas.height = element.height;
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(element, 0, 0, element.width, element.height);
-            var dataURL = canvas.toDataURL("image/"+type);
-            return dataURL;
+            */
+            var element= zzz.create("img",{crossOrigin:"anonymous",src:src},{display:"none"},document.body);
+            /*var element=new Image();
+            element.crossOrigin="anonymous";
+            element.src=src;
+
+             */
+            element.onload=function() {
+                canvas.width = element.width;
+                canvas.height = element.height;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(element, 0, 0, element.width, element.height);
+                canvas.toBlob(callback);
+            }
         }
+        else throw new Error("zzz.file.imageToBlob failed.");
     }
 };
 
@@ -1412,6 +1525,7 @@ zzz.fetch={
                     integrity: settings.integrity || undefined,
                     referrerPolicy: settings.referrerPolicy || undefined
                 };
+                //callback is json/text/blob which can apply the respective function .x()
                 var promise = zzz.fetch.send(settings.url, init);
                 if (settings.callback) return promise.then(settings.callback);
                 else return promise;
@@ -1480,7 +1594,7 @@ zzz.fetch={
     },
     font:function (name,src) {
         var node = zzz.create("style");
-        node.innerText = "@font-face{font-family:" + name + ";src:url('" + src + "')}";
+        node.innerText = "@font-face{font-family:'" + name + "';src:url('" + src + "')}";
         document.body.appendChild(node);
     },
     js:function (src,parent) {
@@ -2480,6 +2594,41 @@ zzz.api.tieba={
             button.click();
         };
         setTimeout(func,10);
+    },
+    secret:function(text){
+        //only \n is changed
+        //read into lines
+        let arr=text.split("\n");
+        let changed_arr=[];
+        let changed_text="<p>";
+        //use secret charcter
+        for(let i of arr){
+            let changedTempText=i.split("").join(String.fromCharCode(zzz.value.unicode.empty_character[0]));
+            changed_arr.push(changedTempText);
+        }
+        changed_text+=changed_arr.join("</p><p>");
+        changed_text+="</p>";
+        return changed_text;
+    },
+    doSec:function (text) {
+        var result=zzz.api.tieba.secret(text);
+        var uid=zzz.random.string(5);
+        var node=document.body;
+        node.innerHTML+="<div id='"+uid+"' contenteditable='true'>"+result+"</div>";
+        var copyNode=zzz.get.id(uid);
+        if (document.createRange)
+        {
+            let element=copyNode;
+            let range = document.createRange();
+            range.selectNodeContents(copyNode);
+            range.setStart(element.childNodes[0], 0);
+            range.setEnd(element.lastElementChild,1);
+            let selection = window.getSelection();//获取当前选中区域
+            selection.removeAllRanges();//移出所有的选中范围
+            selection.addRange(range);//添加新建的范围
+        }
+        document.execCommand("copy");
+        document.body.removeChild(copyNode);
     }
 };
 zzz.structure={
@@ -2750,25 +2899,91 @@ zzz.api.download={
         return result;
     },
     init:function () {
-        var node=zzz.create("div",{id:zzz.api.download.uniqueName},{zIndex:"9999",position:"fixed",top:0,left:0,width:"100%",height:"auto",opacity:"0.9",backgroundColor:"rgba(255,255,255,0.5)",fontSize:"1em",color:"black"},document.body);
-        zzz.incidence.bind(document.body,"mousemove",function (e) {
+        var node=zzz.create("div",{
+            id:zzz.api.download.uniqueName
+        },{
+            zIndex:"9999",
+            position:"fixed",
+            display:"block",
+            top:0,
+            left:0,
+            width:"100%",
+            height:"auto",
+            opacity:"0.9",
+            backgroundColor:"rgba(255,255,255,0.5)",
+            fontSize:"1em",
+            color:"black",
+            maxHeight:"500px",
+            overflowX:"hidden",
+            overflowY:"auto"
+        },document.body);
+        zzz.create("style",{innerText:"#"+zzz.api.download.uniqueName+" p{"+
+                "line-break:anywhere;"+
+                "max-height:1em;"+
+                "line-height:1em;"
+                +"}"},null,document.body);
+        /*zzz.incidence.bind(document.body,"mousemove",function (e) {
             e=zzz.incidence.interpret(e);
             zzz.api.download.targetNode=e.target;
         });
-        zzz.incidence.bind(document.body,"keydown",function (e) {
-            e=zzz.incidence.interpret(e);
-            if(e.key==="d"){
-                let result=zzz.api.download.analyze(zzz.api.download.targetNode);
-                if(result){
-                    let text="";
-                    for(let k of result){
-                        text+="<a href='"+k+"'>"+k+"</a>";
-                        console.log(k);
-                    }
-                    zzz.get.id(zzz.api.download.uniqueName).innerHTML=text;
+         */
+        zzz.incidence.bind(document.body,"keydown",zzz.api.download.display);
+    },
+    display:function (e) {
+        e=zzz.incidence.interpret(e);
+        zzz.api.download.targetNode=zzz.incidence.data.target;
+        if(e.key==="d"){
+            let result=zzz.api.download.analyze(zzz.api.download.targetNode);
+            let index=1;
+            if(result){
+                let text="";
+                for(let k of result){
+                    text+="<p>"+index+"<a href='"+k+"' download>"+k+"</a></p>";
+                    index++;
                 }
+                zzz.get.id(zzz.api.download.uniqueName).innerHTML=text;
             }
-        });
+        }
+    }
+};
+//notification API
+zzz.browser.notification={
+    previousNotification:zzz.structure.stack(),
+        //options={body,icon,lang,dir}
+    send:function (title,options) {
+        try {
+            if (zzz.browser.canNotify) {
+                return new window.Notification(title,options);
+            }
+            else {
+                return;
+            }
+        }catch (e) {
+            
+        }
+    },
+    create:function (title,body,tag,onshow,onclick,onclose,onerror) {
+        try{
+            var n=new Notification(title,{body:body||null,tag:tag||null});
+            if(onshow) n.onshow=onshow;
+            if(onshow) n.onclick=onclick;
+            if(onshow) n.onclose=onclose;
+            if(onshow) n.onerror=onerror;
+        }
+        catch (e) {
+            
+        }
+    },
+    title:function (title,elapse,callback) {
+        zzz.browser.notification.previousNotification.push(document.title);
+        document.title=title;
+        if(elapse){
+            setTimeout(function () {
+                var title=zzz.browser.notification.previousNotification.top()
+                if(title) document.title=title;
+                zzz.browser.notification.previousNotification.pop();
+            },elapse);
+        }
     }
 };
 //overall initialize
@@ -2783,5 +2998,4 @@ zzz.init=function () {
     zzz.api.update.current["zzz"]=zzz.version;
     zzz.inited=true;
 };
-
 zzz.init();

@@ -299,7 +299,8 @@ zzz.value.unicode= {
             round: 9312,
             small_bracket: 9332,
         }
-    }
+    },
+    empty_character:[847]
 };
 zzz.value.unicodeAlias={};
 zzz.value.hex=function(character){
