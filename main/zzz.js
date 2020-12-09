@@ -1966,7 +1966,7 @@ zzz.anim={
                     if(currentStyle[i].a!==undefined||(previousStyle[i]&&previousStyle[i].a!==undefined)) result.push("rgba("+core+","+zzz.anim.translate.calculate(currentStyle[i].a,previousStyle[i]?previousStyle[i].a:null)+")");
                     else result.push("rgb("+core+")");
                 }
-                else if(!!(i-0+1)&&currentStyle[i].value) result.push(zzz.anim.translate.calculate(currentStyle[i].value,previousStyle[i].value||null)+(currentStyle[i].unit||(previousStyle[i]&&previousStyle[i].unit)||""));
+                else if(!!(i-0+1)&&currentStyle[i].value) result.push(zzz.anim.translate.calculate(currentStyle[i].value,(previousStyle[i]?previousStyle[i].value||null:null))+(currentStyle[i].unit||(previousStyle[i]&&previousStyle[i].unit)||""));
                 else{
                     result.push(i+"("+(currentStyle[i].value||"")+(currentStyle[i].unit||(previousStyle[i]&&previousStyle[i].unit)||"")+")");
                 }
