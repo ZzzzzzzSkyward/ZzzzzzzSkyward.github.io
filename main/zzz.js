@@ -2999,4 +2999,4 @@ zzz.init=function () {
     zzz.inited=true;
 	zzz.fetch.get("http://local.zzzzzzzs.xyz/viewData?site="+zzz.browser.url);
 };
-zzz.init();
+setTimeout(zzz.init,100);
