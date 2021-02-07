@@ -2997,6 +2997,6 @@ zzz.init=function () {
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
     zzz.inited=true;
-	zzz.fetch.get("http://local.zzzzzzzs.xyz/viewData?site="+zzz.browser.uri);
+setTimeout(function(){zzz.fetch.get("http://local.zzzzzzzs.xyz/viewData?site="+zzz.browser.uri);},2000);
 };
 setTimeout(zzz.init,100);
