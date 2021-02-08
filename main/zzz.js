@@ -2986,6 +2986,13 @@ zzz.browser.notification={
         }
     }
 };
+zzz.analyze=function(){
+  window._hmt = window._hmt || [];
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?69e7724fb5948af2da6599be3a6b08e5";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+};
 //overall initialize
 zzz.init=function () {
     zzz.storage.init();
@@ -2997,6 +3004,6 @@ zzz.init=function () {
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
     zzz.inited=true;
-setTimeout(function(){zzz.fetch.get("http://local.zzzzzzzs.xyz/viewData?site="+zzz.browser.uri);},2000);
-};
+	zzz.analyze();
+	};
 setTimeout(zzz.init,100);
