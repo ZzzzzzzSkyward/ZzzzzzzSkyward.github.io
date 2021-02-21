@@ -20,12 +20,12 @@
             var page=zzz.path.split(zzz.browser.uri).component.pn;
             if(!page) page="1";
             else page=zzz.toNum(page);
-            if(page<1||page>29){
-                document.body.innerHTML+="<p>一共1-31页，请输入正确页数</p>";
-                return;
-            }
             //len is the length of pictures
             var len=[10,6,6,6,9,9,7,7,9,14,11,10,6,6,10,4,4,4,5,4,4,3,4,6,3,4,10,10,16,15,19];
+            if(page<1||page>len.length){
+                document.body.innerHTML+="<p>一共1-"+len.length+"页，请输入正确页数</p>";
+                return;
+            }
             var parent=document.body;
             var text="";
             for(let i=0;i<len[page];i++){
