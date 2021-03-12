@@ -20,15 +20,16 @@
             var page=zzz.path.split(zzz.browser.uri).component.pn;
             if(!page) page="1";
             else page=zzz.toNum(page);
-            if(page<1||page>29){
-                document.body.innerHTML+="<p>一共1-29页，请输入正确页数</p>";
+            //len is the length of pictures
+            var len=[10,6,6,6,9,9,7,7,9,14,11,10,6,6,10,4,4,4,5,4,4,3,4,6,3,4,10,10,16,15,19];
+            if(page<1||page>len.length){
+                document.body.innerHTML+="<p>一共1-"+len.length+"页，请输入正确页数</p>";
                 return;
             }
-            var len=[10,6,6,6,9,9,7,7,9,14,11,10,6,6,10,4,4,4,5,4,4,3,4,6,3,4,10,10,16];
             var parent=document.body;
             var text="";
-            for(let i=0;i<len[page];i++){
-                text+="<img class='comic' src='./"+page+"/"+formatit(i)+".jpg"+"' loading='lazy' />";
+            for(let i=0;i<len[page-1];i++){
+                text+="<img class='comic' src='../open_file/ykln/"+page+"/"+formatit(i)+".jpg"+"' loading='lazy' />";
             }
             parent.innerHTML+=text;
         }
@@ -45,7 +46,7 @@
         border: 0;
     }
 </style>
-<p id="hidden">昨日青空的漫画（来自转载的转载快看漫画的网站），请修改网址阅读，一共是1-29页，网址为https://zzzzzzzskyward.github.io/ykln/?pn=1</p>
+<p id="hidden">昨日青空:印刻流年的漫画，请修改网址阅读，一共是1-31页，网址为https://zzzzzzzskyward.github.io/ykln/?pn=1。最近更新时间：2021年2月</p>
 <script src="../main/zzz.js"></script>
 <script>
     init();

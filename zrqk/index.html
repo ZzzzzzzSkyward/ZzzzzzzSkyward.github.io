@@ -24,10 +24,10 @@
                 document.body.innerHTML+="<p>一共1-15页，请输入正确页数</p>";
                 return;
             }
-            var len=[0,39,175,100,74,66,76,70,64,89,67,60,70,78,112,136];
+            var len=[39,175,100,74,66,76,70,64,89,67,60,70,78,112,136];
             var parent=document.body;
             var text="";
-            for(let i=0;i<=len[page];i++){
+            for(let i=0;i<=len[page-1];i++){
                 text+="<img class='comic' src='"+"../open_file/zrqk/"+page+"/"+formatit(i)+".jpg"+"' loading='lazy' />";
             }
             parent.innerHTML+=text;
