@@ -24,6 +24,7 @@ setAttr("alias","fontSize",lol.fontSize/2+"px");
 setAttr("title","fontSize",lol.fontSize*1.5+"px");
 setAttreach("comment","borderColor",randomrgba);
 setAttreach("comment","color",randomrgba);
+getById("endnotecontainer").style.fontSize=lol.fontSize+"px";
 }
 var showNote=function(element){
 	var container=newElement("div");
@@ -179,7 +180,8 @@ function render(essay){
 	if(essay.title){
 		node=newElement("div");
 		node.className="title";
-		node.innerHTML=essay.title
+		node.innerHTML=essay.title;
+		document.title=essay.title;
 		nodeStack[index].appendChild(node);
 	}
 	if(essay.author){
