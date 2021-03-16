@@ -2927,7 +2927,7 @@ zzz.api.render={
         }
     },
     adjustFontSize:function () {
-        let fontSize=zzz.browser.screenX/40;
+        let fontSize=zzz.browser.screenX/30;
         zzz.get.id("content").style.fontSize=fontSize+"px";
     }
 };
