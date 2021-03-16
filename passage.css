@@ -4,6 +4,12 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face{
+  font-family:"Songti";
+  src:url('Songti.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
 .hidden{
   display:none;
 }
@@ -12,6 +18,7 @@ p{
   padding:0;
   text-indent:2em;
   line-height:1.3em;
+  font-family:SimSun,STSong,STZhongsong,Songti,"Times New Roman";
   padding-bottom:0.5em;
   overflow-wrap:break-word;
 }
@@ -24,7 +31,6 @@ p{
   left:0;
   position:relative;
   font-size:20px;
-  font-family:"Times New Roman",SimSun,STSong,STZhongsong,"Source Han Serif SC",HYDaSongJ;
 }
 #endnotecontainer{
   margin:0;
