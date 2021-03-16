@@ -207,9 +207,6 @@ zzz.algorithm= {
         }
     }
 };
-
-
-
 //code
 //TODO : add UTF-8 to BASE64 encoding and decoding method.
 //TODO : add SHA1 calculating method for UTF-8.
@@ -542,12 +539,6 @@ zzz.code={
         }
         }
 };
-
-
-
-
-
-
 //time
 class ztimeStructure{
     constructor(time) {
@@ -746,16 +737,6 @@ zzz.time={
         else clearTimeout(number);
     }
 };
-
-
-
-
-//timer
-//TODO : find out a way to transfer params.
-
-
-
-
 //storage
 //TODO : cookie and sessionStorage
 zzz.storage={
@@ -862,7 +843,6 @@ zzz.storage={
     cookie:{},
     expire:{}
 };
-
 //browser check
 //TODO : complementary.
 zzz.browser={
@@ -911,8 +891,6 @@ zzz.browser.open.inner=function(settings){
   zzz.addAttr(node,settings);
   return node;
 };
-
-
 //clipboard
 //TODO : work with Firefox.
 //TODO : handle for object event.
@@ -1022,10 +1000,6 @@ zzz.clip={
     start:0,
     end:0
 };
-
-
-
-
 //attribute
 //set type
 zzz.addAttr=function(obj,key_value_set){
@@ -1044,10 +1018,6 @@ zzz.appendAttr=function(obj,key,value){
     };
     return returnObject;
 };
-
-
-
-
 //add favorite
 //<a href="#" rel="sidebar" onclick="addFavorite()"></a>
 //doesn't work at times.
@@ -1073,8 +1043,6 @@ zzz.addFavorite=function (uri,title) {
         console.log("Please use ctrl+D.");
     }
 };
-
-
 //collect information about the browser
 zzz.browser.collectData={
     screen:function () {
@@ -1102,9 +1070,6 @@ zzz.browser.collectData={
 zzz.browser.init=function(){
     for(var i in zzz.browser.collectData) zzz.browser.collectData[i]();
 };
-
-
-
 //BOM
 //TODO : specify
 zzz.get=function (name) {
@@ -1142,15 +1107,12 @@ zzz.create=function(tag,attributes,styles,parentNode){
   if(parentNode) parentNode.appendChild(element);
   return element;
 };
-
 zzz.set=function (element,attribute,value) {
     element.setAttribute(attribute,value);
 };
 zzz.set.style=function(element,attr,value){
     element.style[attr]=value;
 };
-
-
 //audio
 zzz.audio={
     jumpTo:function (time) {
@@ -1535,10 +1497,11 @@ zzz.fetch={
             zzz.fetch.ajax=function (settings) {
                 if(!settings.url) return false;
                 var xhr=new XMLHttpRequest();
+                xhr.open(settings.method||"GET",settings.url,settings.async===undefined?true:settings.async);
                 if(settings.callback) xhr.onreadystatechange=settings.callback;
                 if(settings.timeout) xhr.timeout=settings.timeout;
+                if(settings.header) for(let i in settings.header) xhr.setRequestHeader(i,settings.header[i]);
                 if(settings.ontimeout) xhr.ontimeout=settings.ontimeout;
-                xhr.open(settings.method||"GET",settings.url,settings.async===undefined?true:settings.async);
                 xhr.send(settings.data);
                 return xhr;
             }
@@ -1731,45 +1694,56 @@ zzz.incidence.bindResizeObserver=function(element,func){
 //do not add / to the end.
 zzz.path={
     split:function(url){
-        //https://www.a.b.com/d:443?e=f&g=h
+        //https://www.a.b.com:443/d?e=f&g=h
         //protocol=https:
-        //path=www.a.b.com/d
+        //path=/d
         //domain=com
         //subdomain=www.a
+        //host=www.a.b.com
         //port=443
-        var protocol=url.match("://");
-        var protocol_string=protocol?url.substr(0,protocol.index+1):"";
-        if(protocol) url=url.substr(protocol.index+3);
+        //judge protocol from ://,and delete it.
+        var protocol_index,protocol,component_index,component=[],port_index,port,host,path="/",host_index,domain,subdomain;
+        protocol_index=url.match("://");
+        protocol=protocol_index?url.substr(0,protocol_index.index+1):"";
+        if(protocol_index) url=url.substr(protocol_index.index+3);
         if(url[0]==="/") url=url.substr(1);
-        var component_index=url.match(/\?/);
-        var component=component_index?url.substr(component_index.index+1).split("&"):[];
-        var port=url.match(/:[0-9]{1,3}/);
-        var port_string="";
-        if(port){
-            port_string=url.slice(port.index+1,component_index?component_index.index:url.length);
-            url=url.slice(0,port.index);
-        }
-        else if(component_index){
+        //judge component from ?,and delete it.
+        component_index=url.match(/\?/);
+        if(component_index) {
+            component = url.substr(component_index.index + 1).split("&");
             url=url.slice(0,component_index.index);
         }
-        var host=url.match(/\//);
-        var path_string=host?url.substr(host.index):"/";
-        var host_string=url.substr(0,host?host.index:undefined);
-        var domains=host_string.split(".");
-        var domain_string=domains?domains[domains.length-1]:"";
-        if(!zzz.equal.type(zzz.toNum(domain_string),"NaN")) domain_string=host_string;
-        var subdomain_string=host_string.replace(domain_string,"");
-        if(subdomain_string[subdomain_string.length-1]===".") subdomain_string=subdomain_string.substr(0,subdomain_string.length-1);
+        //judge port from :xxx, and delete it.
+        port_index=url.match(/:[0-9]{1,5}/);
+        if(port_index){
+            port=port_index[0].substr(1);
+            host=url.slice(0,port_index.index);
+            path=url.slice(port_index.index+port.length+1)||"/";
+        }
+        else{
+            port="";
+            host_index=url.indexOf("/");
+            if(host_index!==-1){
+                host=url.slice(0,host_index);
+                path=url.slice(host_index);
+            }
+            else host=url;
+        }
+        var domains=host.split(".");
+        domain=domains?domains[domains.length-1]:"";
+        if(!zzz.equal.type(zzz.toNum(domain),"NaN")) domain=host;
+        subdomain=host.replace(domain,"");
+        if(subdomain[subdomain.length-1]===".") subdomain=subdomain.substr(0,subdomain.length-1);
         var result={
-            protocol:protocol_string,
-            0:protocol_string,
-            path:zzz.code.path.decode(path_string),
-            host:host_string,
-            1:host_string,
-            domain:domain_string,
-            subdomain:subdomain_string,
-            port:port_string,
-            2:port_string,
+            protocol:protocol,
+            0:protocol,
+            path:zzz.code.path.decode(path),
+            host:host,
+            1:host,
+            domain:domain,
+            subdomain:subdomain,
+            port:port,
+            2:port,
             component:{},
             3:{}
         };
@@ -1778,7 +1752,8 @@ zzz.path={
             result.subdomain="";
             result[1]=result[2]="";
         }
-        for(var i of component){
+        for(let i of component){
+            if(!i) continue;
             let len=i.length;
             for(var key=0;i[key]!=="="&&key<i.length;key++){}
             let name=zzz.code.path.decode(i.substr(0,key));
@@ -1795,14 +1770,15 @@ zzz.path={
             result+=short.protocol?(short.protocol+"//"):"";
             if(short.protocol==="file:") result+="/";
             result+=short.host||"";
-            if(short.path) result+=short.path;
             result+=short.port?(":"+short.port):"";
+            if(short.path) result+=short.path;
             if((!short.port)&&(!short.path)&&result[result.length-1]!=="/") result+="/";
             result=zzz.code.uri.encode(result);
             if(short.component) {
                 result+="?";
                 let items=[];
                 for(var i in short.component){
+                    if(!i) continue;
                     items.push(zzz.code.path.encode(i)+"="+zzz.code.path.encode(short.component[i]));
                 }
                 result+=items.join("&");
@@ -2409,10 +2385,14 @@ zzz.string={
             i=JSText.search(/[A-Z]/)
         }
         return JSText;
+    },
+    find:function(text,reg,start){
+      if(start) text=text.slice(start);
+      var index=text.search(reg);
+      if(index!==-1) index+=(start||0);
+      return index;
     }
 };
-
-
 
 //unicode translator
 zzz.api.unicode={
@@ -2519,7 +2499,17 @@ zzz.api.tieba={
         short.text = zzz.get.id("ueditor_replace");
         short.button = zzz.get.cls("ui_btn ui_btn_m j_submit poster_submit")[0];
         short.posts = [];
+        zzz.api.tieba.getData();
         zzz.api.tieba.analyze();
+    },
+    getData:function(){
+        var short=zzz.value.tieba;
+        if(!window.PageData) return;
+        short.forum=PageData.forum.forum_name;
+        short.fid=PageData.forum.forum_id;
+        short.page=PageData.pager.total_page;
+        short.current=PageData.pager.cur_page;
+        short.pid=zzz.browser.path.slice(3);
     },
     analyze:function(){
         var short=zzz.value.tieba.posts;
@@ -2629,6 +2619,11 @@ zzz.api.tieba={
         }
         document.execCommand("copy");
         document.body.removeChild(copyNode);
+    },
+    convertImg:function(url){
+        var short=zzz.value.tieba;
+        var new_url="http://tieba.baidu.com/photo/p?kw=" + zzz.code.path.encode(short.forum) + "&flux=1&tid=" + short.pid + "&pic_id=" + url.slice(url.lastIndexOf('/')+1,url.lastIndexOf(".")) + "&pn="+short.current+"&fp=2&see_lz=" + (short.see_lz||"0");
+        return new_url;
     }
 };
 zzz.structure={
@@ -2682,132 +2677,258 @@ zzz.structure={
     }
 };
 zzz.api.render={
-    func:{
-        bold:function (name,param,text) {
-            return "<b>"+text+"</b>";
-        },
-        italic:function (name,param,text) {
-            return "<i>"+text+"</i>";
-        },
-        underline:function (name,param,text) {
-            return "<u>"+text+"</u>";
-        },
-        sub:function (name,param,text) {
-            return "<sub>"+text+"</sub>";
-        },
-        sup:function (name,param,text) {
-            return "<sup>"+text+"</sup>";
-        },
-        del:function (name,param,text) {
-            return "<del>"+text+"</del>";
-        },
-        paragraph:function (name,param,text) {
-            return "<p>"+text+"</p>";
-        }
-    },
-    tag:{
-        b:"bold",
-        bold:"bold",
-        u:"underline",
-        underline:"underline",
-        i:"italic",
-        italic:"italic",
-        q:"quote",
-        quote:"quote",
-        pre:"pre",
-        func:"function",
-        d:"del",
-        del:"del",
-        p:"paragraph",
-        paragraph:"paragraph",
-        color:"color",
-        class:"cls",
-        classname:"cls",
-        img:"image",
-        image:"image",
-        t:"tab",
-        uni:"unicode",
-        unicode:"unicode",
-        url:"url",
-        link:"url",
-        big:"big",
-        small:"small",
-        size:"size",
-        sz:"size",
-        align:"align",
-        hover:"event",
-        click:"event",
-        footnote:"footnote",
-        endnote:"endnote"
-    },
-    toHTMLText:function (text) {
-        if(!(typeof text==="string")) return "{invalid string}";
-        var returnTextArray=zzz.structure.stack(),current=zzz.structure.stack();
-        var stacks={
-            paragraph:zzz.structure.queue()
-        },data={};
-        current.push("paragraph");
-        var length=text.length;
-        var i=0,text_left_index=0,text_right_index=0,char="";
-        var safe_command_length=100;
-        while(i<length){
-            char=text[i];
-            if(char==="\n"){
-                text_right_index=i;
-                let currentCommand=current.top();
-                if(!currentCommand||(currentCommand&&currentCommand==="paragraph")) returnTextArray.push(zzz.api.render.func[currentCommand](null,null,text.slice(text_left_index,text_right_index)));
-                text_left_index=i+1;
+    text:"#[className1][attr1=val1][style=fontSize:2em]\ntext1\n#[follow][classFollow]\ntext2",
+    readCommand:function(text){
+        var i=zzz.string.find(text,"\\[",0),j;
+        var command={};
+        var times=0,maxTimes=100;
+        while(i!==-1){
+            times++;
+            if(maxTimes<times) break;
+            j=zzz.string.find(text,"]",i+1);
+            if(j===-1){
+                console.log("cannot find ] in text"+text);
+                return;
             }
-            else if(char==="["){
-                //read command
-                let cmd_left=i+1,cmd_right=i+1,command="",param="",isTag=false,isReturn=false,temp_char="";
-                for(;cmd_right-cmd_left<safe_command_length&&cmd_right<length;cmd_right++){
-                    temp_char=text[cmd_right];
-                    if(temp_char==="]"||temp_char===" ") break;
-                    command+=temp_char;
+            let cmd=text.slice(i+1,j);
+            //if pure command
+            let index=cmd.indexOf("=");
+            if(index===-1){
+                if(cmd==="block"){}
+                else if(cmd==="follow"){
+                    command["follow"]=true;
                 }
-                if(command==="/") isReturn=true;
-                else if(zzz.api.render.tag[command.toLowerCase()]){
-                    isTag=true;
-                    command=zzz.api.render.tag[command.toLowerCase()];
+                //if simple class
+                else{
+                    command["className"]=cmd;
                 }
-                if(isReturn){
-                    let command=stacks[current.top()].pop();
-                    if(command){
-                        text_right_index=i;
-                        let resultText=zzz.api.render.func[command[0]](command[0],command[1],text.slice(text_left_index,i));
-                        returnTextArray.push(resultText);
-                        text_left_index=i+1;
+            }
+            //format:[cmd]...
+            else if(cmd[0]==="["){
+
+            }
+            //normal case
+            else{
+                let attribute=cmd.slice(0,index),value=cmd.slice(index+1);
+                if(attribute==="style"){
+                    //format:[style=backgroundColor:rgba(1,1,1,0);filter:opacity(0.5) contrast(5);]
+                    if(!command.style) command["style"]={};
+                    zzz.addAttr(command.style,this.splitCSSText(value));
+                }
+                //other attributes
+                else{
+                    if(!command.attribute) command.attribute={};
+                    command.attribute[attribute]=value;
+                }
+            }
+            i=zzz.string.find(text,"\\[",j+1);
+        }
+        return command;
+    },
+    stringifyAttribute:function(key,value){
+        return " "+key+"='"+value+"'";
+    },
+    splitCSSText:function(text){
+        var result={};
+        for(let j of text.split(";")){
+            let k=j.indexOf(":"),key=j.slice(0,k).trim(),val=j.slice(k+1).trim();
+            if(key) result[key]=val;
+        }
+        return result;
+    },
+    createTag:function(command){
+        var defaultTag=["<p>","</p>"];
+        if(!command) return defaultTag;
+        //start create <tag>
+        var begin="<",end="",attr={};
+        //default tag is <p>
+        begin+=command.tag||"p";
+        //add class to tag
+        if(command.className) attr["class"]=command.className;
+        //add attributes to tag
+        for(let i in attr){
+            begin+=this.stringifyAttribute(i,attr[i]);
+        }
+        if(command.attribute)
+            for(let i in command.attribute){
+                begin+=this.stringifyAttribute(i,command.attribute[i]);
+            }
+        //add style to tag
+        if(command.style){
+            let css="";
+            for(let key in command.style){
+                let val=command.style[key];
+                css+=zzz.string.line(key)+":"+val+";"
+            }
+            begin+=this.stringifyAttribute("style",css)
+        }
+        if(command.tag==="img"){
+            begin+="/";
+        }
+        else{
+            end="</"+(command.tag||"p")+">";
+        }
+        return [begin+">",end];
+    },
+    concatTags:function(tagSeries){
+        let begin="",end="";
+        for(let i of tagSeries){
+            begin+=i[0];
+            end=i[1]+end;
+        }
+        return [begin,end];
+    },
+    readText:function(text){
+        var i=-1, j=-1,i2=-1,j2=-1,k,cmd="",features={},tags=[];
+        var translation="";
+        var times=100;
+        //pre-run
+        i=zzz.string.find(text,"\\[",j2+1);
+        if(i===-1) i=text.length;
+        translation+=text.slice(0,i);
+        i--;
+        j=j2=i;
+        while(times--){
+            if(!times){
+                console.log("too many turns in zzz.api.render.readText");
+                break;
+            }
+            //move i and j
+            i2=i;
+            j2=j;
+            i=zzz.string.find(text,"\\[",j2+1);
+            j=zzz.string.find(text,"]",j2+1);
+            if(i===-1) i=text.length;
+            //quit
+            if(j===-1) break;
+            //copy text in between
+            //if(i!==-1) translation+=text.slice(j2+1,i);
+            //command
+            if(i!==text.length&&i<j){
+                cmd=text.slice(i+1,j);
+                let index=cmd.indexOf("=");
+                if(index===-1) index=cmd.length;
+                let key=cmd.slice(0,index),val=cmd.slice(index+1);
+                //style
+                if(key==="style"&&val){
+                    tags.push(this.createTag({tag:"font",style:this.splitCSSText(val)}));
+                }
+                //footnote
+                else if(key==="footnote"){
+                    tags.push(this.createTag({tag:"span",style:{display:"none"}}));
+                }
+                else if(key&&val){
+                    let attr={};
+                    attr[key]=val;
+                    tags.push(this.createTag({tag:"span",attribute:attr}));
+                }
+                //tag
+                else if((new Set(["i","u","b","sub","sup","del"])).has(key))
+                    tags.push(this.createTag({tag:key}));
+                //plain text
+                else translation+=text.slice(i,j+1);
+            }
+            //tag text end
+            else if(j!==-1){
+                if(tags){
+                    let tagText = this.concatTags(tags);
+                    translation += tagText[0] + text.slice(j2 + 1, j)+tagText[1];
+                    tags = [];
+                    //copy the omitted text
+                    translation+=text.slice(j+1,i);
+                }
+                else translation+=text.slice(j2+1,i);
+                i--;
+                if(i>j) j=i;
+            }
+        }
+        //copy the text left
+        if(tags) {
+            let tagText = this.concatTags(tags);
+            translation += tagText[0] + text.slice(j2+1) + tagText[1];
+        }
+        else translation+=text.slice(j2+1);
+        return translation;
+    },
+    stringify:function(features,text){
+        var tag = this.createTag(features);
+        //in case the paragraph is empty.
+        return tag[0]+(text||" ")+tag[1];
+    },
+    toHTML:function (text) {
+        //slice by \n
+        var paragraph=text.split("\n");
+        var i=0;//index
+        var result="";
+        var cmd={},last={};
+        var tag=["",""];
+        for(;i<paragraph.length;i++){
+            //if it is command
+            //regulation:(1)#...........(2)//.........
+            if(paragraph[i][0]==="#"||paragraph[i].slice(0,2)==="//"){
+                cmd=this.readCommand(paragraph[i]);
+                //block
+                if(paragraph[i][1]==="#"||paragraph[i].slice(2,4)==="//"){
+                    if(paragraph[i].slice(0,4)==="##[/") continue;
+                    let end=i+1,depth=1,tempText="";
+                    while(depth&&end<paragraph.length){
+                        if(paragraph[end].slice(0,3)==="##[") depth+=paragraph[end][3]==="/"?-1:1;
+                        tempText+=paragraph[end]+"\n";
+                        end++;
                     }
-                    i=cmd_right;
+                    let blockText=this.toHTML(tempText);
+                    if(!cmd.tag) cmd.tag="div";
+                    if(!cmd.follow) last=cmd;
+                    else zzz.addAttr(last,cmd);
+                    result+=this.stringify(cmd,blockText);
+                    //correct the index
+                    i=end-1;
+                    //erase cmd
+                    cmd={};
                 }
-                else if(isTag){
-                    current.push(command);
-                    if(!stacks[command]) stacks[command]=zzz.structure.stack();
-                    stacks[command].push([command,param]);
-                    i=cmd_right;
-                }
             }
-            else if(char==="]"){
-                console.log("] detected");
+            //if it is text
+            else{
+                let translation=this.readText(paragraph[i]);
+                //execute the cmd .
+                //and inject text.
+                //clear command
+                if(!cmd.follow) last=cmd;
+                else zzz.addAttr(last,cmd);
+                result+=this.stringify(cmd,translation);
+                //erase current features
+                cmd={};
             }
-            else if(char==="<"){
-
-            }
-            else if(char===">"){
-
-            }
-            i++;
         }
-        if(text_left_index<i){
-            returnTextArray.push(zzz.api.render.func[zzz.api.render.tag[current.top()]||"paragraph"](null,null,text.slice(text_left_index,i)));
-        }
-        return returnTextArray.array.join("");
+        return result;
     },
-    read:function (text,parent) {
-        if(!text) return;
-        if(!parent) parent=document.body;
-        parent.innerHTML+=zzz.api.render.toHTMLText(text);
+    renderFromFile:function(src){
+        //requirement:const essay={...,content:"..."}
+        //id:content
+        var xhr=zzz.fetch.ajax({url:src,async:false});
+        zzz.eval(xhr.responseText);
+        try {
+            zzz.create("p", {innerHTML: essay.title, className: "title"}, null, zzz.get.id("content"));
+            zzz.create("p", {innerHTML: essay.author, className: "author"}, null, zzz.get.id("content"));
+            zzz.get.id("content").innerHTML += zzz.api.render.toHTML(essay.content);
+        }
+        catch(e){
+            console.log(e);
+        }
+    },
+    renderFromEssay:function (essay) {
+        try {
+            if(essay.title) zzz.create("div", {innerHTML: this.toHTML(essay.title), className: "title"}, null, zzz.get.id("content"));
+            if(essay.author) zzz.create("div", {innerHTML: this.toHTML(essay.author), className: "author"}, null, zzz.get.id("content"));
+            if(essay.content) zzz.get.id("content").innerHTML += zzz.api.render.toHTML(essay.content);
+        }
+        catch(e){
+            console.log(e);
+        }
+    },
+    adjustFontSize:function () {
+        let fontSize=zzz.browser.screenX/40;
+        zzz.get.id("content").style.fontSize=fontSize+"px";
     }
 };
 
@@ -2938,12 +3059,22 @@ zzz.api.download={
             if(result){
                 let text="";
                 for(let k of result){
-                    text+="<p>"+index+"<a href='"+k+"' download>"+k+"</a></p>";
+                    //text+="<p>"+index+"<a href='"+k+"' download>"+k+"</a></p>";
+                    text+="<p onclick='zzz.api.download.downloadByLocalMachine(this)'>"+k+"</p>"
                     index++;
                 }
                 zzz.get.id(zzz.api.download.uniqueName).innerHTML=text;
             }
         }
+    },
+    downloadByLocalMachine:function(node){
+        var name=prompt("name=");
+        var url=node.innerText;
+        var isTieba=zzz.api.tieba.isTieba;
+        if(isTieba) url=zzz.api.tieba.convertImg(url);
+        var send_url=zzz.path.merge("http://localhost:5000/",{url:url,name:name||"",isTieba:isTieba});
+        console.log(send_url);
+        zzz.fetch.get(send_url);
     }
 };
 //notification API
@@ -2986,12 +3117,11 @@ zzz.browser.notification={
         }
     }
 };
-zzz.analyze=function(){
-  window._hmt = window._hmt || [];
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?69e7724fb5948af2da6599be3a6b08e5";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
+zzz.api.tongji={
+    baidu:function () {
+        window._hmt = [];
+        zzz.fetch.js("https://hm.baidu.com/hm.js?69e7724fb5948af2da6599be3a6b08e5");
+    }
 };
 //overall initialize
 zzz.init=function () {
@@ -3003,7 +3133,14 @@ zzz.init=function () {
     zzz.fetch.init();
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
+    if(zzz.browser.uri.search("zzzzzzz")!==-1) zzz.api.tongji.baidu();
     zzz.inited=true;
-	zzz.analyze();
-	};
-setTimeout(zzz.init,100);
+    try{
+        window.zzzloaded&&window.zzzloaded();
+        document.zzzloaded&&document.zzzloaded();
+    }
+    catch (e) {
+
+    }
+};
+zzz.init();
