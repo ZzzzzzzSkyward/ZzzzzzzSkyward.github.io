@@ -2677,7 +2677,6 @@ zzz.structure={
     }
 };
 zzz.api.render={
-    text:"#[className1][attr1=val1][style=fontSize:2em]\ntext1\n#[follow][classFollow]\ntext2",
     readCommand:function(text){
         var i=zzz.string.find(text,"\\[",0),j;
         var command={};
@@ -2779,7 +2778,7 @@ zzz.api.render={
         return [begin,end];
     },
     readText:function(text){
-        var i=-1, j=-1,i2=-1,j2=-1,k,cmd="",features={},tags=[];
+        var i=-1, j=-1,i2=-1,j2=-1,k,cmd="",features={},tags=[],overwrite="";
         var translation="";
         var times=100;
         //pre-run
@@ -2809,13 +2808,34 @@ zzz.api.render={
                 let index=cmd.indexOf("=");
                 if(index===-1) index=cmd.length;
                 let key=cmd.slice(0,index),val=cmd.slice(index+1);
+                //end
+                if(key==="/"){
+                    if(tags){
+                        let tagText = this.concatTags(tags);
+                        translation += tagText[0] + (overwrite?overwrite:text.slice(j2 + 1, i))+tagText[1];
+                        tags = [];
+                        overwrite=false;
+                    }
+                    else translation+=text.slice(j2+1,i);
+                    i=j;
+                }
+                //font size
+                else if(key==="size"){
+                    tags.push(this.createTag({tag:"font",style:{fontSize:val+val.search(/[empxn]/)===-1?"em":""}}));
+                }
+                //hyperlink,a tag
+                else if(key==="link"){
+                    tags.push(this.createTag({tag:"a",attribute:{href:val}}));
+                }
                 //style
-                if(key==="style"&&val){
+                else if(key==="style"&&val){
                     tags.push(this.createTag({tag:"font",style:this.splitCSSText(val)}));
                 }
                 //footnote
                 else if(key==="footnote"){
-                    tags.push(this.createTag({tag:"span",style:{display:"none"}}));
+                    let footnoteindex=this.footnote.add(val||" ");
+                    overwrite="["+footnoteindex[0]+"]";
+                    tags.push(this.createTag({tag:"a",attribute:{href:"#"+footnoteindex[1],class:"footnoteinnerindex"}}));
                 }
                 else if(key&&val){
                     let attr={};
@@ -2823,7 +2843,7 @@ zzz.api.render={
                     tags.push(this.createTag({tag:"span",attribute:attr}));
                 }
                 //tag
-                else if((new Set(["i","u","b","sub","sup","del"])).has(key))
+                else if((new Set(["i","u","b","sub","sup","del","pre"])).has(key))
                     tags.push(this.createTag({tag:key}));
                 //plain text
                 else translation+=text.slice(i,j+1);
@@ -2832,8 +2852,9 @@ zzz.api.render={
             else if(j!==-1){
                 if(tags){
                     let tagText = this.concatTags(tags);
-                    translation += tagText[0] + text.slice(j2 + 1, j)+tagText[1];
+                    translation += tagText[0] + (overwrite?overwrite:text.slice(j2 + 1, j))+tagText[1];
                     tags = [];
+                    overwrite=false;
                     //copy the omitted text
                     translation+=text.slice(j+1,i);
                 }
@@ -2855,9 +2876,7 @@ zzz.api.render={
         //in case the paragraph is empty.
         return tag[0]+(text||" ")+tag[1];
     },
-    toHTML:function (text) {
-        //slice by \n
-        var paragraph=text.split("\n");
+    toHTML:function (paragraph) {
         var i=0;//index
         var result="";
         var cmd={},last={};
@@ -2870,13 +2889,13 @@ zzz.api.render={
                 //block
                 if(paragraph[i][1]==="#"||paragraph[i].slice(2,4)==="//"){
                     if(paragraph[i].slice(0,4)==="##[/") continue;
-                    let end=i+1,depth=1,tempText="";
+                    let end=i+1,depth=1,blockParagraph=[];
                     while(depth&&end<paragraph.length){
                         if(paragraph[end].slice(0,3)==="##[") depth+=paragraph[end][3]==="/"?-1:1;
-                        tempText+=paragraph[end]+"\n";
+                        blockParagraph.push(paragraph[end]);
                         end++;
                     }
-                    let blockText=this.toHTML(tempText);
+                    let blockText=this.toHTML(blockParagraph);
                     if(!cmd.tag) cmd.tag="div";
                     if(!cmd.follow) last=cmd;
                     else zzz.addAttr(last,cmd);
@@ -2902,33 +2921,71 @@ zzz.api.render={
         }
         return result;
     },
-    renderFromFile:function(src){
+    file:function(src){
         //requirement:const essay={...,content:"..."}
         //id:content
         var xhr=zzz.fetch.ajax({url:src,async:false});
         zzz.eval(xhr.responseText);
+        this.essay(window.essay);
+    },
+    essay:function (essay) {
         try {
-            zzz.create("p", {innerHTML: essay.title, className: "title"}, null, zzz.get.id("content"));
-            zzz.create("p", {innerHTML: essay.author, className: "author"}, null, zzz.get.id("content"));
-            zzz.get.id("content").innerHTML += zzz.api.render.toHTML(essay.content);
+            let titleText=this.text(essay.title);
+            if(essay.title) zzz.create("div", {innerHTML: titleText, className: "title"}, null, zzz.get.id("content"));
+            if(essay.author) zzz.create("div", {innerHTML: this.text(essay.author), className: "author"}, null, zzz.get.id("content"));
+            let renderedText=this.text(essay.content);
+            if(essay.content) zzz.get.id("content").innerHTML += renderedText;
+            if(titleText.footnote) zzz.get.id("content").innerHTML += titleText.footnote||"";
+            zzz.get.id("content").innerHTML += renderedText.footnote||"";
         }
         catch(e){
             console.log(e);
         }
     },
-    renderFromEssay:function (essay) {
-        try {
-            if(essay.title) zzz.create("div", {innerHTML: this.toHTML(essay.title), className: "title"}, null, zzz.get.id("content"));
-            if(essay.author) zzz.create("div", {innerHTML: this.toHTML(essay.author), className: "author"}, null, zzz.get.id("content"));
-            if(essay.content) zzz.get.id("content").innerHTML += zzz.api.render.toHTML(essay.content);
+    text:function(str,cancelNote){
+        if(!str){
+            console.log("no text given to zzz.render.text");
+            return "";
         }
-        catch(e){
-            console.log(e);
-        }
+        var uid=zzz.random.string(10);
+        if(!cancelNote) this.footnote=this.createFootnote?this.createFootnote(uid):{};
+        var renderedText=new String(this.toHTML(str.split("\n")));
+        if(!cancelNote&&this.footnote.count) renderedText.footnote=this.footnote.render();
+        return renderedText;
     },
     adjustFontSize:function () {
-        let fontSize=zzz.browser.screenX/30;
+        let fontSize=zzz.browser.screenX/40;
         zzz.get.id("content").style.fontSize=fontSize+"px";
+    },
+    createFootnote:function (uid) {
+        return {
+            count:0,
+            uid:uid,
+            note:[],
+            rd:function (t){return zzz.api.render.text(t,true)},
+            link:function(index){
+                if(index===undefined) index=this.count;
+                return "<a class='footnoteindex' name='"+this.uid+"footnote"+index+"'>"+index+"</a>";
+            },
+            href:function(index){
+                if(index===undefined) index=this.count;
+                return this.uid+"footnote"+index;
+            },
+            add:function (noteText) {
+                this.note.push(this.rd(noteText));
+                this.count++;
+                return [this.count,this.href()];
+            },
+            render:function () {
+                var index=0;
+                var result="";
+                for(let i of this.note){
+                    index++;
+                    result+="<div class='footnoteitem'>"+this.link(index)+i+"</div>";
+                }
+                return result;
+            }
+        }
     }
 };
 
@@ -3133,7 +3190,7 @@ zzz.init=function () {
     zzz.fetch.init();
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
-    if(zzz.browser.uri.search("zzzzzzz")!==-1) zzz.api.tongji.baidu();
+    if(zzz.browser.uri.search(/localhost|file/)===-1) zzz.api.tongji.baidu();
     zzz.inited=true;
     try{
         window.zzzloaded&&window.zzzloaded();
