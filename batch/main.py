@@ -11,6 +11,7 @@ for i in script_list:
     print(to_file(i))
     try:
         os.system("chmod 766 ./batch/*")
-        os.system(to_file(i))
+        os.system("python "+to_file(i))
     except Exception as e:
+        os.system("python32 "+to_file(i))
         print(e)
