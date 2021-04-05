@@ -21,4 +21,5 @@ jobs:
         env:
           BDUSS: ${{ secrets.BDUSS }}
         run: python batch/tieba.py
+      - name: 'gla'
         run: python batch/GlaDOS.py
