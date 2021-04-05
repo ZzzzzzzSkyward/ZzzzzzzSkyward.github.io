@@ -4,7 +4,7 @@ import os
 script_list=("tieba","GlaDOS")
 def to_file(src):
     if(src.find(".py")==-1):
-        return src+".py"
+        return "batch/"+src+".py"
     else:
         return src
 for i in script_list:
