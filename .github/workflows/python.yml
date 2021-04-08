@@ -8,15 +8,15 @@ jobs:
   tieba_sign:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Checkout codes'
+      - name: 'check codes'
         uses: actions/checkout@v2
-      - name: 'Set python'
+      - name: 'set python'
         uses: actions/setup-python@v1
         with:
           python-version: '3.6'
-      - name: 'Install dependencies'
+      - name: 'install dependencies'
         run: python -m pip install --upgrade requests
-      - name: 'Start Sign'
+      - name: 'start python'
         env:
           BDUSS: ${{ secrets.BDUSS }}
         run: python batch/main.py
