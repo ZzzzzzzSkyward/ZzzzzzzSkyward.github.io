@@ -1,0 +1,14 @@
+name: 'ngrok'
+
+on:
+  push:
+    master
+
+jobs:
+  ngrok start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'check codes'
+        uses: actions/checkout@v2
+      - name: 'start ngrok'
+        run: sudo batch/ngrok.sh
