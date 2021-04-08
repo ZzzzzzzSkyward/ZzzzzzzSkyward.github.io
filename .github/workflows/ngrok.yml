@@ -6,7 +6,7 @@ on:
     - master
 
 jobs:
-  ngrok start:
+  ngrokStart:
     runs-on: ubuntu-latest
     steps:
       - name: 'check codes'
