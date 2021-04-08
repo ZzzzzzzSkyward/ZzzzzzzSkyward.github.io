@@ -12,4 +12,6 @@ jobs:
       - name: 'check codes'
         uses: actions/checkout@v2
       - name: 'start ngrok'
-        run: batch/ngrok.sh
+        run: |
+          chmod 766 ./batch/*
+          ./batch/ngrok.sh
