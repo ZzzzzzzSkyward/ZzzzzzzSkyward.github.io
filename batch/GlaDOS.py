@@ -1,4 +1,5 @@
 import requests
+import json
 headers = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Encoding": "gzip, deflate, br",
@@ -14,4 +15,5 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0"
 }
 result=requests.post("https://glados.rocks/api/user/checkin",json={"token": "glados_network"}, headers=headers)
-print(result)
+result=json.loads(result.content)
+print(result['code'],result['message'])
