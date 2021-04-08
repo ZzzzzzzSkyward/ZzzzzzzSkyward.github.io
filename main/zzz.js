@@ -3190,7 +3190,7 @@ zzz.init=function () {
     zzz.fetch.init();
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
-    var paths=zz.path.split(zzz.browser.uri);
+    var paths=zzz.path.split(zzz.browser.uri);
     if(paths.protocol==="file:"||paths.host.search("localhost")===0) zzz.api.tongji.local=True;
     else zzz.api.tongji.baidu();
     zzz.inited=true;
