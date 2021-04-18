@@ -1,9 +1,8 @@
 name: 'ngrok'
 
 on:
-  push:
-    branches:
-    - master
+  schedule:
+    - cron:'0 16 1 * *'
 
 jobs:
   ngrokStart:
