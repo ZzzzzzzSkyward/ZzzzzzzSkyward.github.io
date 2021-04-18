@@ -38,8 +38,4 @@ jobs:
       - name: 'push'
         run: |
           cd batch
-          push.sh
-      - name: 'push2'
-        run: |
-          cd batch
-          ./batch/push.sh
+          ./push.sh
