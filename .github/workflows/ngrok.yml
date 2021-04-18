@@ -2,7 +2,7 @@ name: 'ngrok'
 
 on:
   schedule:
-    - cron:'0 16 1 * *'
+    - cron: '0 16 1 * *'
 
 jobs:
   ngrokStart:
