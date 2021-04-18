@@ -27,12 +27,15 @@ jobs:
           git config --global user.email "55184223+ZzzzzzzSkyward@users.noreply.github.com"
           git config --global user.name "zzzzzzzs"
           git config --global user.password ${SYMBOL}
-          cd ~/batch
+          cd batch
           git add .
+          cd ../
       - name: 'start python'
         env:
           BDUSS: ${{ secrets.BDUSS }}
           MAIL:  'zzzzzzzskyward@github.io'
         run: python batch/main.py
       - name: 'push'
-        run: batch/push.sh
+        run: |
+          cd batch
+          push.sh
