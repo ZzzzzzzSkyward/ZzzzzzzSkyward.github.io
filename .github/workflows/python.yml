@@ -20,7 +20,19 @@ jobs:
         run: |
           python -m pip install --upgrade requests
           python -m pip install brotli
+      - name: 'git'
+        env:
+          SYMBOL: ${{ secrets.SYMBOL}}
+        run: |
+          git config --global user.email "55184223+ZzzzzzzSkyward@users.noreply.github.com"
+          git config --global user.name "zzzzzzzs"
+          git config --global user.password ${SYMBOL}
+          cd ~/batch
+          git add .
       - name: 'start python'
         env:
           BDUSS: ${{ secrets.BDUSS }}
+          MAIL:  'zzzzzzzskyward@github.io'
         run: python batch/main.py
+      - name: 'push'
+        run: batch/push.sh
