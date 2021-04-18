@@ -1,6 +1,7 @@
 name: 'Python Works'
 
 on:
+  push: [master]
   schedule:
     - cron: '5 16,22 * * *'
 
