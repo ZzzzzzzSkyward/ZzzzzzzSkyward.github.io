@@ -21,4 +21,5 @@ headers = {
 }
 result=requests.post("https://glados.rocks/api/user/checkin",json={"token": "glados_network"}, headers=headers)
 result=json.loads(result.content)
-logg(result['code'],result['message'])
+logg(result['code'])
+logg(result['message'])
