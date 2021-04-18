@@ -27,7 +27,7 @@ jobs:
           git config --global user.email "55184223+ZzzzzzzSkyward@users.noreply.github.com"
           git config --global user.name "zzzzzzzs"
           git config --global user.password ${SYMBOL}
-          cd batch
+          cd log
           git add .
           cd ../
       - name: 'start python'
@@ -37,5 +37,5 @@ jobs:
         run: python batch/main.py
       - name: 'push'
         run: |
-          cd batch
+          cd log
           ./push.sh

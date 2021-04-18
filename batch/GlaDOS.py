@@ -1,5 +1,10 @@
 import requests
 import json
+log_href='./log/log.txt'
+log_file=open(log_href,'a' if os.path.exists(log_href) else 'w')
+def logg(string):
+    print(string)
+    log_file.write(string+'\n')
 headers = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Encoding": "gzip, deflate, br",
@@ -16,4 +21,4 @@ headers = {
 }
 result=requests.post("https://glados.rocks/api/user/checkin",json={"token": "glados_network"}, headers=headers)
 result=json.loads(result.content)
-return result['code'],result['message']
+logg(result['code'],result['message'])

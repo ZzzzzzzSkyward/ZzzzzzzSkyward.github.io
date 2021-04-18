@@ -2,7 +2,7 @@
 import time
 import os
 script_list=("tieba","GlaDOS")
-log_href='batch/log.txt'
+log_href='./log/log.txt'
 log_file=open(log_href,'a' if os.path.exists(log_href) else 'w')
 def logg(string):
     print(string)
