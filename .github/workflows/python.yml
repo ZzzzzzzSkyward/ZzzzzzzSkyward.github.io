@@ -38,4 +38,4 @@ jobs:
       - name: 'push'
         run: |
           cd log
-          ./push.sh
+          ../batch/push.sh
