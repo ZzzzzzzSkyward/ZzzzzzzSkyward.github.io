@@ -3,7 +3,7 @@ import json
 import os
 import time
 class logg:
-    def init(self,href):
+    def __init__(self,href):
         self.href=href
         self.file=open(self.href,'a' if os.path.exists(self.href) else 'w')
         self('--start log')
@@ -23,7 +23,7 @@ class logg:
                 print(i)
                 self.file.write(str(i)+'\n')
     def time(self):
-        now=time.time()
+        now=time.localtime(time.time())
         self(time.strftime("%Y-%m-%d  %H:%M:%S",now))
     def __del__(self):
         self('--end log')
