@@ -4,7 +4,7 @@ log_href='../log/log.txt'
 log_file=open(log_href,'a' if os.path.exists(log_href) else 'w')
 def logg(string):
     print(string)
-    log_file.write(string+'\n')
+    log_file.write(str(string)+'\n')
 headers = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Encoding": "gzip, deflate, br",
