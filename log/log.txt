@@ -72,3 +72,45 @@ batch/tieba.py
 batch/GlaDOS.py
 --end log
 2021-04-23  01:45:15
+--start log
+2021-04-23  16:51:42
+--info--
+开始签到第0个用户
+--info--
+获取tbs开始
+--info--
+获取tbs结束
+--info--
+获取关注的贴吧开始
+--info--
+获取关注的贴吧结束
+--info--
+开始签到贴吧：缘之空
+--info--
+开始签到贴吧：化学
+--info--
+开始签到贴吧：千与千寻
+--info--
+开始签到贴吧：帆布鞋
+--info--
+开始签到贴吧：八页
+--info--
+完成第0个用户签到
+--info--
+所有用户签到结束
+--end log
+2021-04-23  16:51:46
+--start log
+2021-04-23  16:51:46
+code=
+0
+message=
+Checkin! Get 1 Day
+--end log
+2021-04-23  16:51:47
+--start log
+2021-04-23  16:51:42
+batch/tieba.py
+batch/GlaDOS.py
+--end log
+2021-04-23  16:51:47
