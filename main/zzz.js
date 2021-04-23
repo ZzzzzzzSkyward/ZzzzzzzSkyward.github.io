@@ -3167,7 +3167,7 @@ zzz.browser.notification={
         document.title=title;
         if(elapse){
             setTimeout(function () {
-                var title=zzz.browser.notification.previousNotification.top()
+                var title=zzz.browser.notification.previousNotification.top();
                 if(title) document.title=title;
                 zzz.browser.notification.previousNotification.pop();
             },elapse);
@@ -3191,8 +3191,8 @@ zzz.init=function () {
     zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
     zzz.api.update.current["zzz"]=zzz.version;
     var paths=zzz.path.split(zzz.browser.uri);
-    if(paths.protocol==="file:"||paths.host.search("localhost")===0) zzz.api.tongji.local=True;
-    else zzz.api.tongji.baidu();
+    if(paths.protocol==="file:"||paths.host.search("localhost")===0) zzz.api.tongji.local=true;
+    else if(!zzz.api.tongji.local) zzz.api.tongji.baidu();
     zzz.inited=true;
     try{
         window.zzzloaded&&window.zzzloaded();
