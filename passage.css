@@ -13,7 +13,7 @@
 .hidden{
   display:none;
 }
-#content p{
+p{
   margin:0;
   padding:0;
   text-indent:2em;
