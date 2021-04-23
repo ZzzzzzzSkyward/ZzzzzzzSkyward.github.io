@@ -3,7 +3,7 @@ import json
 import os
 import time
 class logg:
-    default_file=['./log/log.txt']
+    default_file='./log/log.txt'
     def __init__(self,href):
         self.href=href
         try:
