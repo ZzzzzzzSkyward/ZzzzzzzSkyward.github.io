@@ -2,12 +2,8 @@
 <head>
     <title>昨日青空：印刻流年</title>
     <script>
-        var init=function () {
-            if(!window.zzz){
-                setTimeout(init,1000);
-                return;
-            }
-            window.zzz.fetch.js("../main/zdata.js");
+        document.zzzinit=function () {
+            zzz.fetch.js("../main/zdata.js");
             setTimeout(init_next,1000);
         };
         var formatit=function (i) {
@@ -21,7 +17,7 @@
             if(!page) page="1";
             else page=zzz.toNum(page);
             //len is the length of pictures
-            var len=[10,6,6,6,9,9,7,7,9,14,11,10,6,6,10,4,4,4,5,4,4,3,4,6,3,4,10,10,16,15,19];
+            var len=[10,6,6,6,9,9,7,7,9,14,11,10,6,6,10,4,4,4,5,4,4,3,4,6,3,4,10,10,16,15,19,8];
             if(page<1||page>len.length){
                 document.body.innerHTML+="<p>一共1-"+len.length+"页，请输入正确页数</p>";
                 return;
@@ -46,10 +42,8 @@
         border: 0;
     }
 </style>
-<p id="hidden">昨日青空:印刻流年的漫画，请修改网址阅读，一共是1-31页，网址为https://zzzzzzzskyward.github.io/ykln/?pn=1。最近更新时间：2021年2月</p>
+<p id="hidden">《昨日青空:印刻流年》的漫画，请修改网址阅读，网址为https://zzzzzzzskyward.github.io/ykln/?pn=1。最近更新时间：2021年4月</p>
 <script src="../main/zzz.js"></script>
-<script>
-    init();
-</script>
+<script src="../main/zdata.js"></script>
 </body>
 </html>
