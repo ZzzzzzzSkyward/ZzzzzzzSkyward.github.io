@@ -3,9 +3,14 @@ import json
 import os
 import time
 class logg:
+    default_file=['./log/log.txt']
     def __init__(self,href):
         self.href=href
-        self.file=open(self.href,'a' if os.path.exists(self.href) else 'w')
+        try:
+            self.file=open(self.href,'a' if os.path.exists(self.href) else 'w')
+        except:
+            self.href=self.default_file
+            self.file=open(self.href,'a' if os.path.exists(self.href) else 'w')
         self('--start log')
         self.time()
     def print(self,string=None,*strings):
