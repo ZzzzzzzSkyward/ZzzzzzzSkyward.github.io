@@ -3177,7 +3177,7 @@ zzz.browser.notification={
 zzz.api.tongji={
     baidu:function () {
         window._hmt = [];
-        zzz.fetch.js("https://hm.baidu.com/hm.js?69e7724fb5948af2da6599be3a6b08e5");
+        zzz.fetch.js("http://www.zzzs.ml/main/baidu.js");
     }
 };
 //overall initialize
