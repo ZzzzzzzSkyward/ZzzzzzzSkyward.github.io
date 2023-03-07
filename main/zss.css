@@ -1,0 +1,124 @@
+/*
+version 1.0
+author zzzzzzzs
+ */
+/*
+选择器：[title=ttt]选择title="ttt"
+[title~=ttt]选择title="12 ff ttt"
+[title|=ttt]选择title="ttt-dfdf"（开头ttt）
+
+
+
+
+ */
+/*
+PART 1 basics
+*/
+body {
+    overflow: hidden;
+}
+
+.hidden {
+    visibility: hidden;
+    opacity: 0;
+    display: block;
+    position: fixed;
+}
+#main{
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("image/morya-panima-lastmelody-a piece of memory.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+/*
+PART 2 page
+*/
+.standard_font{
+    font-family: "Times New Roman","Century","汉仪中宋简";
+}
+.search_bar{
+    display: block;
+    border-color: black;
+    border-width: 0px;
+    border-style: solid;
+    background-color: rgba(59, 59, 59, 0.24);
+    position: relative;
+    left:25%;
+    top:35%;
+    min-height: 30px;
+    margin: 0;
+    overflow: hidden;
+    color: rgba(251, 238, 197, 0.9);
+    line-height: 1em;
+    word-wrap: break-word;
+    word-break: break-all;
+    text-shadow: 0px 0px 6px rgba(0,0,0,0.8);
+}
+.search_bar:hover{
+    filter: brightness(1.5);
+}
+.search_bar:focus{
+    outline: none;
+}
+.search_engine{
+    position: absolute;
+    width: 50%;
+    background-color: rgba(85, 12, 0, 0.73);
+    left:25%;
+    top:35%;
+    color: aliceblue;
+    font-size: 50px;
+    border: 2px solid white;
+}
+.search_engine:focus{
+    outline: none;
+}
+.enter_button{
+    position: absolute;
+    border-top: 0px solid rgba(0,0,0,0);
+    border-left: 0px solid rgba(0,0,0,0);
+    top:50%;
+    right:25%;
+    transition: all 0.1s ease;
+}
+.enter_button:hover{
+    transform:rotateZ(10deg);
+}
+.enter_button:active{
+    transform: translateX(10px);
+}
+.search_result{
+    top: 0;
+    left: 0;
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border:0;
+    margin:0;
+    padding:0;
+}
+#introduction{
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    text-align: left;
+    display: inline-block;
+    text-shadow: rgba(14,50,30,0.7) 0px 0px 5px;
+    font-size: 1em;
+    color:rgba(248,253,247,0.9);
+    overflow-y: auto;
+    overflow-x:visible;
+    height:100%;
+}
+/*
+PART 3 filter
+*/
+.smooth{
+    transition: all 1s linear;
+}

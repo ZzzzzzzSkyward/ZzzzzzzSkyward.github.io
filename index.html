@@ -1,0 +1,33 @@
+<html>
+<head>
+    <title>page</title>
+    <script>
+        if     (window.location.pathname=="/anol") {window.location.replace("./anol.html");}
+        else if(window.location.pathname=="/sanol"){window.location.replace("./sanol.html");}
+        else if(window.location.pathname=="/the-reverberation"){window.location.replace("./the-reverberation.html");}
+        var num=0;
+        var txt=[">-<","-_-","`-`","$_$","(-_-)","|_|","\\[^-^]/"];
+        function alter(eventE){eventE.innerText=txt[num++];if(num===txt.length){num=0;}}
+        function reduce(eventE){if(eventE.innerText.length>1){eventE.innerText=eventE.innerText.substr(1,(eventE.innerText.length));}}
+    </script>
+</head>
+<body>
+<div style='font-size:50px;text-align:center;position:absolute;margin:0;padding:0;top:5%;left:5%;width:90%;height:95%;line-height:1em;overflow:visible;'>
+    <p style="margin:0;">404</p>
+    <p style="margin-top:0;" onclick="alter(this);">>_<</p>
+    <div style="text-align:left;font-size:30px;line-height:0.5em;margin:0;padding-left:3em;padding-bottom:12px;border-color:red;border-width:5px;border-top-style:solid;border-bottom-style:solid;font-family:SimSun;">
+        <p onclick="location.replace('2020class/7.20.html')">白日不到處</p>
+        <p onclick='location.replace("https://disk.pku.edu.cn:443/link/37DBA8B92025600DCEFF655EB436FEC2")'>青春恰自來</p>
+        <p>苔花如米小</p>
+        <p>也學牡丹開</p>
+
+        <p style="text-align: right;">——《苔》袁枚</p>
+    </div>
+	<div style="font-size:0.5em">
+    <p>文章列表：《洛丽塔》书评：nol、anol、sanol、the-reverberation</p>
+    <p>《独行》:duxing</p>
+    <p>《规训与惩罚》摘录：gxycf、规训与惩罚（二）.png</p>
+	</div>
+</div>
+</body>
+</html>

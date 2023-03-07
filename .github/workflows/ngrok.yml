@@ -1,0 +1,16 @@
+name: 'ngrok'
+
+on:
+  schedule:
+    - cron: '0 16 1 * *'
+
+jobs:
+  ngrokStart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'check codes'
+        uses: actions/checkout@v2
+      - name: 'start ngrok'
+        run: |
+          chmod 766 ./batch/*
+          ./batch/ngrok.sh

@@ -1,0 +1,46 @@
+name: 'Python Works'
+
+on:
+  schedule:
+    - cron: '5 16,22 * * *'
+  workflow_dispatch:
+    inputs:
+      name:
+        required: false
+  check_run:
+    types: [rerequested,requested_action]
+
+jobs:
+  tieba_sign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'check codes'
+        uses: actions/checkout@v2
+      - name: 'set python'
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.10'
+      - name: 'install dependencies'
+        run: |
+          python -m pip install --upgrade requests
+          python -m pip install brotli
+      - name: 'git'
+        env:
+          PASSWORD: ${{ secrets.pwd}}
+        run: |
+          git config --global user.email "55184223+ZzzzzzzSkyward@users.noreply.github.com"
+          git config --global user.name "zzzzzzzs"
+          git config --global user.password ${PASSWORD}
+          cd log
+          git add .
+          cd ../
+          python -m pip install brotli
+      - name: 'start python'
+        env:
+          BDUSS: ${{ secrets.BDUSS }}
+          MAIL:  'zzzzzzzskyward@github.io'
+        run: python batch/main.py
+      - name: 'push'
+        run: |
+          cd log
+          ../batch/push.sh

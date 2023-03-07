@@ -1,0 +1,104 @@
+@font-face{
+  font-family:"title_font";
+  src:url('adobe-garamond-2.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+.hidden{
+  display:none;
+}
+p{
+  margin:0;
+  padding:0;
+  text-indent:2em;
+  line-height:1.3em;
+  overflow-wrap:break-word;
+}
+#content{
+  padding-left:2px;
+  padding-right:2px;
+  margin:0;
+  top:0;
+  padding-bottom:0;
+  padding-top:0;
+  position:absolute;
+  font-size:20px;
+  font-family:"Times New Roman",SimSun,STSong,STZhongsong,"Source Han Serif SC",HYDaSongJ;
+}
+div{
+  display:block;
+  text-indent:2em;
+}
+.title{
+  font-family:"title_font";
+  text-align:center;
+  text-indent:0px;
+  font-size:100px;
+}
+.author{
+  text-indent:0px;
+  font-family:Arial,Adele;
+  text-align:right;
+}
+.quote{
+	margin-top:0.25em;
+  margin-left:2em;
+  padding-left:0.5em;
+  border-left-color:rgb(255, 163, 48);
+  border-left-width:0.25em;
+  color:rgb(90,50,50);
+  border-left-style:solid;
+}
+.alias{
+  font-size:10px;
+  color:rgb(100,100,255);
+}
+.chapter{
+  text-align:center;
+  line-height:4em;
+  text-indent:0;
+}
+.announce{
+  line-height:1em!important;
+  text-indent:0px!important;
+}
+.footnoteword{
+  border-bottom-color:red;
+  border-bottom-width:2px;
+  border-bottom-style:solid;
+}
+.footnoteword:hover{
+  color:white;
+  background-color:red;
+}
+.onvisit{
+  border-bottom-color:blue;
+}
+.footnotecontent{
+  position:absolute;
+  background-color:white;
+  left:0px;
+  right:0px;
+  padding-left:1em;
+  padding-right:1em;
+  border-top: 2px solid red;
+  border-bottom: 2px solid red;
+}
+.footnotecontainer{
+  display:none;
+}
+.comment{
+  border-top: 2px solid red;
+  border-bottom: 2px solid red;
+  margin:0;
+  padding-left:0.5em;
+}
+.triangle{
+	border-color:transparent;
+	border-style:solid;
+	border-width:10px;
+	border-top-color:red;
+	height:0;
+	width:0;
+	position:absolute;
+}

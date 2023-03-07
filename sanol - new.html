@@ -1,0 +1,24 @@
+﻿<html>
+<head>
+<title>page</title>
+<link rel="stylesheet" type="text/css" href="lolita.css"/>
+</head>
+<body>
+<div id="content">
+</div>
+<script src="main/zzz.js"></script>
+<script src="main/zdata.js"></script>
+<script language="javascript">
+window.initialize=function(){
+	zzz.fetch.js("sanol.txt");
+	setTimeout(function(){
+	console.log(essay);
+	zzz.create("p",{innerHTML:essay.title,className:"title"},null,zzz.get.id("content"));
+	zzz.create("p",{innerHTML:essay.author,className:"author"},null,zzz.get.id("content"));
+	zzz.get.id("content").innerHTML+=zzz.api.render.toHTML(essay.content);
+	},100);
+}
+initialize();
+</script>
+</body>
+</html>
