@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from functions import *
-script_list=("tieba")
+script_list=("tieba",)
 log=logg('./log/log.txt')
 def to_file(src):
     if(src.find(".py")==-1):
