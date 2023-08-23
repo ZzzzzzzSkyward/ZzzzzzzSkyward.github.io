@@ -295,7 +295,7 @@ class file:
     def remove(cls,name):
         if cls.exist(name):
             if os.path.isdir(name):
-                os.rmdir(name)
+                shutil.rmtree(name)
             else:
                 os.remove(name)
 class connect:
@@ -349,22 +349,27 @@ class connect:
             receive_data,receive_address=sk.accept()
             print(receive_address)
             return_data=function(cls.read_data_from_socket(receive_data))
+            if return_data=="close":
+                receive_data.sendall(b'closed')
+                break
             return_data=create_header()+return_data
-            print("data receive end\n")
+            print("data receive end")
             receive_data.sendall(bytes(return_data,encoding='utf-8'))
-            print("data send end.\n")
+            print("data send end.")
             receive_data.close()
-            print("connection close.\n")
+            print("connection close.")
 
     #直接获取网页
     @classmethod
     def get_html(cls,url):
         print(f'html get {url}')
-        data=connect.get(url)['data']
+        data=connect.get(url)
+        if data:
+            data=data['data']
         if data:
             return code.de(data)
-        else:
             print(f'html get {url} failed')
+        return
 
     #读取socket的data
     @classmethod
@@ -957,7 +962,12 @@ class api:
             text=code.de(data)
             url=reg.search(text,"(?<=url=)[^ &]+")
             name=reg.search(text,"(?<=name=)[^ &]+")
-            isTieba=reg.search(text,"(?<=isTieba=)false|true")[0]=="true"
+            isTieba=reg.search(text,"(?<=isTieba=)false|true")
+            if isTieba:
+                isTieba=isTieba[0]=="true"
+            else:
+                print("error: no isTieba in",text)
+                isTieba=False
             if not url:
                 return "error:cannot find url"
             else:
@@ -972,9 +982,9 @@ class api:
                 name=analyze.img_name(htm.decodeComponent(name[0]),max_length=256)
             href=dir+name
             connect.retrieve(url,href)
-            return "success:"+name
+            return "{success:true,name:\""+name+"\"}"
         except Exception as e:
-            return "error:exception happened."+str(e)
+            return "{success:false,error:\""+str(e)+"\",name:\""+name+"\"}"
     @staticmethod
     def wait_for(port=5000):
         this_server=connect.listen(port,api.download_from_server)
