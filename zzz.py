@@ -156,7 +156,7 @@ class dir:
 class file:
     @classmethod
     def f(cls,path):
-        path=reg.replace(path,'\\\\','/')
+        path=path.replace('\\','/')
         return path
     @classmethod
     def d(cls,path):
@@ -924,6 +924,28 @@ class code:
         if type=="json":
             return json.dumps(data,ensure_ascii=False)
         return data.encode(type)
+    @staticmethod
+    def convert_to_int(obj):
+        if isinstance(obj, float) and obj.is_integer():
+            return int(obj)
+        return obj
+    @staticmethod
+    def minimize_json(f,t=None):
+        if t==None:
+            p=os.path.dirname(os.path.abspath(f))
+            t=p+"/min.json"
+        with open(f,"rb")as f:
+            data=json.load(f)
+        merged_json = json.dumps(data, separators=(",", ":"), default=code.convert_to_int,sort_keys=1)
+        with open(t,"w")as f:
+            f.write(merged_json)
+    @staticmethod
+    def json(data):
+        return json.dumps(data, ensure_ascii=False, separators=(",", ":"), default=code.convert_to_int, sort_keys=True)
+    @staticmethod
+    def prettyjson(data,unicode=True,indent=2,sort=True):
+        return json.dumps(data, ensure_ascii=unicode, indent=indent, sort_keys=sort)
+        
 class htmpage:
     def load(self,url):
         self.url=url
