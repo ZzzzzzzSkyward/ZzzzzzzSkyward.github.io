@@ -161,7 +161,7 @@ class file:
     @classmethod
     def d(cls,path):
         path=cls.f(path)
-        if not path[-1]=='/':
+        if len(path)>0 and path[-1]!='/':
             path=path+'/'
         return path
     #检测存在
@@ -366,9 +366,9 @@ class connect:
         data=connect.get(url)
         if data:
             data=data['data']
-        if data:
-            return code.de(data)
-            print(f'html get {url} failed')
+            if data:
+                return code.de(data)
+        print(f'html get {url} failed')
         return
 
     #读取socket的data
@@ -389,7 +389,7 @@ class connect:
                 break
             time.sleep(50)
         length=length/1024.0
-        print(f'received {length} KB data recieved')
+        print(f'received {length} KB data')
         return b''.join(buffer)
 
     @classmethod
@@ -495,6 +495,8 @@ class htm:
 class cmdType:
     @staticmethod
     def __call__(command):
+        if type(command) == "list":
+            command=' '.join(command)
         return os.system(command)
     @staticmethod
     def install(path):
@@ -945,7 +947,7 @@ class code:
     @staticmethod
     def prettyjson(data,unicode=True,indent=2,sort=True):
         return json.dumps(data, ensure_ascii=unicode, indent=indent, sort_keys=sort)
-        
+
 class htmpage:
     def load(self,url):
         self.url=url
