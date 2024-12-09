@@ -15,6 +15,22 @@ import re
 import ssl
 import json
 import filetype
+#io
+import sys,io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf8')
+#cmd
+if hasattr(sys,"ps1") and sys.ps1:
+    import rich
+    from rich import pretty,print
+    from rich import inspect as _inspect
+    from rich.markdown import Markdown as markdown
+    from rich.progress import track as tqdm
+    pretty.install()
+    def inspect(*args,**kwargs):
+        _inspect(methods=True,private=True,*args,**kwargs)
+    def look(*args,**kwargs):
+        _inspect(*args,**kwargs)
 #regexp
 regExpDatabase={}
 class regType:
@@ -270,6 +286,9 @@ class file:
     def readstr(cls,path):
         return reg.replace(code.de(cls.read(path)),'\r\n','\n')
     @classmethod
+    def openstr(cls,path):
+        return open(path,"r",encoding='utf-8')
+    @classmethod
     def shortcut(cls,fpath,name=None):
         if not fpath:
             return "require name and path"
@@ -298,6 +317,12 @@ class file:
                 shutil.rmtree(name)
             else:
                 os.remove(name)
+    @classmethod
+    def readjson(cls,name):
+        return json.loads(cls.readstr(name))
+    @classmethod
+    def writejson(cls,name,data):
+        return file.write(name,code.json(data))
 class connect:
     #get请求
     @classmethod
@@ -495,7 +520,7 @@ class htm:
 class cmdType:
     @staticmethod
     def __call__(command):
-        if type(command) == "list":
+        if type(command) == list:
             command=' '.join(command)
         return os.system(command)
     @staticmethod
@@ -911,7 +936,7 @@ class analyze:
 class code:
     @staticmethod
     def de(data):
-        for i in ['utf-8','gbk','utf-16','utf-32']:
+        for i in ['utf-8-sig','utf-8','gbk','utf-16','utf-32']:
             try:
                 return data.decode(i)
             except:
@@ -936,17 +961,17 @@ class code:
         if t==None:
             p=os.path.dirname(os.path.abspath(f))
             t=p+"/min.json"
-        with open(f,"rb")as f:
+        with open(f,"r",encoding='utf-8')as f:
             data=json.load(f)
-        merged_json = json.dumps(data, separators=(",", ":"), default=code.convert_to_int,sort_keys=1)
-        with open(t,"w")as f:
+        merged_json = json.dumps(data, separators=(",", ":"), default=code.convert_to_int,sort_keys=1,ensure_ascii=False)
+        with open(t,"w",encoding='utf-8')as f:
             f.write(merged_json)
     @staticmethod
     def json(data):
         return json.dumps(data, ensure_ascii=False, separators=(",", ":"), default=code.convert_to_int, sort_keys=True)
     @staticmethod
-    def prettyjson(data,unicode=True,indent=2,sort=True):
-        return json.dumps(data, ensure_ascii=unicode, indent=indent, sort_keys=sort)
+    def prettyjson(data,ascii=False,indent=2,sort=True):
+        return json.dumps(data, ensure_ascii=ascii, indent=indent, sort_keys=sort)
 
 class htmpage:
     def load(self,url):
